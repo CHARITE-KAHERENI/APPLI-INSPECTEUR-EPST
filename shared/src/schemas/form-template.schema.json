@@ -1,0 +1,166 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://c3-digital.local/schemas/form-template.schema.json",
+  "title": "FormTemplate",
+  "description": "Modèle (template) d'un formulaire dynamique IGE : C2, C3, C3B, C3M ou C3_DAS. Reflète shared/src/types/form-template.ts.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "code", "name", "version", "header", "sections", "signatures", "isActive"],
+  "properties": {
+    "id": { "type": "string" },
+    "code": {
+      "type": "string",
+      "enum": ["C2", "C3", "C3B", "C3M", "C3_DAS"]
+    },
+    "name": { "type": "string", "minLength": 1 },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Version sémantique du template, ex: 1.0.0"
+    },
+    "description": { "type": "string" },
+    "isActive": { "type": "boolean" },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" },
+    "header": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fields"],
+      "properties": {
+        "fields": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/formHeaderField" }
+        }
+      }
+    },
+    "sections": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/formSectionTemplate" }
+    },
+    "signatures": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["roles"],
+      "properties": {
+        "roles": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/signatureRoleTemplate" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "fieldOption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "label"],
+      "properties": {
+        "value": { "type": "string" },
+        "label": { "type": "string" }
+      }
+    },
+    "formHeaderField": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "label", "type", "required", "common", "order"],
+      "properties": {
+        "key": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "minLength": 1 },
+        "type": { "type": "string", "enum": ["text", "textarea", "date", "number", "select"] },
+        "required": { "type": "boolean" },
+        "options": { "type": "array", "items": { "$ref": "#/$defs/fieldOption" } },
+        "common": {
+          "type": "boolean",
+          "description": "true si le champ appartient au socle commun (inspecteur, établissement, entité inspectée, année scolaire, numéro de rapport)"
+        },
+        "order": { "type": "integer", "minimum": 0 },
+        "helpText": { "type": "string" }
+      }
+    },
+    "formCriterion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "maxScore", "order"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "code": { "type": "string" },
+        "label": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" },
+        "maxScore": { "const": 4 },
+        "weight": { "type": "number", "exclusiveMinimum": 0 },
+        "order": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "baremeMentionRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minPercentage", "maxPercentage", "mention"],
+      "properties": {
+        "minPercentage": { "type": "number", "minimum": 0, "maximum": 100 },
+        "maxPercentage": { "type": "number", "minimum": 0, "maximum": 100 },
+        "mention": { "type": "string", "minLength": 1 },
+        "appreciationCode": { "type": "string" }
+      }
+    },
+    "sectionBareme": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["maxScorePerCriterion", "conversionMethod", "mentionRules"],
+      "properties": {
+        "maxScorePerCriterion": { "const": 4 },
+        "conversionMethod": {
+          "type": "string",
+          "enum": ["sum_to_percentage", "average_to_percentage"]
+        },
+        "mentionRules": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/baremeMentionRule" }
+        }
+      }
+    },
+    "adviceZoneTemplate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "label", "required"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "label": { "type": "string", "minLength": 1 },
+        "placeholder": { "type": "string" },
+        "required": { "type": "boolean" }
+      }
+    },
+    "formSectionTemplate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "code", "title", "order", "criteria", "bareme", "adviceZone"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "code": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" },
+        "order": { "type": "integer", "minimum": 0 },
+        "criteria": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/formCriterion" }
+        },
+        "bareme": { "$ref": "#/$defs/sectionBareme" },
+        "adviceZone": { "$ref": "#/$defs/adviceZoneTemplate" }
+      }
+    },
+    "signatureRoleTemplate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "label", "required", "order"],
+      "properties": {
+        "role": { "type": "string", "enum": ["enseignant", "chef_etablissement", "inspecteur"] },
+        "label": { "type": "string", "minLength": 1 },
+        "required": { "type": "boolean" },
+        "order": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}

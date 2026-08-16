@@ -1,0 +1,43 @@
+# --- Node / npm workspaces (backend, web, shared) ---
+node_modules/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+.env
+.env.local
+npm-debug.log*
+
+# --- Vite / React (web) ---
+web/dist/
+web/.vite/
+
+# --- NestJS (backend) ---
+backend/dist/
+
+# --- Flutter / Dart (mobile) ---
+mobile/.dart_tool/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/.packages
+mobile/.pub-cache/
+mobile/.pub/
+mobile/build/
+mobile/**/android/.gradle/
+mobile/**/android/local.properties
+mobile/**/ios/Pods/
+mobile/**/ios/.symlinks/
+mobile/**/ios/Flutter/Flutter.podspec
+mobile/**/*.g.dart
+mobile/**/*.freezed.dart
+
+# --- IDE / OS ---
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+
+# --- Logs ---
+*.log

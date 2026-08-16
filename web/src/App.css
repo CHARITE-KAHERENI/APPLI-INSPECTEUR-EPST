@@ -1,0 +1,22 @@
+.app {
+  max-width: 640px;
+  margin: 4rem auto;
+  padding: 0 1.5rem;
+  text-align: left;
+  font-family: system-ui, sans-serif;
+}
+
+.form-codes {
+  display: flex;
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+  margin-top: 1.5rem;
+}
+
+.form-codes li {
+  padding: 0.25rem 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 999px;
+  font-size: 0.875rem;
+}

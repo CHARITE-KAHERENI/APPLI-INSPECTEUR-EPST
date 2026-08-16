@@ -1,0 +1,34 @@
+name: c3_digital
+description: >
+  Application mobile Flutter (Android + iOS) du projet c3-digital —
+  saisie hors-ligne des formulaires d'inspection de l'IGE (RDC) :
+  C2, C3, C3B, C3M, C3_DAS.
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: '>=3.4.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  # Dépendances prévues pour les prochaines itérations (saisie hors-ligne,
+  # synchronisation avec le backend, capture de signature) :
+  # http: ^1.2.0            # appels vers l'API NestJS
+  # sqflite: ^2.3.0         # persistance locale des brouillons (offline-first)
+  # signature: ^5.5.0       # capture des signatures manuscrites
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    # Copies de shared/src/form-templates (voir scripts/sync-mobile-assets.sh).
+    - assets/form-templates/c3.json
+    - assets/form-templates/c3m.json

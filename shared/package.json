@@ -1,0 +1,22 @@
+{
+  "name": "@c3-digital/shared",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Modèle de données partagé (types + JSON Schema) du formulaire dynamique c3-digital (C2, C3, C3B, C3M, C3_DAS).",
+  "license": "UNLICENSED",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "src/schemas",
+    "src/form-templates"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

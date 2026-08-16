@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://c3-digital.local/schemas/form-submission.schema.json",
+  "title": "FormSubmission",
+  "description": "Un formulaire rempli, rattaché à un FormTemplate. Reflète shared/src/types/form-submission.ts.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "templateId",
+    "formCode",
+    "reportNumber",
+    "schoolYear",
+    "header",
+    "sections",
+    "signatures",
+    "status",
+    "createdAt",
+    "updatedAt"
+  ],
+  "properties": {
+    "id": { "type": "string" },
+    "templateId": { "type": "string" },
+    "formCode": { "type": "string", "enum": ["C2", "C3", "C3B", "C3M", "C3_DAS"] },
+    "reportNumber": { "type": "string", "minLength": 1 },
+    "schoolYear": { "type": "string", "minLength": 1, "pattern": "^\\d{4}-\\d{4}$" },
+    "header": {
+      "type": "object",
+      "additionalProperties": { "type": ["string", "number", "null"] }
+    },
+    "sections": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/sectionResponse" }
+    },
+    "signatures": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/signatureResponse" }
+    },
+    "status": { "type": "string", "enum": ["brouillon", "soumis", "synchronise"] },
+    "createdBy": { "type": "string" },
+    "deviceId": { "type": "string" },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" },
+    "submittedAt": { "type": "string", "format": "date-time" },
+    "syncedAt": { "type": "string", "format": "date-time" }
+  },
+  "$defs": {
+    "criterionResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["criterionId", "score"],
+      "properties": {
+        "criterionId": { "type": "string", "minLength": 1 },
+        "score": { "type": "integer", "minimum": 0, "maximum": 4 },
+        "comment": { "type": "string" }
+      }
+    },
+    "sectionResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sectionId", "criteria", "totalScore", "maxScore", "percentage", "mention"],
+      "properties": {
+        "sectionId": { "type": "string", "minLength": 1 },
+        "criteria": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/criterionResponse" }
+        },
+        "totalScore": { "type": "number", "minimum": 0 },
+        "maxScore": { "type": "number", "minimum": 0 },
+        "percentage": { "type": "number", "minimum": 0, "maximum": 100 },
+        "mention": { "type": "string", "minLength": 1 },
+        "advice": { "type": "string" }
+      }
+    },
+    "signatureResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role"],
+      "properties": {
+        "role": { "type": "string", "enum": ["enseignant", "chef_etablissement", "inspecteur"] },
+        "signedByName": { "type": "string" },
+        "signedAt": { "type": "string", "format": "date-time" },
+        "signatureImageBase64": { "type": "string" }
+      }
+    }
+  }
+}
