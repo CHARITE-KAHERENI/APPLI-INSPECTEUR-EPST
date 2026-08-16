@@ -1,9 +1,9 @@
 {
-  "id": "template-c3-v1.0.0",
+  "id": "template-c3-v1.1.0",
   "code": "C3",
   "name": "C3 - Inspection pédagogique (leçon théorique)",
-  "version": "1.0.0",
-  "description": "Transcription du formulaire officiel IGE C3 (documents C3_R / C3_V — recto/verso). Ministère de l'Enseignement Primaire, Secondaire et Professionnel.",
+  "version": "1.1.0",
+  "description": "Transcription du formulaire officiel IGE C3 (document C3_REVUE, qui met à jour C3_R/C3_V — recto/verso). Ministère de l'Education Nationale et Nouvelle Citoyenneté.",
   "isActive": true,
   "header": {
     "fields": [
@@ -692,7 +692,7 @@
         {
           "id": "c3-c29-3",
           "code": "2.9.3",
-          "label": "Fiche de la leçon",
+          "label": "Fiche pédagogique /d'exploitation",
           "maxScore": 4,
           "order": 3
         },
@@ -1058,23 +1058,23 @@
     "rows": [
       {
         "sectionId": "c3-s21",
-        "label": "2.11.1. PERSONNALITÉ"
+        "label": "2.11.1. PERSONNALITE"
       },
       {
         "sectionId": "c3-s22",
-        "label": "2.11.2. MAÎTRISE DE LA MATIÈRE"
+        "label": "2.11.2. MAITRISE DE LA MATIERE"
       },
       {
         "sectionId": "c3-s23",
-        "label": "2.11.3. MAÎTRISE DU PROGRAMME /CURRICULUM"
+        "label": "2.11.3. MAITRISE DU PROGRAMME"
       },
       {
         "sectionId": "c3-s24",
-        "label": "2.11.4. STRUCTURE DE LA LEÇON"
+        "label": "2.11.4. STRUCTURE DE LA SEQUENCE"
       },
       {
         "sectionId": "c3-s25",
-        "label": "2.11.5. STRATÉGIES"
+        "label": "2.11.5. STRATEGIES"
       },
       {
         "sectionId": "c3-s26",

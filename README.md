@@ -10,7 +10,7 @@ La plateforme couvre les **5 formulaires officiels** de l'IGE :
 | `C2`      | Inspection administrative                                          | ✅ transcrit |
 | `C3`      | Inspection pédagogique (leçon théorique)                           | ✅ transcrit |
 | `C3B`     | Inspection pédagogique (leçon pratique)                            | ✅ transcrit |
-| `C3M`     | Rapport d'inspection du personnel de maîtrise / direction          | ⏳ placeholder (document officiel non encore fourni) |
+| `C3M`     | Inspection pédagogique (enseignement maternel)                     | ✅ transcrit |
 | `C3_DAS`  | Inspection pédagogique (séquence didactique)                       | ✅ transcrit |
 
 ## Architecture
@@ -61,11 +61,10 @@ détail, y compris les quelques coquilles des documents sources
 transcrites telles quelles (numérotation dupliquée, valeur déduite par
 calcul là où un chiffre est tronqué à l'impression...).
 
-Les configurations JSON de **C2, C3, C3B et C3_DAS**
-(`shared/forms/{c2,c3,c3b,c3_das}.json`) sont des transcriptions complètes
-des documents officiels fournis. **C3M** (`shared/forms/c3m.json`) reste
-un squelette `PLACEHOLDER` : aucun document officiel n'a encore été fourni
-pour ce formulaire.
+Les 5 configurations JSON (`shared/forms/*.json`) sont des transcriptions
+complètes des documents officiels fournis. Note : contrairement à une
+hypothèse initiale, "C3M" désigne l'inspection pédagogique de
+l'**enseignement maternel** (et non le personnel de maîtrise/direction).
 
 ### Backend (`/backend`)
 
@@ -108,10 +107,10 @@ npm run dev --workspace=web     # http://localhost:5173
 
 ## Prochaines étapes
 
-- Contenu détaillé (rubriques, barème officiel) du formulaire **C3M** —
-  seul formulaire encore en `PLACEHOLDER`.
+- Moteur de rendu dynamique mobile (`DynamicFormScreen`) consommant les 5
+  configurations `shared/forms/*.json`.
 - Génération des projets natifs mobile (`flutter create .`) et
-  implémentation de la saisie hors-ligne + synchronisation.
+  implémentation de la synchronisation avec le backend.
 - Interface web de saisie/consultation des formulaires, s'appuyant sur
   `shared/forms/*.json` et `computeSectionScore`.
 - Authentification et autorisations par rôle (inspecteur, chef

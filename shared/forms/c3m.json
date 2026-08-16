@@ -1,10 +1,10 @@
 {
-  "id": "template-c3m-v0.2.0",
+  "id": "template-c3m-v1.0.0",
   "code": "C3M",
-  "name": "C3M - Rapport d'inspection du personnel de maîtrise / direction",
-  "version": "0.2.0",
-  "description": "PLACEHOLDER — structure initiale du formulaire C3M, alignée sur le nouveau schéma (conversionTable, fieldGroups, synthesis). Aucun document officiel C3M n'a encore été fourni : les libellés exacts des sections et critères restent à intégrer.",
-  "isActive": false,
+  "name": "C3M - Inspection pédagogique (enseignement maternel)",
+  "version": "1.0.0",
+  "description": "Transcription du formulaire officiel IGE C3M (document C3M_REVUE). Ministère de l'Education Nationale et Nouvelle Citoyenneté. Contrairement à ce qui avait été supposé initialement, \"M\" désigne l'enseignement Maternel (et non le personnel de maîtrise/direction).",
+  "isActive": true,
   "header": {
     "fields": [
       {
@@ -17,23 +17,95 @@
         "order": 1
       },
       {
+        "key": "sexe_inspecteur",
+        "label": "Sexe",
+        "type": "select",
+        "required": false,
+        "common": false,
+        "order": 2,
+        "options": [
+          {
+            "value": "M",
+            "label": "M"
+          },
+          {
+            "value": "F",
+            "label": "F"
+          }
+        ]
+      },
+      {
+        "key": "niveau_discipline",
+        "code": "02",
+        "label": "Niveau / Discipline (s)",
+        "type": "text",
+        "required": false,
+        "common": false,
+        "order": 3
+      },
+      {
+        "key": "poste_attache",
+        "code": "03",
+        "label": "Poste d'attache",
+        "type": "text",
+        "required": false,
+        "common": false,
+        "order": 4
+      },
+      {
+        "key": "bp",
+        "code": "04",
+        "label": "B.P.               à",
+        "type": "text",
+        "required": false,
+        "common": false,
+        "order": 5
+      },
+      {
+        "key": "telephone_email",
+        "code": "05",
+        "label": "Téléphone :                          e-mail :",
+        "type": "text",
+        "required": false,
+        "common": false,
+        "order": 6
+      },
+      {
         "key": "etablissement",
         "code": "06",
         "label": "Etablissement",
         "type": "text",
         "required": true,
         "common": true,
-        "order": 2
+        "order": 7
       },
       {
-        "key": "entite_inspectee",
+        "key": "enseignant",
         "code": "07",
-        "label": "Entité inspectée",
+        "label": "Enseignant",
         "type": "text",
         "required": true,
         "common": true,
-        "order": 3,
-        "helpText": "Enseignant/entité inspectée — pour le C3M, le membre du personnel de maîtrise/direction inspecté."
+        "order": 8,
+        "helpText": "Enseignant / entité inspectée"
+      },
+      {
+        "key": "dernier_c3",
+        "code": "08",
+        "label": "Dernier C3 : Inspecteur :                           Date :                           Cote :",
+        "type": "text",
+        "required": false,
+        "common": false,
+        "order": 9
+      },
+      {
+        "key": "charge_hebdomadaire",
+        "code": "09",
+        "label": "Charge hebdomadaire",
+        "type": "text",
+        "required": false,
+        "common": false,
+        "order": 10
       },
       {
         "key": "annee_scolaire",
@@ -42,7 +114,8 @@
         "type": "text",
         "required": true,
         "common": true,
-        "order": 4
+        "order": 11,
+        "helpText": "Format : 20.. - 20.."
       },
       {
         "key": "numero_rapport",
@@ -51,31 +124,191 @@
         "type": "text",
         "required": true,
         "common": true,
-        "order": 5
+        "order": 12
+      },
+      {
+        "key": "interesse",
+        "label": "Intéressé",
+        "type": "select",
+        "required": false,
+        "common": false,
+        "order": 13,
+        "options": [
+          {
+            "value": "Etablissement",
+            "label": "Etablissement"
+          },
+          {
+            "value": "IGE",
+            "label": "IGE"
+          },
+          {
+            "value": "IPP",
+            "label": "IPP"
+          },
+          {
+            "value": "Pool",
+            "label": "Pool"
+          },
+          {
+            "value": "Proved",
+            "label": "Proved"
+          },
+          {
+            "value": "Gestionnaire",
+            "label": "Gestionnaire"
+          },
+          {
+            "value": "A.T./Bourgm.",
+            "label": "A.T./Bourgm."
+          },
+          {
+            "value": "Secteur",
+            "label": "Secteur"
+          },
+          {
+            "value": "Classement",
+            "label": "Classement"
+          }
+        ],
+        "helpText": "Colonne de classement imprimée sur le document officiel."
+      },
+      {
+        "key": "classification",
+        "label": "Classement",
+        "type": "select",
+        "required": false,
+        "common": false,
+        "order": 14,
+        "options": [
+          {
+            "value": "M",
+            "label": "M"
+          },
+          {
+            "value": "P",
+            "label": "P"
+          },
+          {
+            "value": "S",
+            "label": "S"
+          }
+        ],
+        "helpText": "Codes M/P/S imprimés tels quels sur le document officiel (signification non légendée sur le formulaire source)."
       }
     ]
   },
-  "fieldGroups": [],
+  "fieldGroups": [
+    {
+      "id": "c3m-activite-inspectee",
+      "code": "1",
+      "title": "Activité(s) inspectée(s)",
+      "fields": [
+        {
+          "key": "branche",
+          "label": "Branche",
+          "type": "text",
+          "required": false,
+          "common": false,
+          "order": 1
+        },
+        {
+          "key": "classe",
+          "label": "Classe",
+          "type": "text",
+          "required": false,
+          "common": false,
+          "order": 2
+        },
+        {
+          "key": "heure",
+          "label": "Heure",
+          "type": "text",
+          "required": false,
+          "common": false,
+          "order": 3
+        },
+        {
+          "key": "effectif_p_i",
+          "label": "Effectif P / I",
+          "type": "text",
+          "required": false,
+          "common": false,
+          "order": 4
+        },
+        {
+          "key": "sujet",
+          "label": "Sujet",
+          "type": "textarea",
+          "required": false,
+          "common": false,
+          "order": 5
+        }
+      ]
+    }
+  ],
   "sections": [
     {
-      "id": "c3m-sS1",
-      "code": "S1",
-      "title": "Section à compléter (exemple de structure)",
+      "id": "c3m-s21",
+      "code": "2.1",
+      "title": "Personnalité",
       "order": 1,
       "criteria": [
         {
-          "id": "c3m-cS1-1",
-          "code": "S1.1",
-          "label": "Critère d'exemple 1",
+          "id": "c3m-c21-1",
+          "code": "2.1.1",
+          "label": "Présentation",
           "maxScore": 4,
           "order": 1
         },
         {
-          "id": "c3m-cS1-2",
-          "code": "S1.2",
-          "label": "Critère d'exemple 2",
+          "id": "c3m-c21-2",
+          "code": "2.1.2",
+          "label": "Elocution",
           "maxScore": 4,
           "order": 2
+        },
+        {
+          "id": "c3m-c21-3",
+          "code": "2.1.3",
+          "label": "Autorité",
+          "maxScore": 4,
+          "order": 3
+        },
+        {
+          "id": "c3m-c21-4",
+          "code": "2.1.4",
+          "label": "Sens de responsabilité",
+          "maxScore": 4,
+          "order": 4
+        },
+        {
+          "id": "c3m-c21-5",
+          "code": "2.1.5",
+          "label": "Assiduité",
+          "maxScore": 4,
+          "order": 5
+        },
+        {
+          "id": "c3m-c21-6",
+          "code": "2.1.6",
+          "label": "Tenue de la classe",
+          "maxScore": 4,
+          "order": 6
+        },
+        {
+          "id": "c3m-c21-7",
+          "code": "2.1.7",
+          "label": "Décoration",
+          "maxScore": 4,
+          "order": 7
+        },
+        {
+          "id": "c3m-c21-8",
+          "code": "2.1.8",
+          "label": "Activités parascolaires",
+          "maxScore": 4,
+          "order": 8
         }
       ],
       "observationsLabel": "Observations",
@@ -84,8 +317,499 @@
         "label": "Conseils",
         "required": false
       },
-      "custom_fields": [],
-      "description": "PLACEHOLDER — remplacer par les rubriques officielles du C3M (ex: gestion administrative, animation pédagogique, gestion du personnel, etc.)."
+      "custom_fields": []
+    },
+    {
+      "id": "c3m-s22",
+      "code": "2.2",
+      "title": "Maîtrise de la matière",
+      "order": 2,
+      "criteria": [
+        {
+          "id": "c3m-c22-1",
+          "code": "2.2.1",
+          "label": "Exactitude",
+          "maxScore": 4,
+          "order": 1
+        },
+        {
+          "id": "c3m-c22-2",
+          "code": "2.2.2",
+          "label": "facilité de la transmission",
+          "maxScore": 4,
+          "order": 2
+        },
+        {
+          "id": "c3m-c22-3",
+          "code": "2.2.3",
+          "label": "Dosage",
+          "maxScore": 4,
+          "order": 3
+        },
+        {
+          "id": "c3m-c22-4",
+          "code": "2.2.4",
+          "label": "Formulation",
+          "maxScore": 4,
+          "order": 4
+        },
+        {
+          "id": "c3m-c22-5",
+          "code": "2.2.5",
+          "label": "Adaptation au niveau",
+          "maxScore": 4,
+          "order": 5
+        },
+        {
+          "id": "c3m-c22-6",
+          "code": "2.2.6",
+          "label": "Réponses aux questions",
+          "maxScore": 4,
+          "order": 6
+        },
+        {
+          "id": "c3m-c22-7",
+          "code": "2.2.7",
+          "label": "Autoformation",
+          "maxScore": 4,
+          "order": 7
+        }
+      ],
+      "observationsLabel": "Observations",
+      "adviceZone": {
+        "enabled": true,
+        "label": "Conseils",
+        "required": false
+      },
+      "custom_fields": []
+    },
+    {
+      "id": "c3m-s23",
+      "code": "2.3",
+      "title": "Maîtrise du programme",
+      "order": 3,
+      "criteria": [
+        {
+          "id": "c3m-c23-1",
+          "code": "2.3.1",
+          "label": "Connaissance",
+          "maxScore": 4,
+          "order": 1
+        },
+        {
+          "id": "c3m-c23-2",
+          "code": "2.3.2",
+          "label": "Conformité",
+          "maxScore": 4,
+          "order": 2
+        },
+        {
+          "id": "c3m-c23-3",
+          "code": "2.3.3",
+          "label": "Coordination",
+          "maxScore": 4,
+          "order": 3
+        },
+        {
+          "id": "c3m-c23-4",
+          "code": "2.3.4",
+          "label": "Adaptation au milieu",
+          "maxScore": 4,
+          "order": 4
+        }
+      ],
+      "observationsLabel": "Observations",
+      "adviceZone": {
+        "enabled": true,
+        "label": "Conseils",
+        "required": false
+      },
+      "custom_fields": []
+    },
+    {
+      "id": "c3m-s24",
+      "code": "2.4",
+      "title": "Structure de l'activité",
+      "order": 4,
+      "criteria": [
+        {
+          "id": "c3m-c24-1",
+          "code": "2.4.1",
+          "label": "Prérequis",
+          "maxScore": 4,
+          "order": 1
+        },
+        {
+          "id": "c3m-c24-2",
+          "code": "2.4.2",
+          "label": "Motivation",
+          "maxScore": 4,
+          "order": 2
+        },
+        {
+          "id": "c3m-c24-3",
+          "code": "2.4.3",
+          "label": "Analyse",
+          "maxScore": 4,
+          "order": 3
+        },
+        {
+          "id": "c3m-c24-4",
+          "code": "2.4.4",
+          "label": "Synthèse",
+          "maxScore": 4,
+          "order": 4
+        },
+        {
+          "id": "c3m-c24-5",
+          "code": "2.4.5",
+          "label": "Application",
+          "maxScore": 4,
+          "order": 5
+        }
+      ],
+      "observationsLabel": "Observations",
+      "adviceZone": {
+        "enabled": true,
+        "label": "Conseils",
+        "required": false
+      },
+      "custom_fields": []
+    },
+    {
+      "id": "c3m-s25",
+      "code": "2.5",
+      "title": "Stratégies",
+      "order": 5,
+      "criteria": [
+        {
+          "id": "c3m-c25-1",
+          "code": "2.5.1",
+          "label": "Didactique générale",
+          "maxScore": 4,
+          "order": 1
+        },
+        {
+          "id": "c3m-c25-2",
+          "code": "2.5.2",
+          "label": "Didactique de discipline",
+          "maxScore": 4,
+          "order": 2
+        },
+        {
+          "id": "c3m-c25-3",
+          "code": "2.5.3",
+          "label": "Imagination pédag.",
+          "maxScore": 4,
+          "order": 3
+        },
+        {
+          "id": "c3m-c25-4",
+          "code": "2.5.4",
+          "label": "Facilité de transmission",
+          "maxScore": 4,
+          "order": 4
+        }
+      ],
+      "observationsLabel": "Observations",
+      "adviceZone": {
+        "enabled": true,
+        "label": "Conseils",
+        "required": false
+      },
+      "custom_fields": []
+    },
+    {
+      "id": "c3m-s26",
+      "code": "2.6",
+      "title": "Moyens d'enseignement",
+      "order": 6,
+      "criteria": [
+        {
+          "id": "c3m-c26-1",
+          "code": "2.6.1",
+          "label": "Brochures",
+          "maxScore": 4,
+          "order": 1
+        },
+        {
+          "id": "c3m-c26-2",
+          "code": "2.6.2",
+          "label": "Matériel didactique",
+          "maxScore": 4,
+          "order": 2
+        },
+        {
+          "id": "c3m-c26-3",
+          "code": "2.6.3",
+          "label": "Tableau",
+          "maxScore": 4,
+          "order": 3
+        },
+        {
+          "id": "c3m-c26-4",
+          "code": "2.6.4",
+          "label": "Ardoise",
+          "maxScore": 4,
+          "order": 4
+        },
+        {
+          "id": "c3m-c26-5",
+          "code": "2.6.5",
+          "label": "Matériel médiatique",
+          "maxScore": 4,
+          "order": 5
+        }
+      ],
+      "observationsLabel": "Observations",
+      "adviceZone": {
+        "enabled": true,
+        "label": "Conseils",
+        "required": false
+      },
+      "custom_fields": []
+    },
+    {
+      "id": "c3m-s27",
+      "code": "2.7",
+      "title": "Participation des apprenants",
+      "order": 7,
+      "criteria": [
+        {
+          "id": "c3m-c27-1",
+          "code": "2.7.1",
+          "label": "Réactions",
+          "maxScore": 4,
+          "order": 1
+        },
+        {
+          "id": "c3m-c27-2",
+          "code": "2.7.2",
+          "label": "Travail individuel",
+          "maxScore": 4,
+          "order": 2
+        },
+        {
+          "id": "c3m-c27-3",
+          "code": "2.7.3",
+          "label": "Travail de groupe",
+          "maxScore": 4,
+          "order": 3
+        },
+        {
+          "id": "c3m-c27-4",
+          "code": "2.7.4",
+          "label": "Attitude",
+          "maxScore": 4,
+          "order": 4
+        },
+        {
+          "id": "c3m-c27-5",
+          "code": "2.7.5",
+          "label": "Initiative",
+          "maxScore": 4,
+          "order": 5
+        },
+        {
+          "id": "c3m-c27-6",
+          "code": "2.7.6",
+          "label": "Ambiance de travail",
+          "maxScore": 4,
+          "order": 6
+        }
+      ],
+      "observationsLabel": "Observations",
+      "adviceZone": {
+        "enabled": true,
+        "label": "Conseils",
+        "required": false
+      },
+      "custom_fields": []
+    },
+    {
+      "id": "c3m-s28",
+      "code": "2.8",
+      "title": "Documents des apprenants",
+      "order": 8,
+      "criteria": [
+        {
+          "id": "c3m-c28-1",
+          "code": "2.8.1",
+          "label": "Cahiers d'exercices",
+          "maxScore": 4,
+          "order": 1
+        },
+        {
+          "id": "c3m-c28-2",
+          "code": "2.8.2",
+          "label": "Travaux sur papier",
+          "maxScore": 4,
+          "order": 2
+        },
+        {
+          "id": "c3m-c28-3",
+          "code": "2.8.3",
+          "label": "Album (s) à colorier",
+          "maxScore": 4,
+          "order": 3
+        },
+        {
+          "id": "c3m-c28-4",
+          "code": "2.8.4",
+          "label": "Bandes dessinées",
+          "maxScore": 4,
+          "order": 4
+        },
+        {
+          "id": "c3m-c28-5",
+          "code": "2.8.5",
+          "label": "Revues illustrées",
+          "maxScore": 4,
+          "order": 5
+        },
+        {
+          "id": "c3m-c28-6",
+          "code": "2.8.6",
+          "label": "Collections d'images",
+          "maxScore": 4,
+          "order": 6
+        }
+      ],
+      "observationsLabel": "Observations",
+      "adviceZone": {
+        "enabled": true,
+        "label": "Conseils",
+        "required": false
+      },
+      "custom_fields": []
+    },
+    {
+      "id": "c3m-s29",
+      "code": "2.9",
+      "title": "Documents de l'enseignant",
+      "order": 9,
+      "criteria": [
+        {
+          "id": "c3m-c29-1",
+          "code": "2.9.1",
+          "label": "Prévisions des matières",
+          "maxScore": 4,
+          "order": 1
+        },
+        {
+          "id": "c3m-c29-2",
+          "code": "2.9.2",
+          "label": "Journal de classe",
+          "maxScore": 4,
+          "order": 2
+        },
+        {
+          "id": "c3m-c29-3",
+          "code": "2.9.3",
+          "label": "Fiche de l'activité",
+          "maxScore": 4,
+          "order": 3
+        },
+        {
+          "id": "c3m-c29-4",
+          "code": "2.9.4",
+          "label": "Fichier des activités",
+          "maxScore": 4,
+          "order": 4
+        },
+        {
+          "id": "c3m-c29-5",
+          "code": "2.9.5",
+          "label": "Fiches des appréciations",
+          "maxScore": 4,
+          "order": 5
+        },
+        {
+          "id": "c3m-c29-6",
+          "code": "2.9.6",
+          "label": "Cahier d'exercices",
+          "maxScore": 4,
+          "order": 6
+        },
+        {
+          "id": "c3m-c29-7",
+          "code": "2.9.7",
+          "label": "Fichier d'observation",
+          "maxScore": 4,
+          "order": 7
+        },
+        {
+          "id": "c3m-c29-8",
+          "code": "2.9.7",
+          "label": "Résultats aux tests",
+          "maxScore": 4,
+          "order": 8
+        },
+        {
+          "id": "c3m-c29-9",
+          "code": "2.9.9",
+          "label": "Documentation autre",
+          "maxScore": 4,
+          "order": 9
+        },
+        {
+          "id": "c3m-c29-10",
+          "code": "2.9.10",
+          "label": "Registre d'appel",
+          "maxScore": 4,
+          "order": 10
+        }
+      ],
+      "observationsLabel": "Observations",
+      "adviceZone": {
+        "enabled": true,
+        "label": "Conseils",
+        "required": false
+      },
+      "custom_fields": []
+    },
+    {
+      "id": "c3m-s210",
+      "code": "2.10",
+      "title": "Evaluation de l'acquis",
+      "order": 10,
+      "criteria": [
+        {
+          "id": "c3m-c210-1",
+          "code": "2.10.1",
+          "label": "Evaluation progressive",
+          "maxScore": 4,
+          "order": 1
+        },
+        {
+          "id": "c3m-c210-2",
+          "code": "2.10.2",
+          "label": "Evaluation finale",
+          "maxScore": 4,
+          "order": 2
+        },
+        {
+          "id": "c3m-c210-3",
+          "code": "2.10.3",
+          "label": "Atteinte de l'objectif",
+          "maxScore": 4,
+          "order": 3
+        },
+        {
+          "id": "c3m-c210-4",
+          "code": "2.10.4",
+          "label": "Evaluation inspectorale",
+          "maxScore": 4,
+          "order": 4
+        }
+      ],
+      "observationsLabel": "Observations",
+      "adviceZone": {
+        "enabled": true,
+        "label": "Conseils",
+        "required": false
+      },
+      "custom_fields": []
     }
   ],
   "conversionTable": {
@@ -351,23 +1075,59 @@
     ]
   },
   "synthesis": {
-    "title": "Evaluation synthétique",
+    "title": "2.11. Evaluation synthétique",
     "rows": [
       {
-        "sectionId": "c3m-sS1",
-        "label": "Section à compléter (exemple de structure)"
+        "sectionId": "c3m-s21",
+        "label": "2.11.1. PERSONNALITE"
+      },
+      {
+        "sectionId": "c3m-s22",
+        "label": "2.11.2. MAITRISE DE LA MATIERE"
+      },
+      {
+        "sectionId": "c3m-s23",
+        "label": "2.11.3. MAITRISE DU PROGRAMME"
+      },
+      {
+        "sectionId": "c3m-s24",
+        "label": "2.11.4. STRUCTURE DE LA LECON"
+      },
+      {
+        "sectionId": "c3m-s25",
+        "label": "2.11.5. STRATEGIES"
+      },
+      {
+        "sectionId": "c3m-s26",
+        "label": "2.11.6. MOYENS D'ENSEIGNEMENT"
+      },
+      {
+        "sectionId": "c3m-s27",
+        "label": "2.11.7. PARTICIPATION DES APPRENANTS"
+      },
+      {
+        "sectionId": "c3m-s28",
+        "label": "2.11.8. DOCUMENTS DES APPRENANTS"
+      },
+      {
+        "sectionId": "c3m-s29",
+        "label": "2.11.9. DOCUMENTS DE L'ENSEIGNANT"
+      },
+      {
+        "sectionId": "c3m-s210",
+        "label": "2.11.10. EVALUATION DE L'ACQUIS"
       }
     ],
-    "conversionCriteriaCount": 1,
+    "conversionCriteriaCount": 10,
     "finalMentionLabel": "NOTE FINALE",
-    "finalMentionHelpText": "PLACEHOLDER",
+    "finalMentionHelpText": "Une des cinq notes traditionnelles en toutes lettres",
     "sealLabel": "Sceau de l'établissement"
   },
   "signatures": {
     "roles": [
       {
         "role": "enseignant",
-        "label": "Entité inspectée — pour prise de connaissance et réception",
+        "label": "Enseignant(e) inspecté(e) — pour prise de connaissance et réception",
         "required": true,
         "order": 1
       },

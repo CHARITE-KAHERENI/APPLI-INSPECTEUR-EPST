@@ -19,11 +19,11 @@ shared/
 │       ├── form-template.schema.json
 │       └── form-submission.schema.json
 └── forms/                          # Configurations JSON des 5 formulaires officiels IGE
-    ├── c2.json        # Inspection administrative
+    ├── c2.json         # Inspection administrative
     ├── c3.json         # Inspection pédagogique (leçon théorique)
     ├── c3b.json        # Inspection pédagogique (leçon pratique)
-    ├── c3m.json         # Rapport d'inspection du personnel de maîtrise/direction — PLACEHOLDER
-    └── c3_das.json      # Inspection pédagogique (séquence didactique)
+    ├── c3m.json        # Inspection pédagogique (enseignement maternel)
+    └── c3_das.json     # Inspection pédagogique (séquence didactique)
 ```
 
 ## Le modèle de "formulaire dynamique"
@@ -86,31 +86,35 @@ potentiellement hors-ligne, vers le backend).
 
 ## État des fichiers de configuration
 
-`c2.json`, `c3.json`, `c3b.json` et `c3_das.json` sont des **transcriptions
-complètes et vérifiées** des documents officiels fournis (C2_REVUE,
-C3_R/C3_V, C3B_REVUE, C3_DAS_REVUE) : libellés, numérotation et tableaux de
-conversion respectent exactement les documents sources, y compris leurs
+Les 5 formulaires sont des **transcriptions complètes et vérifiées** des
+documents officiels fournis (C2_REVUE, C3_REVUE, C3B_REVUE, C3M_REVUE,
+C3_DAS_REVUE) : libellés, numérotation et tableaux de conversion
+respectent exactement les documents sources, y compris leurs
 particularités :
 
-- Le tableau de conversion imprimé sur C3_R/C3_V et C3B_REVUE comporte une
-  coquille d'impression à la ligne N=8, colonne "3" ("25 – 2", chiffre
-  final tronqué) : la valeur `22` utilisée dans `c3.json`/`c3b.json` est
-  **déduite par calcul** (les 5 plages d'une ligne doivent couvrir
-  exactement `0..(4×N)` sans trou ni chevauchement), pas recopiée du
-  document — vérifié par un test de cohérence dans le générateur source de
-  ces fichiers.
+- **C3M** désigne l'inspection pédagogique de l'**enseignement maternel**
+  ("M" = Maternel), pas le "personnel de maîtrise/direction" comme
+  supposé avant réception du document officiel.
+- Le tableau de conversion imprimé sur C3_REVUE, C3B_REVUE et C3M_REVUE
+  comporte une coquille d'impression à la ligne N=8, colonne "3"
+  ("25 – 2", chiffre final tronqué) : la valeur `22` utilisée dans
+  `c3.json`/`c3b.json`/`c3m.json` est **déduite par calcul** (les 5 plages
+  d'une ligne doivent couvrir exactement `0..(4×N)` sans trou ni
+  chevauchement), pas recopiée du document — vérifié par un test de
+  cohérence dans le générateur source de ces fichiers.
 - C3_DAS_REVUE contient une coquille similaire ("2.11.4. RGANISATION...",
   lettre "O" manquante) et une numérotation de critère dupliquée
-  ("2.8.6" apparaît deux fois) : transcrites telles quelles, sans
-  reformulation.
+  ("2.8.6" apparaît deux fois) ; C3M_REVUE a la même particularité
+  ("2.9.7" apparaît deux fois, pour "Fichier d'observation" et "Résultats
+  aux tests") : transcrites telles quelles, sans reformulation.
 - Le titre imprimé de la section "2.10. Evaluation de l'acquis" de
   C3_DAS_REVUE ne correspond pas à ses critères (qui portent en réalité
   sur les documents des apprenants, comme le confirme la ligne
   "2.11.10. DOCUMENTS DES APPRENANTS" du tableau de synthèse) — transcrit
   tel quel également.
-
-`c3m.json` reste un **squelette placeholder** (`isActive: false`) :
-aucun document officiel C3M n'a encore été fourni.
+- `c3.json` est basé sur C3_REVUE (qui met à jour C3_R/C3_V : nom du
+  ministère, libellé du critère 2.9.3, libellé de la ligne de synthèse
+  2.11.4).
 
 ## Utilisation
 
