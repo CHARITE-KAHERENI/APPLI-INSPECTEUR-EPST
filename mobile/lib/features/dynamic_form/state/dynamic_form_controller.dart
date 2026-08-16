@@ -237,6 +237,13 @@ class DynamicFormController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Ne notifie pas les listeners — voir [updateHeaderField].
+  void setSignaturePlace(SignatoryRole role, String place) {
+    final signature = _draft.signatureFor(role).copyWith(place: place);
+    _draft = _draft.withSignature(signature);
+    _persistDebounced(SyncAction.signature);
+  }
+
   // ---------------------------------------------------------------------
   // Scores en temps réel
   // ---------------------------------------------------------------------

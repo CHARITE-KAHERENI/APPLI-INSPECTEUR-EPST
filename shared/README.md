@@ -18,13 +18,25 @@ shared/
 │   └── schemas/                    # JSON Schema (draft 2020-12), miroir des types TS
 │       ├── form-template.schema.json
 │       └── form-submission.schema.json
-└── forms/                          # Configurations JSON des 5 formulaires officiels IGE
-    ├── c2.json         # Inspection administrative
-    ├── c3.json         # Inspection pédagogique (leçon théorique)
-    ├── c3b.json        # Inspection pédagogique (leçon pratique)
-    ├── c3m.json        # Inspection pédagogique (enseignement maternel)
-    └── c3_das.json     # Inspection pédagogique (séquence didactique)
+├── forms/                          # Configurations JSON des 5 formulaires officiels IGE
+│   ├── c2.json         # Inspection administrative
+│   ├── c3.json         # Inspection pédagogique (leçon théorique)
+│   ├── c3b.json        # Inspection pédagogique (leçon pratique)
+│   ├── c3m.json        # Inspection pédagogique (enseignement maternel)
+│   └── c3_das.json     # Inspection pédagogique (séquence didactique)
+└── assets/branding/
+    └── ige-logo.png    # Logo IGE (voir note ci-dessous)
 ```
+
+**`assets/branding/ige-logo.png`** : recadré depuis l'en-tête des documents
+Word officiels fournis (fond blanc rendu transparent), faute de fichier
+logo source séparé. Fidèle à l'original mais issu d'une capture d'écran à
+~400 dpi — suffisant pour un usage en en-tête de PDF généré (taille
+d'affichage réduite), pas pour une impression grand format ; à remplacer
+par un fichier vectoriel officiel si l'IGE en fournit un. Utilisé par le
+service de génération PDF du backend (`backend/src/modules/pdf/`) et par
+la génération PDF locale du mobile (`mobile/assets/branding/`) — voir
+`scripts/sync-mobile-assets.sh` pour la copie vers le mobile.
 
 ## Le modèle de "formulaire dynamique"
 

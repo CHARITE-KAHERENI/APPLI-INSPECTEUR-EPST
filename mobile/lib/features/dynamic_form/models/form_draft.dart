@@ -98,7 +98,7 @@ class SectionDraft {
 
 /// État de saisie local d'une signature (dessin tactile).
 class SignatureDraft {
-  const SignatureDraft({required this.role, this.pngBase64, this.signedByName, this.signedAt});
+  const SignatureDraft({required this.role, this.pngBase64, this.signedByName, this.signedAt, this.place});
 
   factory SignatureDraft.fromJson(Map<String, dynamic> json) {
     return SignatureDraft(
@@ -106,6 +106,7 @@ class SignatureDraft {
       pngBase64: json['pngBase64'] as String?,
       signedByName: json['signedByName'] as String?,
       signedAt: json['signedAt'] != null ? DateTime.parse(json['signedAt'] as String) : null,
+      place: json['place'] as String?,
     );
   }
 
@@ -113,15 +114,18 @@ class SignatureDraft {
   final String? pngBase64;
   final String? signedByName;
   final DateTime? signedAt;
+  /// Lieu de signature ("Fait à ... le ..." dans les documents officiels).
+  final String? place;
 
   bool get isSigned => pngBase64 != null && pngBase64!.isNotEmpty;
 
-  SignatureDraft copyWith({String? pngBase64, String? signedByName, DateTime? signedAt}) {
+  SignatureDraft copyWith({String? pngBase64, String? signedByName, DateTime? signedAt, String? place}) {
     return SignatureDraft(
       role: role,
       pngBase64: pngBase64 ?? this.pngBase64,
       signedByName: signedByName ?? this.signedByName,
       signedAt: signedAt ?? this.signedAt,
+      place: place ?? this.place,
     );
   }
 
@@ -130,6 +134,7 @@ class SignatureDraft {
     if (pngBase64 != null) 'pngBase64': pngBase64,
     if (signedByName != null) 'signedByName': signedByName,
     if (signedAt != null) 'signedAt': signedAt!.toIso8601String(),
+    if (place != null) 'place': place,
   };
 }
 

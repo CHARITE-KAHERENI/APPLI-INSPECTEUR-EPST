@@ -20,6 +20,8 @@ dependencies:
   signature: ^5.5.0             # capture des signatures manuscrites (enseignant, chef, inspecteur)
   http: ^1.2.2                  # appels vers l'API NestJS (POST /sync/submissions, GET /sync/status)
   connectivity_plus: ^6.0.5     # détection de la connectivité pour déclencher la synchronisation
+  pdf: ^3.11.1                  # génération PDF locale (hors-ligne), même moteur de mise en page que le backend
+  printing: ^5.13.3             # aperçu / partage / impression du PDF généré, sans connexion requise
 
 dev_dependencies:
   flutter_test:
@@ -40,3 +42,5 @@ flutter:
     # core/db/reference_data_repository.dart.
     - assets/reference-data/etablissements.json
     - assets/reference-data/enseignants.json
+    # Logo IGE (voir shared/assets/branding/, core/pdf/pdf_generator.dart).
+    - assets/branding/ige_logo.png

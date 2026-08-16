@@ -30,4 +30,18 @@ export class FormTemplatesService {
     }
     return template;
   }
+
+  /**
+   * Récupère un template par son identifiant exact, y compris s'il n'est
+   * plus la version active — nécessaire pour régénérer fidèlement le PDF
+   * d'un formulaire rempli avec une version de template plus ancienne
+   * (voir `modules/pdf`).
+   */
+  async findById(id: string): Promise<FormTemplateEntity> {
+    const template = await this.repository.findOne({ where: { id } });
+    if (!template) {
+      throw new NotFoundException(`Template "${id}" introuvable.`);
+    }
+    return template;
+  }
 }

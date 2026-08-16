@@ -22,7 +22,8 @@
     "migration:run": "npm run typeorm -- migration:run",
     "migration:revert": "npm run typeorm -- migration:revert",
     "migration:generate": "npm run typeorm -- migration:generate",
-    "seed:form-templates": "ts-node -P tsconfig.cli.json -r tsconfig-paths/register src/database/seeds/seed-form-templates.ts"
+    "seed:form-templates": "ts-node -P tsconfig.cli.json -r tsconfig-paths/register src/database/seeds/seed-form-templates.ts",
+    "generate:sample-pdf": "ts-node -P tsconfig.cli.json -r tsconfig-paths/register scripts/generate-sample-c3-pdf.ts"
   },
   "dependencies": {
     "@c3-digital/shared": "*",
@@ -35,6 +36,7 @@
     "class-validator": "^0.14.1",
     "dotenv": "^16.4.7",
     "pg": "^8.13.1",
+    "puppeteer-core": "^25.7.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "typeorm": "^0.3.20"

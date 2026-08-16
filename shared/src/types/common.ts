@@ -6,7 +6,7 @@
  *   - C2      : Inspection administrative
  *   - C3      : Inspection pédagogique (leçon théorique)
  *   - C3B     : Inspection pédagogique (leçon pratique)
- *   - C3M     : Rapport d'inspection du personnel de maîtrise/direction
+ *   - C3M     : Inspection pédagogique (enseignement maternel)
  *   - C3_DAS  : Inspection pédagogique (séquence didactique)
  *
  * Le contenu détaillé (libellés exacts des rubriques, tableaux de

@@ -2,6 +2,7 @@ import { CriterionResponse } from './types/form-submission';
 import {
   ConversionTable,
   FormSectionTemplate,
+  FormTemplate,
 } from './types/form-template';
 
 /**
@@ -116,4 +117,31 @@ export function computeSectionScore(
   );
 
   return { totalScore, maxScore, percentage, mention, scoreOn4 };
+}
+
+/**
+ * Calcule l'évaluation synthétique finale à partir des scores déjà
+ * calculés de chaque section (indexés par `sectionId`), en reconvertissant
+ * la somme des notes-sur-4 via le même tableau de conversion — voir
+ * `FormTemplate.synthesis.conversionCriteriaCount`.
+ *
+ * Portage de `mobile/lib/core/models/scoring.dart#computeSynthesisScore`
+ * (initialement ajoutée côté Dart seulement) : les deux implémentations
+ * doivent rester alignées.
+ */
+export function computeSynthesisScore(
+  template: FormTemplate,
+  sectionScores: Record<string, SectionScoreResult | undefined>,
+): ConversionResult {
+  const rowCount = template.synthesis.rows.length;
+  let totalScoreOn4 = 0;
+
+  for (const row of template.synthesis.rows) {
+    totalScoreOn4 += sectionScores[row.sectionId]?.scoreOn4 ?? 0;
+  }
+
+  const maxScore = rowCount * 4;
+  const criteriaCount = template.synthesis.conversionCriteriaCount ?? rowCount;
+
+  return convertRawScore(template.conversionTable, totalScoreOn4, maxScore, criteriaCount);
 }

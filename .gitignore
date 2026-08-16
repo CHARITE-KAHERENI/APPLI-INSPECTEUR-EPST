@@ -14,6 +14,7 @@ web/.vite/
 
 # --- NestJS (backend) ---
 backend/dist/
+backend/tmp/
 
 # --- Flutter / Dart (mobile) ---
 mobile/.dart_tool/

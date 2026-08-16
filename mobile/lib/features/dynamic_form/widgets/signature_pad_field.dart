@@ -16,6 +16,8 @@ class SignaturePadField extends StatefulWidget {
     required this.existingPngBase64,
     required this.onSigned,
     required this.onCleared,
+    this.initialPlace,
+    this.onPlaceChanged,
   });
 
   final String label;
@@ -23,22 +25,30 @@ class SignaturePadField extends StatefulWidget {
   final ValueChanged<String> onSigned;
   final VoidCallback onCleared;
 
+  /// Lieu de signature ("Fait à ..."), affiché aussi bien à l'écran que
+  /// dans le PDF généré (voir `PdfSubmissionInput`/`SignatureResponse`).
+  final String? initialPlace;
+  final ValueChanged<String>? onPlaceChanged;
+
   @override
   State<SignaturePadField> createState() => _SignaturePadFieldState();
 }
 
 class _SignaturePadFieldState extends State<SignaturePadField> {
   late final SignatureController _controller;
+  late final TextEditingController _placeController;
 
   @override
   void initState() {
     super.initState();
     _controller = SignatureController(penStrokeWidth: 3, penColor: AppColors.primary);
+    _placeController = TextEditingController(text: widget.initialPlace ?? '');
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _placeController.dispose();
     super.dispose();
   }
 
@@ -78,6 +88,15 @@ class _SignaturePadFieldState extends State<SignaturePadField> {
             ),
           ],
         ),
+        TextField(
+          controller: _placeController,
+          decoration: const InputDecoration(
+            labelText: 'Fait à (lieu)',
+            isDense: true,
+          ),
+          onChanged: widget.onPlaceChanged,
+        ),
+        const SizedBox(height: 6),
         Container(
           height: 160,
           decoration: BoxDecoration(

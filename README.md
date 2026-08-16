@@ -124,6 +124,18 @@ hors-ligne et synchronisation") et `backend/README.md` (endpoints
 `POST /sync/submissions`, `GET /sync/status`,
 `GET /sync/submissions/:id/history`) pour le détail.
 
+## Génération PDF
+
+Chaque formulaire rempli peut être exporté en PDF visuellement fidèle au
+document Word officiel correspondant (en-tête RDC/ministère/logo IGE,
+identification, grille d'évaluation, tableau de conversion + synthèse,
+signatures avec date et lieu, observations complémentaires de
+l'inspecteur en encart distinct) — aussi bien côté serveur
+(`GET /form-submissions/:id/pdf`, Puppeteer/Chromium) que localement sur
+mobile en mode hors-ligne (package Dart `pdf`, bouton "Générer le PDF" de
+l'écran de synthèse). Voir `backend/README.md` et `mobile/README.md`
+(sections "Génération PDF").
+
 ## Prochaines étapes
 
 - Génération des projets natifs mobile (`flutter create .`) — voir

@@ -49,6 +49,9 @@ lib/
 │   │   ├── sync_engine.dart           # Orchestration : écoute réseau, envoi, réessai avec backoff
 │   │   └── sync_status_banner.dart    # Indicateur "Hors-ligne / Synchronisé" affiché en permanence
 │   ├── utils/                         # generateLocalId, DeviceIdentity
+│   ├── pdf/
+│   │   ├── pdf_colors.dart            # Palette officielle -> PdfColor (package pdf)
+│   │   └── pdf_generator.dart         # Génération PDF locale, hors-ligne (voir ci-dessous)
 │   └── theme/                         # AppColors (palette officielle) + AppTheme
 └── features/
     ├── dynamic_form/                  # Moteur de rendu dynamique des formulaires
@@ -60,11 +63,14 @@ lib/
     │   │   ├── section_step.dart
     │   │   └── synthesis_step.dart
     │   └── widgets/                   # Pilules de note, badge de score, signature, champs d'en-tête...
-    └── history/
-        └── submission_history_screen.dart  # Consultation des versions archivées (conflits de sync)
+    ├── history/
+    │   └── submission_history_screen.dart  # Consultation des versions archivées (conflits de sync)
+    └── pdf/
+        └── pdf_preview_screen.dart    # Aperçu / partage / impression du PDF généré (package printing)
 
 assets/form-templates/                 # Copies de shared/forms (voir ci-dessous)
 assets/reference-data/                 # Jeu d'exemple établissements/enseignants (voir ci-dessous)
+assets/branding/                       # Logo IGE (copie de shared/assets/branding/, voir PDF ci-dessous)
 ```
 
 ## Moteur de rendu dynamique (`DynamicFormScreen`)
@@ -167,6 +173,38 @@ version remplacée.
 `core/api/api_config.dart`) ; par défaut `http://10.0.2.2:3000`, l'alias
 que l'émulateur Android utilise pour joindre le `localhost` de la machine
 hôte en développement — à remplacer avant tout déploiement réel.
+
+## Génération PDF (hors-ligne)
+
+Le bouton "Générer le PDF" de l'écran de synthèse (`SynthesisStep`) ouvre
+`PdfPreviewScreen`, qui affiche l'aperçu du PDF construit entièrement en
+local par `InspectionPdfGenerator` (`core/pdf/pdf_generator.dart`, package
+`pdf`) — aucune connexion requise, y compris pour un brouillon jamais
+synchronisé. Depuis cet aperçu (package `printing`), l'inspecteur peut
+imprimer, partager ou exporter le fichier sans connexion.
+
+Reproduit le même contenu que le PDF généré côté serveur (voir
+`backend/src/modules/pdf/pdf-template.service.ts`) : en-tête RDC /
+ministère / logo IGE, bloc d'identification, groupes de champs et
+sections interclassés par code officiel, grille d'évaluation avec notes
+et observations, tableau de conversion + évaluation synthétique,
+signatures avec date et lieu, et — si l'inspecteur en a ajouté — un
+encart distinct en fin de document, *"Observations complémentaires de
+l'inspecteur (hors grille officielle)"*.
+
+**Différence assumée avec la version serveur** : une mise en page plus
+simple (une seule colonne d'identification plutôt que les 4 zones
+juxtaposées du rendu HTML backend) — voir le commentaire en tête de
+`pdf_generator.dart`. Le contenu reste complet et identique ; seule la
+disposition visuelle est simplifiée, pour limiter le risque d'erreur non
+détectée dans un environnement de développement sans SDK Flutter pour
+vérifier le rendu à la compilation.
+
+Le logo IGE (`assets/branding/ige_logo.png`) et le champ "lieu" de
+signature (`SignaturePadField`, à côté de la zone de dessin) sont
+nouveaux dans cette itération — ce dernier complète `SignatureDraft` pour
+que "Fait à ... le ..." puisse être affiché sur le PDF plutôt que laissé
+en blanc.
 
 ## Modèle de données partagé
 

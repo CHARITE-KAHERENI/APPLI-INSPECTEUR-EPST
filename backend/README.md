@@ -32,7 +32,8 @@ src/
 └── modules/
     ├── form-templates/            # Entité + service + controller (lecture des templates)
     ├── form-submissions/          # Entité + service + controller (CRUD des formulaires remplis)
-    └── sync/                      # Réception de la file de synchronisation mobile hors-ligne
+    ├── sync/                      # Réception de la file de synchronisation mobile hors-ligne
+    └── pdf/                       # Génération PDF fidèle aux documents Word officiels
 ```
 
 ## Endpoints (v0)
@@ -48,6 +49,7 @@ src/
 | POST    | `/sync/submissions`             | Réception en lot de la file de synchronisation mobile (voir ci-dessous) |
 | GET     | `/sync/status`                  | Vérification de connectivité légère avant une synchronisation complète |
 | GET     | `/sync/submissions/:id/history` | Version actuelle + versions remplacées, consultables par l'IGE (voir ci-dessous) |
+| GET     | `/form-submissions/:id/pdf`     | PDF du formulaire, visuellement fidèle au document Word officiel (voir ci-dessous) |
 
 L'authentification, les règles d'autorisation par rôle (inspecteur / chef
 d'établissement) et la validation métier fine des sections/critères ne sont
@@ -97,12 +99,48 @@ conflit (voir la politique ci-dessus) : l'application mobile expose cet
 endpoint dans un écran "Historique" (voir
 `mobile/lib/features/history/submission_history_screen.dart`).
 
+### `GET /form-submissions/:id/pdf` — génération PDF
+
+Génère, à la volée, un PDF visuellement fidèle au document Word officiel
+correspondant (en-tête RDC/ministère/logo IGE, bloc d'identification,
+grille d'évaluation par section avec notes et observations, tableau de
+conversion + évaluation synthétique, zone de signatures avec date et
+lieu). Les observations personnalisées ajoutées par l'inspecteur sur
+mobile (hors grille officielle) apparaissent dans un encart distinct en
+fin de document, intitulé *"Observations complémentaires de l'inspecteur
+(hors grille officielle)"*.
+
+Implémentation : `modules/pdf/pdf-template.service.ts` construit le HTML
+(générique aux 5 formulaires, à partir du seul `FormTemplate` — aucune
+logique spécifique à un formulaire donné), `modules/pdf/pdf.service.ts`
+le convertit en PDF via Chromium headless (`puppeteer-core` — pilote
+seul, sans navigateur embarqué).
+
+**Chromium requis** : `PdfService` cherche un exécutable Chromium dans
+l'ordre suivant : variable d'environnement `PDF_CHROMIUM_EXECUTABLE_PATH`,
+puis `/opt/pw-browsers/chromium` (environnement de développement de ce
+projet), puis les emplacements système usuels (`/usr/bin/chromium`,
+`/usr/bin/google-chrome`...). En production, installer Chromium dans
+l'image de déploiement (ex: `apt-get install chromium` dans un
+Dockerfile) et/ou définir `PDF_CHROMIUM_EXECUTABLE_PATH`.
+
+**Équivalent mobile hors-ligne** : `mobile/lib/core/pdf/pdf_generator.dart`
+reproduit le même contenu avec le package Dart `pdf` (voir
+`mobile/README.md`), pour générer le même PDF localement sans connexion.
+
+**Exemple avec données fictives** (formulaire C3) :
+
+```bash
+npm run generate:sample-pdf   # écrit backend/tmp/c3-sample.pdf (+ .html)
+```
+
 ## Scripts utiles
 
 ```bash
 npm run build              # nest build
 npm run migration:generate # génère une migration à partir des diffs d'entités
 npm run migration:revert   # annule la dernière migration
+npm run generate:sample-pdf # génère un PDF C3 d'exemple (données fictives) pour validation visuelle
 npm run lint
 npm run test
 ```

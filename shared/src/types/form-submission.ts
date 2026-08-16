@@ -40,6 +40,13 @@ export interface SignatureResponse {
   role: SignatoryRole;
   signedByName?: string;
   signedAt?: string;
+  /**
+   * Lieu de signature ("Fait à ... le ..." dans les documents officiels).
+   * Pas encore saisi par l'écran de signature mobile (voir
+   * `SignaturePadField`) — présent dès maintenant pour que le PDF généré
+   * puisse l'afficher lorsqu'il sera collecté.
+   */
+  place?: string;
   /** Image de la signature (trait manuscrit capturé sur mobile), encodée en base64. */
   signatureImageBase64?: string;
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/models/scoring.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../history/submission_history_screen.dart';
+import '../../pdf/pdf_preview_screen.dart';
 import '../state/dynamic_form_controller.dart';
 import '../widgets/signature_pad_field.dart';
 
@@ -99,8 +100,10 @@ class SynthesisStep extends StatelessWidget {
                   SignaturePadField(
                     label: role.label,
                     existingPngBase64: controller.draft.signatureFor(role.role).pngBase64,
+                    initialPlace: controller.draft.signatureFor(role.role).place,
                     onSigned: (pngBase64) => controller.setSignature(role.role, pngBase64),
                     onCleared: () => controller.clearSignature(role.role),
+                    onPlaceChanged: (place) => controller.setSignaturePlace(role.role, place),
                   ),
                   const SizedBox(height: 16),
                 ],
@@ -108,9 +111,22 @@ class SynthesisStep extends StatelessWidget {
             ),
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: ElevatedButton.icon(
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => PdfPreviewScreen(template: template, draft: controller.draft),
+              ),
+            ),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
+            icon: const Icon(Icons.picture_as_pdf),
+            label: const Text('Générer le PDF'),
+          ),
+        ),
         if (controller.draft.lastSyncedAt != null)
           Padding(
-            padding: const EdgeInsets.only(top: 4),
+            padding: const EdgeInsets.only(top: 8),
             child: OutlinedButton.icon(
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute(

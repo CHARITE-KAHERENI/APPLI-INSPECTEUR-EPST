@@ -8,6 +8,7 @@ import { FormSubmissionEntity } from './modules/form-submissions/entities/form-s
 import { FormSubmissionsModule } from './modules/form-submissions/form-submissions.module';
 import { FormTemplateEntity } from './modules/form-templates/entities/form-template.entity';
 import { FormTemplatesModule } from './modules/form-templates/form-templates.module';
+import { PdfModule } from './modules/pdf/pdf.module';
 import { FormSubmissionVersionEntity } from './modules/sync/entities/form-submission-version.entity';
 import { SyncModule } from './modules/sync/sync.module';
 
@@ -41,6 +42,7 @@ import { SyncModule } from './modules/sync/sync.module';
     FormTemplatesModule,
     FormSubmissionsModule,
     SyncModule,
+    PdfModule,
   ],
   controllers: [AppController],
   providers: [AppService],

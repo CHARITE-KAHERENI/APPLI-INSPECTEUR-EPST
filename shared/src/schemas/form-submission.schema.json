@@ -80,6 +80,7 @@
         "role": { "type": "string", "enum": ["enseignant", "chef_etablissement", "inspecteur"] },
         "signedByName": { "type": "string" },
         "signedAt": { "type": "string", "format": "date-time" },
+        "place": { "type": "string" },
         "signatureImageBase64": { "type": "string" }
       }
     }
