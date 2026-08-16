@@ -165,6 +165,8 @@ class FormDraft {
     required this.status,
     required this.createdAt,
     required this.updatedAt,
+    this.serverUpdatedAt,
+    this.lastSyncedAt,
   });
 
   factory FormDraft.fromJson(Map<String, dynamic> json) {
@@ -183,6 +185,8 @@ class FormDraft {
       status: DraftStatus.fromValue(json['status'] as String),
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
+      serverUpdatedAt: json['serverUpdatedAt'] != null ? DateTime.parse(json['serverUpdatedAt'] as String) : null,
+      lastSyncedAt: json['lastSyncedAt'] != null ? DateTime.parse(json['lastSyncedAt'] as String) : null,
     );
   }
 
@@ -196,6 +200,19 @@ class FormDraft {
   final DraftStatus status;
   final DateTime createdAt;
   final DateTime updatedAt;
+
+  /// Dernier `updatedAt` serveur connu pour ce formulaire — transmis comme
+  /// `baseServerUpdatedAt` lors de la prochaine synchronisation (détection
+  /// de conflit côté serveur, voir backend/src/modules/sync).
+  final DateTime? serverUpdatedAt;
+
+  /// Horodatage local de la dernière synchronisation réussie — affiché à
+  /// l'utilisateur ("Synchronisé le ...").
+  final DateTime? lastSyncedAt;
+
+  /// `true` si ce formulaire a des modifications locales non encore
+  /// confirmées comme reçues par le serveur.
+  bool get isPendingSync => lastSyncedAt == null || updatedAt.isAfter(lastSyncedAt!);
 
   SectionDraft sectionFor(String sectionId) {
     return sections.firstWhere(
@@ -217,6 +234,8 @@ class FormDraft {
     List<SignatureDraft>? signatures,
     DraftStatus? status,
     DateTime? updatedAt,
+    DateTime? serverUpdatedAt,
+    DateTime? lastSyncedAt,
   }) {
     return FormDraft(
       id: id,
@@ -229,6 +248,29 @@ class FormDraft {
       status: status ?? this.status,
       createdAt: createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      serverUpdatedAt: serverUpdatedAt ?? this.serverUpdatedAt,
+      lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
+    );
+  }
+
+  /// Marque ce brouillon comme synchronisé avec succès : met à jour
+  /// l'horodatage local de synchronisation et le dernier `updatedAt`
+  /// serveur connu (utilisé pour la détection de conflit), et fait passer
+  /// le statut à `synchronise` si le formulaire avait été soumis.
+  FormDraft markSynced({required DateTime serverUpdatedAt, required DateTime syncedAt}) {
+    return FormDraft(
+      id: id,
+      formCode: formCode,
+      templateId: templateId,
+      templateVersion: templateVersion,
+      header: header,
+      sections: sections,
+      signatures: signatures,
+      status: status == DraftStatus.soumis ? DraftStatus.synchronise : status,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      serverUpdatedAt: serverUpdatedAt,
+      lastSyncedAt: syncedAt,
     );
   }
 
@@ -261,5 +303,7 @@ class FormDraft {
     'status': status.name,
     'createdAt': createdAt.toIso8601String(),
     'updatedAt': updatedAt.toIso8601String(),
+    if (serverUpdatedAt != null) 'serverUpdatedAt': serverUpdatedAt!.toIso8601String(),
+    if (lastSyncedAt != null) 'lastSyncedAt': lastSyncedAt!.toIso8601String(),
   };
 }

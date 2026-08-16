@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
@@ -8,18 +7,10 @@ import '../../../core/models/common.dart';
 import '../../../core/models/form_template.dart';
 import '../../../core/models/form_template_repository.dart';
 import '../../../core/models/scoring.dart';
+import '../../../core/sync/sync_models.dart';
+import '../../../core/sync/sync_queue_repository.dart';
+import '../../../core/utils/local_id.dart';
 import '../models/form_draft.dart';
-
-final Random _idRandom = Random();
-
-/// Identifiant local suffisamment unique pour un brouillon ou une
-/// observation personnalisée (pas besoin d'unicité globale, seulement
-/// locale à l'appareil).
-String generateLocalId(String prefix) {
-  final now = DateTime.now().microsecondsSinceEpoch;
-  final salt = _idRandom.nextInt(1 << 32);
-  return '$prefix-$now-$salt';
-}
 
 /// Étape courante de l'écran de saisie dynamique.
 enum DynamicFormStep { identification, section, synthesis }
@@ -39,10 +30,13 @@ class DynamicFormController extends ChangeNotifier {
     String? draftId,
     FormTemplateRepository templateRepository = const FormTemplateRepository(),
     FormDraftRepository draftRepository = const FormDraftRepository(),
+    SyncQueueRepository syncQueueRepository = const SyncQueueRepository(),
+    this.onQueueChanged,
   }) : _formCode = formCode,
        _requestedDraftId = draftId,
        _templateRepository = templateRepository,
-       _draftRepository = draftRepository {
+       _draftRepository = draftRepository,
+       _syncQueueRepository = syncQueueRepository {
     _initialize();
   }
 
@@ -50,6 +44,13 @@ class DynamicFormController extends ChangeNotifier {
   final String? _requestedDraftId;
   final FormTemplateRepository _templateRepository;
   final FormDraftRepository _draftRepository;
+  final SyncQueueRepository _syncQueueRepository;
+
+  /// Appelé après chaque ajout à la file de synchronisation — permet à
+  /// `SyncEngine` de tenter une synchronisation immédiate si l'appareil
+  /// est déjà en ligne, sans coupler ce contrôleur à son implémentation.
+  final VoidCallback? onQueueChanged;
+
   Timer? _debounce;
 
   bool isLoading = true;
@@ -87,11 +88,16 @@ class DynamicFormController extends ChangeNotifier {
         draft = await _draftRepository.findById(_requestedDraftId);
       }
       draft ??= await _draftRepository.findLatestOpenDraft(_formCode);
+      final isNewDraft = draft == null;
       draft ??= _newDraft(template);
 
       _template = template;
       _draft = draft;
       isLoading = false;
+      if (isNewDraft) {
+        await _draftRepository.save(_draft);
+        unawaited(_enqueueSync(SyncAction.nouveauFormulaire));
+      }
       notifyListeners();
     } catch (error) {
       loadError = error;
@@ -146,7 +152,7 @@ class DynamicFormController extends ChangeNotifier {
   void updateHeaderField(String key, dynamic value) {
     final header = Map<String, dynamic>.from(_draft.header)..[key] = value;
     _draft = _draft.copyWith(header: header, updatedAt: DateTime.now());
-    _persistDebounced();
+    _persistDebounced(SyncAction.miseAJour);
   }
 
   // ---------------------------------------------------------------------
@@ -159,7 +165,7 @@ class DynamicFormController extends ChangeNotifier {
     final current = criteria[criterionId] ?? const CriterionDraft();
     criteria[criterionId] = current.copyWith(score: score);
     _draft = _draft.withSection(section.copyWith(criteria: criteria));
-    _persistNow();
+    _persistNow(SyncAction.miseAJour);
     notifyListeners();
   }
 
@@ -170,14 +176,14 @@ class DynamicFormController extends ChangeNotifier {
     final current = criteria[criterionId] ?? const CriterionDraft();
     criteria[criterionId] = current.copyWith(observation: observation);
     _draft = _draft.withSection(section.copyWith(criteria: criteria));
-    _persistDebounced();
+    _persistDebounced(SyncAction.miseAJour);
   }
 
   /// Ne notifie pas les listeners — voir [updateHeaderField].
   void setSectionAdvice(String sectionId, String advice) {
     final section = _draft.sectionFor(sectionId);
     _draft = _draft.withSection(section.copyWith(advice: advice));
-    _persistDebounced();
+    _persistDebounced(SyncAction.miseAJour);
   }
 
   // ---------------------------------------------------------------------
@@ -188,7 +194,7 @@ class DynamicFormController extends ChangeNotifier {
     final section = _draft.sectionFor(sectionId);
     final updated = [...section.customObservations, CustomObservationDraft(id: generateLocalId('obs'))];
     _draft = _draft.withSection(section.copyWith(customObservations: updated));
-    _persistNow();
+    _persistNow(SyncAction.miseAJour);
     notifyListeners();
   }
 
@@ -199,14 +205,14 @@ class DynamicFormController extends ChangeNotifier {
         .map((o) => o.id == observationId ? o.copyWith(label: label, note: note) : o)
         .toList();
     _draft = _draft.withSection(section.copyWith(customObservations: updated));
-    _persistDebounced();
+    _persistDebounced(SyncAction.miseAJour);
   }
 
   void removeCustomObservation(String sectionId, String observationId) {
     final section = _draft.sectionFor(sectionId);
     final updated = section.customObservations.where((o) => o.id != observationId).toList();
     _draft = _draft.withSection(section.copyWith(customObservations: updated));
-    _persistNow();
+    _persistNow(SyncAction.miseAJour);
     notifyListeners();
   }
 
@@ -221,13 +227,13 @@ class DynamicFormController extends ChangeNotifier {
       signedAt: DateTime.now(),
     );
     _draft = _draft.withSignature(signature);
-    _persistNow();
+    _persistNow(SyncAction.signature);
     notifyListeners();
   }
 
   void clearSignature(SignatoryRole role) {
     _draft = _draft.withSignature(SignatureDraft(role: role));
-    _persistNow();
+    _persistNow(SyncAction.miseAJour);
     notifyListeners();
   }
 
@@ -272,31 +278,42 @@ class DynamicFormController extends ChangeNotifier {
   Future<void> markSubmitted() async {
     _draft = _draft.copyWith(status: DraftStatus.soumis, updatedAt: DateTime.now());
     await _draftRepository.save(_draft);
+    await _enqueueSync(SyncAction.miseAJour);
     notifyListeners();
   }
 
   // ---------------------------------------------------------------------
-  // Persistance
+  // Persistance + file de synchronisation
   // ---------------------------------------------------------------------
 
-  void _persistNow() {
+  void _persistNow(SyncAction action) {
     _debounce?.cancel();
-    unawaited(_draftRepository.save(_draft));
+    unawaited(_draftRepository.save(_draft).then((_) => _enqueueSync(action)));
   }
 
-  void _persistDebounced() {
+  void _persistDebounced(SyncAction action) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
-      unawaited(_draftRepository.save(_draft));
+      unawaited(_draftRepository.save(_draft).then((_) => _enqueueSync(action)));
     });
+  }
+
+  Future<void> _enqueueSync(SyncAction action) async {
+    await _syncQueueRepository.enqueue(_draft.id, action);
+    onQueueChanged?.call();
   }
 
   @override
   void dispose() {
+    // Persiste immédiatement toute modification encore en attente avant de
+    // quitter l'écran (garantie "rien perdu"). Ne met en file que si une
+    // sauvegarde différée était réellement en attente — sinon la dernière
+    // action réelle avait déjà mis à jour la file, inutile de dupliquer.
+    final hadPendingChange = _debounce?.isActive ?? false;
     _debounce?.cancel();
-    // Persiste immédiatement toute modification encore en attente avant
-    // de quitter l'écran, pour respecter la garantie "rien perdu".
-    unawaited(_draftRepository.save(_draft));
+    if (hadPendingChange) {
+      unawaited(_draftRepository.save(_draft).then((_) => _enqueueSync(SyncAction.miseAJour)));
+    }
     super.dispose();
   }
 }

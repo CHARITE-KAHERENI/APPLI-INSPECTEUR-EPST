@@ -4,9 +4,9 @@ Le projet utilise **PostgreSQL**. Le schéma applicatif est géré par les
 migrations TypeORM du backend (`backend/src/database/migrations/`) ; ce
 dossier `/database` ne contient qu'une copie de référence lisible.
 
-- `schema.sql` — miroir SQL brut des deux tables `form_templates` et
-  `form_submissions`, utile pour une inspection rapide ou une recréation
-  manuelle du schéma.
+- `schema.sql` — miroir SQL brut des tables `form_templates`,
+  `form_submissions` et `form_submission_versions`, utile pour une
+  inspection rapide ou une recréation manuelle du schéma.
 
 ## Tables
 
@@ -26,6 +26,20 @@ JSONB — voir `shared/src/schemas/form-submission.schema.json`. La colonne
 ```
 brouillon  →  soumis  →  synchronise
 ```
+
+`client_updated_at` porte l'horodatage de la dernière modification côté
+appareil mobile (distinct de `updated_at`, géré par le serveur) : c'est
+sur cette valeur que se base la résolution de conflit lors d'une
+synchronisation — voir `form_submission_versions` et
+`backend/src/modules/sync`.
+
+### `form_submission_versions`
+Historique des versions de `form_submissions` remplacées lors d'une
+synchronisation (`sync_update`) ou d'un conflit détecté entre une
+modification locale et une modification serveur (`sync_conflict`) :
+la politique du module `sync` privilégie toujours la version locale la
+plus récente, mais archive systématiquement la version qu'elle remplace
+ici, pour que l'IGE puisse consulter les deux versions.
 
 ## Démarrer PostgreSQL en local
 

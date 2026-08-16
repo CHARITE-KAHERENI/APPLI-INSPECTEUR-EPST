@@ -68,6 +68,10 @@ CREATE TABLE IF NOT EXISTS form_submissions (
   device_id      varchar(255),
   submitted_at   timestamptz,
   synced_at      timestamptz,
+  -- Horodatage de la dernière modification côté appareil mobile — sert à
+  -- départager la version locale la plus récente lors d'une synchronisation
+  -- (voir form_submission_versions et backend/src/modules/sync).
+  client_updated_at timestamptz,
   created_at     timestamptz NOT NULL DEFAULT now(),
   updated_at     timestamptz NOT NULL DEFAULT now(),
   CONSTRAINT pk_form_submissions PRIMARY KEY (id),
@@ -87,3 +91,29 @@ CREATE TRIGGER trg_form_submissions_set_updated_at
 BEFORE UPDATE ON form_submissions
 FOR EACH ROW
 EXECUTE FUNCTION set_updated_at();
+
+-- =========================================================================
+-- form_submission_versions — historique des versions de form_submissions
+-- remplacées lors d'une synchronisation (mise à jour normale ou conflit
+-- détecté entre une modification locale et une modification serveur),
+-- pour consultation par l'IGE. Voir backend/src/modules/sync.
+-- =========================================================================
+CREATE TABLE IF NOT EXISTS form_submission_versions (
+  id             uuid        NOT NULL DEFAULT gen_random_uuid(),
+  submission_id  uuid        NOT NULL,
+  snapshot       jsonb       NOT NULL,
+  is_conflict    boolean     NOT NULL DEFAULT false,
+  reason         varchar(30) NOT NULL,
+  archived_at    timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT pk_form_submission_versions PRIMARY KEY (id),
+  CONSTRAINT fk_form_submission_versions_submission FOREIGN KEY (submission_id)
+    REFERENCES form_submissions (id) ON DELETE CASCADE,
+  CONSTRAINT ck_form_submission_versions_reason CHECK (
+    reason IN ('sync_update', 'sync_conflict', 'status_change')
+  )
+);
+
+CREATE INDEX IF NOT EXISTS idx_form_submission_versions_submission_id
+  ON form_submission_versions (submission_id);
+CREATE INDEX IF NOT EXISTS idx_form_submission_versions_is_conflict
+  ON form_submission_versions (is_conflict);

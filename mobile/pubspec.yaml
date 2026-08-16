@@ -14,13 +14,12 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
 
-  provider: ^6.1.2          # gestion d'état de DynamicFormScreen
-  sqflite: ^2.3.3+1         # persistance locale des brouillons (offline-first)
-  path: ^1.9.0              # résolution du chemin de la base SQLite
-  signature: ^5.5.0         # capture des signatures manuscrites (enseignant, chef, inspecteur)
-
-  # Dépendance prévue pour la synchronisation avec le backend (prochaine itération) :
-  # http: ^1.2.0            # appels vers l'API NestJS
+  provider: ^6.1.2              # gestion d'état de DynamicFormScreen + SyncEngine
+  sqflite: ^2.3.3+1             # persistance locale (brouillons, référentiels, file de synchronisation)
+  path: ^1.9.0                  # résolution du chemin de la base SQLite
+  signature: ^5.5.0             # capture des signatures manuscrites (enseignant, chef, inspecteur)
+  http: ^1.2.2                  # appels vers l'API NestJS (POST /sync/submissions, GET /sync/status)
+  connectivity_plus: ^6.0.5     # détection de la connectivité pour déclencher la synchronisation
 
 dev_dependencies:
   flutter_test:
@@ -37,3 +36,7 @@ flutter:
     - assets/form-templates/c3b.json
     - assets/form-templates/c3m.json
     - assets/form-templates/c3_das.json
+    # Référentiels de démonstration (établissements / enseignants), voir
+    # core/db/reference_data_repository.dart.
+    - assets/reference-data/etablissements.json
+    - assets/reference-data/enseignants.json

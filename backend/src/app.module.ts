@@ -8,6 +8,8 @@ import { FormSubmissionEntity } from './modules/form-submissions/entities/form-s
 import { FormSubmissionsModule } from './modules/form-submissions/form-submissions.module';
 import { FormTemplateEntity } from './modules/form-templates/entities/form-template.entity';
 import { FormTemplatesModule } from './modules/form-templates/form-templates.module';
+import { FormSubmissionVersionEntity } from './modules/sync/entities/form-submission-version.entity';
+import { SyncModule } from './modules/sync/sync.module';
 
 @Module({
   imports: [
@@ -27,13 +29,18 @@ import { FormTemplatesModule } from './modules/form-templates/form-templates.mod
           password: db.password,
           database: db.name,
           ssl: db.ssl,
-          entities: [FormTemplateEntity, FormSubmissionEntity],
+          entities: [
+            FormTemplateEntity,
+            FormSubmissionEntity,
+            FormSubmissionVersionEntity,
+          ],
           synchronize: db.synchronize,
         };
       },
     }),
     FormTemplatesModule,
     FormSubmissionsModule,
+    SyncModule,
   ],
   controllers: [AppController],
   providers: [AppService],

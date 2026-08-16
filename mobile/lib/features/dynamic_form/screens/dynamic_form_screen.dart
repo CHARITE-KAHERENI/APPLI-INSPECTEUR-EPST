@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/common.dart';
+import '../../../core/sync/sync_engine.dart';
 import '../../../core/theme/app_colors.dart';
 import '../state/dynamic_form_controller.dart';
 import '../widgets/step_progress_indicator.dart';
@@ -37,7 +38,15 @@ class DynamicFormScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => DynamicFormController(formCode: formCode, draftId: draftId),
+      create: (context) => DynamicFormController(
+        formCode: formCode,
+        draftId: draftId,
+        // Tente une synchronisation immédiate dès qu'une action est mise
+        // en file (voir `SyncQueueRepository.enqueue`) — sans effet si
+        // l'appareil est hors-ligne ou une synchronisation est déjà en
+        // cours (voir `SyncEngine.triggerSync`).
+        onQueueChanged: () => context.read<SyncEngine>().triggerSync(),
+      ),
       child: const _DynamicFormView(),
     );
   }

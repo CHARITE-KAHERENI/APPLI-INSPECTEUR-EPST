@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/models/scoring.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../history/submission_history_screen.dart';
 import '../state/dynamic_form_controller.dart';
 import '../widgets/signature_pad_field.dart';
 
@@ -107,6 +108,22 @@ class SynthesisStep extends StatelessWidget {
             ),
           ),
         ),
+        if (controller.draft.lastSyncedAt != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: OutlinedButton.icon(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => SubmissionHistoryScreen(
+                    submissionId: controller.draft.id,
+                    title: template.name,
+                  ),
+                ),
+              ),
+              icon: const Icon(Icons.history),
+              label: const Text('Voir l\'historique de synchronisation'),
+            ),
+          ),
       ],
     );
   }

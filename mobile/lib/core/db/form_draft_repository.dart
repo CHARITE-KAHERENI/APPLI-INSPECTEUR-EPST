@@ -29,6 +29,8 @@ class FormDraftRepository {
         'signatures_json': jsonEncode(draft.signatures.map((s) => s.toJson()).toList()),
         'created_at': draft.createdAt.toIso8601String(),
         'updated_at': draft.updatedAt.toIso8601String(),
+        'server_updated_at': draft.serverUpdatedAt?.toIso8601String(),
+        'last_synced_at': draft.lastSyncedAt?.toIso8601String(),
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
@@ -61,10 +63,23 @@ class FormDraftRepository {
     return _fromRow(rows.first);
   }
 
+  /// Tous les brouillons (en cours ou terminés) — l'ensemble des données
+  /// disponibles hors-ligne, quel que soit leur statut de synchronisation.
   Future<List<FormDraft>> findAll() async {
     final db = await AppDatabase.instance();
     final rows = await db.query('form_drafts', orderBy: 'updated_at DESC');
     return rows.map(_fromRow).toList();
+  }
+
+  /// Brouillons dont les modifications locales n'ont pas encore été
+  /// confirmées comme reçues par le serveur — pour le badge "en attente"
+  /// affiché par [SyncStatusBanner].
+  Future<int> countPendingSync() async {
+    final db = await AppDatabase.instance();
+    final rows = await db.rawQuery(
+      'SELECT COUNT(*) AS n FROM form_drafts WHERE last_synced_at IS NULL OR updated_at > last_synced_at',
+    );
+    return Sqflite.firstIntValue(rows) ?? 0;
   }
 
   Future<void> delete(String id) async {
@@ -88,6 +103,8 @@ class FormDraftRepository {
           .toList(),
       createdAt: DateTime.parse(row['created_at']! as String),
       updatedAt: DateTime.parse(row['updated_at']! as String),
+      serverUpdatedAt: row['server_updated_at'] != null ? DateTime.parse(row['server_updated_at']! as String) : null,
+      lastSyncedAt: row['last_synced_at'] != null ? DateTime.parse(row['last_synced_at']! as String) : null,
     );
   }
 }

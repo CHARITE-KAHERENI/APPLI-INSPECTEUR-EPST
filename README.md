@@ -112,11 +112,24 @@ npm run start:dev               # http://localhost:3000
 npm run dev --workspace=web     # http://localhost:5173
 ```
 
+## Mode hors-ligne et synchronisation (mobile)
+
+L'application mobile fonctionne intégralement hors-ligne (formulaires,
+configurations, référentiels établissements/enseignants, tous disponibles
+en SQLite) et synchronise automatiquement dès qu'une connexion est
+détectée, avec réessai automatique en cas d'échec et gestion des
+conflits (version locale la plus récente appliquée, historique des deux
+versions consultable par l'IGE). Voir `mobile/README.md` (section "Mode
+hors-ligne et synchronisation") et `backend/README.md` (endpoints
+`POST /sync/submissions`, `GET /sync/status`,
+`GET /sync/submissions/:id/history`) pour le détail.
+
 ## Prochaines étapes
 
-- Génération des projets natifs mobile (`flutter create .`) et
-  synchronisation des brouillons soumis avec `POST /form-submissions`.
-- Liste des brouillons en cours côté mobile (reprise, suppression).
+- Génération des projets natifs mobile (`flutter create .`) — voir
+  `mobile/README.md`.
+- Liste des brouillons en cours côté mobile (reprise, suppression) et
+  écran de paramètres pour configurer l'URL du serveur.
 - Interface web de saisie/consultation des formulaires, s'appuyant sur
   `shared/forms/*.json` et `computeSectionScore`.
 - Authentification et autorisations par rôle (inspecteur, chef

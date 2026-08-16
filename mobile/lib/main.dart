@@ -1,12 +1,30 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'core/db/reference_data_repository.dart';
 import 'core/models/form_template.dart';
 import 'core/models/form_template_repository.dart';
+import 'core/sync/sync_engine.dart';
+import 'core/sync/sync_status_banner.dart';
 import 'core/theme/app_theme.dart';
 import 'features/dynamic_form/screens/dynamic_form_screen.dart';
 
 void main() {
-  runApp(const C3DigitalApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  // Hydrate les référentiels établissements/enseignants dès le démarrage
+  // s'ils ne le sont pas encore (premier lancement) — ne bloque pas le
+  // premier affichage, ces données ne sont consultées qu'à la saisie de
+  // l'en-tête d'un formulaire.
+  unawaited(const ReferenceDataRepository().hydrateFromAssetsIfEmpty());
+
+  runApp(
+    ChangeNotifierProvider<SyncEngine>(
+      create: (_) => SyncEngine()..start(),
+      child: const C3DigitalApp(),
+    ),
+  );
 }
 
 class C3DigitalApp extends StatelessWidget {
@@ -18,6 +36,17 @@ class C3DigitalApp extends StatelessWidget {
       title: 'c3-digital',
       theme: AppTheme.light,
       home: const HomeScreen(),
+      // Bandeau de statut de synchronisation affiché en permanence,
+      // au-dessus de chaque écran de l'application (voir
+      // `SyncStatusBanner`).
+      builder: (context, child) {
+        return Column(
+          children: [
+            const SafeArea(bottom: false, child: SyncStatusBanner()),
+            Expanded(child: child ?? const SizedBox.shrink()),
+          ],
+        );
+      },
     );
   }
 }

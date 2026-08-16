@@ -76,6 +76,15 @@ export class FormSubmissionEntity {
   @Column({ name: 'synced_at', type: 'timestamptz', nullable: true })
   syncedAt: Date | null;
 
+  /**
+   * Horodatage de la dernière modification côté appareil mobile (distinct
+   * de `updatedAt`, géré par le serveur) — utilisé par le module `sync`
+   * pour départager la version locale la plus récente lors d'une
+   * synchronisation. Voir `modules/sync/sync.service.ts`.
+   */
+  @Column({ name: 'client_updated_at', type: 'timestamptz', nullable: true })
+  clientUpdatedAt: Date | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 
