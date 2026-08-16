@@ -7,16 +7,19 @@ import 'form_template.dart';
 
 /// Charge les [FormTemplate] embarqués dans les assets de l'application.
 ///
-/// Ces fichiers sont des copies de `shared/src/form-templates/*.json`
-/// (voir `scripts/sync-mobile-assets.sh`). Une prochaine itération pourra
+/// Ces fichiers sont des copies de `shared/forms/*.json` (voir
+/// `scripts/sync-mobile-assets.sh`). Une prochaine itération pourra
 /// remplacer/compléter cette source par un appel à l'API backend
 /// (`GET /form-templates`) avec mise en cache locale pour l'usage hors-ligne.
 class FormTemplateRepository {
   const FormTemplateRepository();
 
   static const Map<FormCode, String> _assetPaths = {
+    FormCode.c2: 'assets/form-templates/c2.json',
     FormCode.c3: 'assets/form-templates/c3.json',
+    FormCode.c3b: 'assets/form-templates/c3b.json',
     FormCode.c3m: 'assets/form-templates/c3m.json',
+    FormCode.c3das: 'assets/form-templates/c3_das.json',
   };
 
   Future<FormTemplate> load(FormCode code) async {

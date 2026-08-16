@@ -13,7 +13,8 @@ dossier `/database` ne contient qu'une copie de référence lisible.
 ### `form_templates`
 Une ligne par version d'un des 5 formulaires officiels IGE
 (**C2, C3, C3B, C3M, C3_DAS**). La colonne `definition` (JSONB) contient
-l'en-tête, les sections/critères/barèmes et les signatures — voir
+l'en-tête, les groupes de champs non notés, les sections/critères, le
+tableau de conversion, la synthèse finale et les signatures — voir
 `shared/src/schemas/form-template.schema.json`.
 
 ### `form_submissions`
@@ -32,7 +33,7 @@ brouillon  →  soumis  →  synchronise
 docker compose up -d db
 ```
 
-## Appliquer les migrations et charger les templates C3 / C3M
+## Appliquer les migrations et charger les 5 templates (C2, C3, C3B, C3M, C3_DAS)
 
 ```bash
 cd backend

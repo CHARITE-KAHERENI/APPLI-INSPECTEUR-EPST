@@ -29,7 +29,7 @@ export interface SectionResponse {
   maxScore: number;
   /** Pourcentage calculé via le barème du template (0-100). */
   percentage: number;
-  /** Mention résolue via `SectionBareme.mentionRules`. */
+  /** Mention résolue via `FormTemplate.conversionTable`. */
   mention: string;
   /** Zone de conseils / observations en texte libre. */
   advice?: string;

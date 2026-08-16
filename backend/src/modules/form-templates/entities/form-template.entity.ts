@@ -1,8 +1,11 @@
 import type {
+  ConversionTable,
   FormCode,
+  FormFieldGroup,
   FormHeaderTemplate,
   FormSectionTemplate,
   SignatureZoneTemplate,
+  SynthesisTemplate,
 } from '@c3-digital/shared';
 import {
   Column,
@@ -16,13 +19,17 @@ import {
 
 /**
  * Portion "définition" d'un `FormTemplate` partagé : ce qui varie par
- * formulaire (en-tête, sections/critères/barèmes, signatures). `id`,
- * `code`, `name`, `version`, `description` et `isActive` sont des colonnes
+ * formulaire (en-tête, groupes de champs non notés, sections/critères,
+ * tableau de conversion, synthèse finale, signatures). `id`, `code`,
+ * `name`, `version`, `description` et `isActive` sont des colonnes
  * natives de la table pour rester interrogeables sans creuser le JSONB.
  */
 export interface FormTemplateDefinition {
   header: FormHeaderTemplate;
+  fieldGroups: FormFieldGroup[];
   sections: FormSectionTemplate[];
+  conversionTable: ConversionTable;
+  synthesis: SynthesisTemplate;
   signatures: SignatureZoneTemplate;
 }
 
@@ -49,7 +56,7 @@ export class FormTemplateEntity {
   @Column({ type: 'text', nullable: true })
   description: string | null;
 
-  /** Contient `header`, `sections` et `signatures` (voir shared/src/types/form-template.ts). */
+  /** Voir {@link FormTemplateDefinition} — miroir de shared/src/types/form-template.ts. */
   @Column({ type: 'jsonb' })
   definition: FormTemplateDefinition;
 

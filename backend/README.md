@@ -13,7 +13,7 @@ Scaffoldé avec `@nestjs/cli`. Persistance via **TypeORM** + **PostgreSQL**.
 cp .env.example .env          # ajuster si besoin (voir docker-compose.yml à la racine)
 npm install                   # depuis la racine du monorepo (workspaces)
 npm run migration:run         # crée form_templates et form_submissions
-npm run seed:form-templates   # charge shared/src/form-templates/{c3,c3m}.json
+npm run seed:form-templates   # charge shared/forms/*.json (5 formulaires)
 npm run start:dev
 ```
 

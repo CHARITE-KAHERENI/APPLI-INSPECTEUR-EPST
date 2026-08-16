@@ -5,7 +5,19 @@
   "description": "Modèle (template) d'un formulaire dynamique IGE : C2, C3, C3B, C3M ou C3_DAS. Reflète shared/src/types/form-template.ts.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["id", "code", "name", "version", "header", "sections", "signatures", "isActive"],
+  "required": [
+    "id",
+    "code",
+    "name",
+    "version",
+    "header",
+    "fieldGroups",
+    "sections",
+    "conversionTable",
+    "synthesis",
+    "signatures",
+    "isActive"
+  ],
   "properties": {
     "id": { "type": "string" },
     "code": {
@@ -33,11 +45,17 @@
         }
       }
     },
+    "fieldGroups": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/formFieldGroup" }
+    },
     "sections": {
       "type": "array",
       "minItems": 1,
       "items": { "$ref": "#/$defs/formSectionTemplate" }
     },
+    "conversionTable": { "$ref": "#/$defs/conversionTable" },
+    "synthesis": { "$ref": "#/$defs/synthesisTemplate" },
     "signatures": {
       "type": "object",
       "additionalProperties": false,
@@ -67,6 +85,7 @@
       "required": ["key", "label", "type", "required", "common", "order"],
       "properties": {
         "key": { "type": "string", "minLength": 1 },
+        "code": { "type": "string" },
         "label": { "type": "string", "minLength": 1 },
         "type": { "type": "string", "enum": ["text", "textarea", "date", "number", "select"] },
         "required": { "type": "boolean" },
@@ -77,6 +96,21 @@
         },
         "order": { "type": "integer", "minimum": 0 },
         "helpText": { "type": "string" }
+      }
+    },
+    "formFieldGroup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "fields"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "code": { "type": "string" },
+        "title": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" },
+        "fields": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/formHeaderField" }
+        }
       }
     },
     "formCriterion": {
@@ -93,32 +127,16 @@
         "order": { "type": "integer", "minimum": 0 }
       }
     },
-    "baremeMentionRule": {
+    "customField": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["minPercentage", "maxPercentage", "mention"],
+      "required": ["id", "label", "type", "order"],
       "properties": {
-        "minPercentage": { "type": "number", "minimum": 0, "maximum": 100 },
-        "maxPercentage": { "type": "number", "minimum": 0, "maximum": 100 },
-        "mention": { "type": "string", "minLength": 1 },
-        "appreciationCode": { "type": "string" }
-      }
-    },
-    "sectionBareme": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["maxScorePerCriterion", "conversionMethod", "mentionRules"],
-      "properties": {
-        "maxScorePerCriterion": { "const": 4 },
-        "conversionMethod": {
-          "type": "string",
-          "enum": ["sum_to_percentage", "average_to_percentage"]
-        },
-        "mentionRules": {
-          "type": "array",
-          "minItems": 1,
-          "items": { "$ref": "#/$defs/baremeMentionRule" }
-        }
+        "id": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "minLength": 1 },
+        "type": { "type": "string", "enum": ["text", "textarea", "date", "number", "select"] },
+        "maxScore": { "const": 4 },
+        "order": { "type": "integer", "minimum": 0 }
       }
     },
     "adviceZoneTemplate": {
@@ -135,7 +153,16 @@
     "formSectionTemplate": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "code", "title", "order", "criteria", "bareme", "adviceZone"],
+      "required": [
+        "id",
+        "code",
+        "title",
+        "order",
+        "criteria",
+        "observationsLabel",
+        "adviceZone",
+        "custom_fields"
+      ],
       "properties": {
         "id": { "type": "string", "minLength": 1 },
         "code": { "type": "string", "minLength": 1 },
@@ -147,8 +174,89 @@
           "minItems": 1,
           "items": { "$ref": "#/$defs/formCriterion" }
         },
-        "bareme": { "$ref": "#/$defs/sectionBareme" },
-        "adviceZone": { "$ref": "#/$defs/adviceZoneTemplate" }
+        "observationsLabel": { "type": "string", "minLength": 1 },
+        "adviceZone": { "$ref": "#/$defs/adviceZoneTemplate" },
+        "custom_fields": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/customField" }
+        }
+      }
+    },
+    "conversionRange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["min", "max"],
+      "properties": {
+        "min": { "type": "integer", "minimum": 0 },
+        "max": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "conversionTableRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["criteriaCount", "ranges"],
+      "properties": {
+        "criteriaCount": { "type": "integer", "minimum": 1 },
+        "ranges": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/conversionRange" }
+        }
+      }
+    },
+    "conversionBand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scoreOn4", "minPercentage", "maxPercentage", "mention"],
+      "properties": {
+        "scoreOn4": { "type": "integer", "enum": [4, 3, 2, 1, 0] },
+        "minPercentage": { "type": "number", "minimum": 0, "maximum": 100 },
+        "maxPercentage": { "type": "number", "minimum": 0, "maximum": 100 },
+        "mention": { "type": "string", "minLength": 1 },
+        "secondaryMention": { "type": "string" }
+      }
+    },
+    "conversionTable": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "bands"],
+      "properties": {
+        "mode": { "type": "string", "enum": ["lookup_by_criteria_count", "percentage_only"] },
+        "bands": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/conversionBand" }
+        },
+        "rows": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/conversionTableRow" }
+        }
+      }
+    },
+    "synthesisRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sectionId", "label"],
+      "properties": {
+        "sectionId": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "minLength": 1 }
+      }
+    },
+    "synthesisTemplate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "rows", "finalMentionLabel"],
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "rows": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/synthesisRow" }
+        },
+        "conversionCriteriaCount": { "type": "integer", "minimum": 1 },
+        "finalMentionLabel": { "type": "string", "minLength": 1 },
+        "finalMentionHelpText": { "type": "string" },
+        "sealLabel": { "type": "string" }
       }
     },
     "signatureRoleTemplate": {

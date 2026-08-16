@@ -28,13 +28,13 @@ lib/
 ├── core/
 │   ├── models/                        # Miroir Dart du modèle partagé shared/src/types
 │   │   ├── common.dart                # FormCode, SignatoryRole...
-│   │   ├── form_template.dart         # FormTemplate, sections, critères, barèmes
+│   │   ├── form_template.dart         # FormTemplate, sections, ConversionTable, SynthesisTemplate
 │   │   ├── form_submission.dart       # FormSubmission, réponses, signatures
 │   │   └── form_template_repository.dart
 │   └── theme/
 └── features/                          # Modules à venir (saisie, synchronisation, auth...)
 
-assets/form-templates/                 # Copies de shared/src/form-templates (voir ci-dessous)
+assets/form-templates/                 # Copies de shared/forms (voir ci-dessous)
 ```
 
 ## Modèle de données partagé
@@ -44,9 +44,8 @@ modèle TypeScript "source de vérité" du formulaire dynamique). Tant que
 Dart ne consomme pas directement le JSON Schema partagé, ces deux
 implémentations doivent rester alignées manuellement.
 
-`assets/form-templates/c3.json` et `c3m.json` sont des copies de
-`shared/src/form-templates/`. Après toute modification de ces fichiers,
-lancer :
+`assets/form-templates/*.json` sont des copies de `shared/forms/`. Après
+toute modification de ces fichiers, lancer :
 
 ```bash
 ./scripts/sync-mobile-assets.sh

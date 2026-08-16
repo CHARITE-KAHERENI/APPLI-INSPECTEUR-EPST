@@ -3,15 +3,15 @@
  *
  * Ce modèle sert de socle unique pour représenter les 5 formulaires
  * officiels de l'Inspection Générale de l'Enseignement (IGE) en RDC :
- *   - C2      : Fiche d'inspection pédagogique (leçon observée)
- *   - C3      : Rapport d'inspection d'un enseignant
- *   - C3B     : Rapport d'inspection - variante B
+ *   - C2      : Inspection administrative
+ *   - C3      : Inspection pédagogique (leçon théorique)
+ *   - C3B     : Inspection pédagogique (leçon pratique)
  *   - C3M     : Rapport d'inspection du personnel de maîtrise/direction
- *   - C3_DAS  : Rapport d'inspection administrative et sociale
+ *   - C3_DAS  : Inspection pédagogique (séquence didactique)
  *
- * Le contenu détaillé (libellés exacts des rubriques, barèmes officiels,
- * mentions) est fourni séparément et vient peupler les fichiers de
- * configuration JSON dans `shared/src/form-templates/*.json`.
+ * Le contenu détaillé (libellés exacts des rubriques, tableaux de
+ * conversion officiels) peuple les fichiers de configuration JSON dans
+ * `shared/forms/*.json`.
  */
 
 /** Les 5 formulaires officiels IGE pris en charge par la plateforme. */

@@ -29,6 +29,9 @@ flutter:
   uses-material-design: true
 
   assets:
-    # Copies de shared/src/form-templates (voir scripts/sync-mobile-assets.sh).
+    # Copies de shared/forms (voir scripts/sync-mobile-assets.sh).
+    - assets/form-templates/c2.json
     - assets/form-templates/c3.json
+    - assets/form-templates/c3b.json
     - assets/form-templates/c3m.json
+    - assets/form-templates/c3_das.json

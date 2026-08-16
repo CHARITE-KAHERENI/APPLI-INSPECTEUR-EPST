@@ -5,13 +5,13 @@ Générale de l'Enseignement (IGE)**, République Démocratique du Congo.
 
 La plateforme couvre les **5 formulaires officiels** de l'IGE :
 
-| Code      | Formulaire                                                      |
-| --------- | ----------------------------------------------------------------- |
-| `C2`      | Fiche d'inspection pédagogique (leçon observée)                   |
-| `C3`      | Rapport d'inspection d'un enseignant                               |
-| `C3B`     | Rapport d'inspection - variante B                                  |
-| `C3M`     | Rapport d'inspection du personnel de maîtrise / direction          |
-| `C3_DAS`  | Rapport d'inspection administrative et sociale                     |
+| Code      | Formulaire                                                      | Statut |
+| --------- | ----------------------------------------------------------------- | ------ |
+| `C2`      | Inspection administrative                                          | ✅ transcrit |
+| `C3`      | Inspection pédagogique (leçon théorique)                           | ✅ transcrit |
+| `C3B`     | Inspection pédagogique (leçon pratique)                            | ✅ transcrit |
+| `C3M`     | Rapport d'inspection du personnel de maîtrise / direction          | ⏳ placeholder (document officiel non encore fourni) |
+| `C3_DAS`  | Inspection pédagogique (séquence didactique)                       | ✅ transcrit |
 
 ## Architecture
 
@@ -37,25 +37,35 @@ capable de représenter n'importe lequel des 5 formulaires IGE :
 
 - un **en-tête commun** (inspecteur, établissement, enseignant/entité
   inspectée, année scolaire, numéro de rapport) + des champs spécifiques
-  par formulaire ;
+  par formulaire, plus des **groupes de champs non notés** hors en-tête
+  (ex : "Activité(s) inspectée(s)", ou "Implantation/Structure" notées
+  E/TB/B/AB/M pour C2) ;
 - une ou plusieurs **sections**, chacune avec :
-  - des **critères notés de 0 à 4** ;
-  - un **barème** de conversion note → pourcentage → mention ;
+  - des **critères notés de 0 à 4**, avec leur numérotation officielle ;
   - une zone **"conseils"** en texte libre ;
+  - un champ **`custom_fields`** toujours vide dans les configurations
+    officielles, réservé aux ajouts futurs de l'utilisateur — jamais
+    fusionné avec les critères officiels ;
+- **un seul "Tableau de conversion"** note → pourcentage → mention par
+  formulaire (pas un barème par section), fidèle au mécanisme réellement
+  imprimé sur les documents officiels — voir `shared/README.md` pour le
+  détail des deux modes (`lookup_by_criteria_count` / `percentage_only`) ;
 - une zone de **signatures** (enseignant, chef d'établissement,
-  inspecteur).
+  inspecteur — variable selon le formulaire).
 
 Ce modèle est décrit à la fois en **types TypeScript** (`shared/src/types`)
 et en **JSON Schema** (`shared/src/schemas`), afin d'être consommé de
 façon cohérente par le backend, le web et — via un miroir Dart maintenu
 manuellement — l'application mobile. Voir `shared/README.md` pour le
-détail.
+détail, y compris les quelques coquilles des documents sources
+transcrites telles quelles (numérotation dupliquée, valeur déduite par
+calcul là où un chiffre est tronqué à l'impression...).
 
-Les configurations JSON des formulaires **C3** et **C3M**
-(`shared/src/form-templates/{c3,c3m}.json`) sont en place ; leur contenu
-pédagogique détaillé (libellés officiels des rubriques et barèmes) est
-volontairement marqué `PLACEHOLDER` en attendant d'être fourni. Les
-configurations **C2, C3B et C3_DAS** suivront le même schéma.
+Les configurations JSON de **C2, C3, C3B et C3_DAS**
+(`shared/forms/{c2,c3,c3b,c3_das}.json`) sont des transcriptions complètes
+des documents officiels fournis. **C3M** (`shared/forms/c3m.json`) reste
+un squelette `PLACEHOLDER` : aucun document officiel n'a encore été fourni
+pour ce formulaire.
 
 ### Backend (`/backend`)
 
@@ -89,7 +99,7 @@ npm run build:shared
 cd backend
 cp .env.example .env
 npm run migration:run
-npm run seed:form-templates     # charge les templates C3 / C3M
+npm run seed:form-templates     # charge les 5 templates (C2, C3, C3B, C3M, C3_DAS)
 npm run start:dev               # http://localhost:3000
 
 # dans un autre terminal
@@ -98,10 +108,11 @@ npm run dev --workspace=web     # http://localhost:5173
 
 ## Prochaines étapes
 
-- Contenu détaillé (rubriques, barèmes officiels) des formulaires C3 et
-  C3M, puis configurations C2, C3B et C3_DAS.
+- Contenu détaillé (rubriques, barème officiel) du formulaire **C3M** —
+  seul formulaire encore en `PLACEHOLDER`.
 - Génération des projets natifs mobile (`flutter create .`) et
   implémentation de la saisie hors-ligne + synchronisation.
-- Interface web de consultation/gestion des formulaires.
+- Interface web de saisie/consultation des formulaires, s'appuyant sur
+  `shared/forms/*.json` et `computeSectionScore`.
 - Authentification et autorisations par rôle (inspecteur, chef
   d'établissement, administration IGE).

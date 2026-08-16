@@ -1,11 +1,14 @@
 import { CriterionResponse } from './types/form-submission';
-import { FormSectionTemplate } from './types/form-template';
+import {
+  ConversionTable,
+  FormSectionTemplate,
+} from './types/form-template';
 
 /**
  * Logique de calcul partagée entre le backend, le web et (via le même
  * algorithme réimplémenté en Dart) le mobile : conversion des notes brutes
- * d'une section en pourcentage puis en mention, à partir du barème défini
- * dans le `FormTemplate`.
+ * d'une section en pourcentage puis en mention, à partir du "Tableau de
+ * conversion" unique défini au niveau du `FormTemplate`.
  */
 
 export class UnknownCriterionError extends Error {
@@ -15,14 +18,61 @@ export class UnknownCriterionError extends Error {
   }
 }
 
-export class NoMatchingMentionRuleError extends Error {
-  constructor(percentage: number, sectionId: string) {
+export class NoMatchingConversionRuleError extends Error {
+  constructor(criteriaCount: number, rawScore: number) {
     super(
-      `Aucune règle de barème ne couvre ${percentage}% pour la section "${sectionId}". ` +
-        'Vérifiez que les mentionRules couvrent bien 0-100 sans trou.',
+      `Aucune règle du tableau de conversion ne couvre la note ${rawScore} pour ${criteriaCount} critères. ` +
+        'Vérifiez que conversionTable.rows contient une ligne pour ce nombre de critères et que ses plages couvrent 0-(4×N) sans trou.',
     );
-    this.name = 'NoMatchingMentionRuleError';
+    this.name = 'NoMatchingConversionRuleError';
   }
+}
+
+export interface ConversionResult {
+  scoreOn4: 4 | 3 | 2 | 1 | 0;
+  percentage: number;
+  mention: string;
+}
+
+/**
+ * Convertit une note brute en pourcentage + mention, via le "Tableau de
+ * conversion" du formulaire.
+ *
+ * @param criteriaCount Nombre de critères concernés (N) — la longueur de
+ *   `FormSectionTemplate.criteria`, ou `SynthesisTemplate.conversionCriteriaCount`
+ *   pour la synthèse finale. Ignoré en mode `percentage_only`.
+ */
+export function convertRawScore(
+  table: ConversionTable,
+  rawScore: number,
+  maxScore: number,
+  criteriaCount?: number,
+): ConversionResult {
+  const percentage = maxScore === 0 ? 0 : Math.round((rawScore / maxScore) * 10000) / 100;
+
+  if (table.mode === 'percentage_only') {
+    const band = table.bands.find(
+      (b) => percentage >= b.minPercentage && percentage <= b.maxPercentage,
+    );
+    if (!band) {
+      throw new NoMatchingConversionRuleError(criteriaCount ?? 0, rawScore);
+    }
+    return { scoreOn4: band.scoreOn4, percentage, mention: band.mention };
+  }
+
+  if (criteriaCount === undefined) {
+    throw new Error('criteriaCount est requis en mode lookup_by_criteria_count.');
+  }
+  const row = table.rows?.find((r) => r.criteriaCount === criteriaCount);
+  if (!row) {
+    throw new NoMatchingConversionRuleError(criteriaCount, rawScore);
+  }
+  const bandIndex = row.ranges.findIndex((r) => rawScore >= r.min && rawScore <= r.max);
+  if (bandIndex === -1) {
+    throw new NoMatchingConversionRuleError(criteriaCount, rawScore);
+  }
+  const band = table.bands[bandIndex];
+  return { scoreOn4: band.scoreOn4, percentage, mention: band.mention };
 }
 
 export interface SectionScoreResult {
@@ -30,15 +80,18 @@ export interface SectionScoreResult {
   maxScore: number;
   percentage: number;
   mention: string;
+  /** Note de la section convertie sur 4, réutilisable pour l'évaluation synthétique finale. */
+  scoreOn4?: 4 | 3 | 2 | 1 | 0;
 }
 
 /**
  * Calcule le score total, le pourcentage et la mention d'une section à
- * partir des réponses aux critères et du template de la section.
+ * partir des réponses aux critères et du tableau de conversion du template.
  */
 export function computeSectionScore(
   section: FormSectionTemplate,
   responses: CriterionResponse[],
+  conversionTable: ConversionTable,
 ): SectionScoreResult {
   const criteriaById = new Map(section.criteria.map((c) => [c.id, c]));
 
@@ -55,33 +108,12 @@ export function computeSectionScore(
     maxScore += criterion.maxScore * weight;
   }
 
-  const percentage =
-    section.bareme.conversionMethod === 'sum_to_percentage'
-      ? maxScore === 0
-        ? 0
-        : (totalScore / maxScore) * 100
-      : responses.length === 0
-        ? 0
-        : (totalScore / responses.length / section.bareme.maxScorePerCriterion) * 100;
-
-  const roundedPercentage = Math.round(percentage * 100) / 100;
-  const mention = resolveMention(section, roundedPercentage);
-
-  return {
+  const { percentage, mention, scoreOn4 } = convertRawScore(
+    conversionTable,
     totalScore,
     maxScore,
-    percentage: roundedPercentage,
-    mention,
-  };
-}
-
-/** Trouve la mention correspondant à un pourcentage, selon le barème de la section. */
-export function resolveMention(section: FormSectionTemplate, percentage: number): string {
-  const rule = section.bareme.mentionRules.find(
-    (r) => percentage >= r.minPercentage && percentage <= r.maxPercentage,
+    section.criteria.length,
   );
-  if (!rule) {
-    throw new NoMatchingMentionRuleError(percentage, section.id);
-  }
-  return rule.mention;
+
+  return { totalScore, maxScore, percentage, mention, scoreOn4 };
 }

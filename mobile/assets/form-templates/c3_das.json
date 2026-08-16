@@ -1,9 +1,9 @@
 {
-  "id": "template-c3-v1.0.0",
-  "code": "C3",
-  "name": "C3 - Inspection pédagogique (leçon théorique)",
+  "id": "template-c3das-v1.0.0",
+  "code": "C3_DAS",
+  "name": "C3_DAS - Inspection pédagogique (séquence didactique)",
   "version": "1.0.0",
-  "description": "Transcription du formulaire officiel IGE C3 (documents C3_R / C3_V — recto/verso). Ministère de l'Enseignement Primaire, Secondaire et Professionnel.",
+  "description": "Transcription du formulaire officiel IGE C3_DAS (document C3_DAS_REVUE). Ministère de l'Education Nationale et Nouvelle Citoyenneté. Le titre imprimé de la section 2.10 (\"Evaluation de l'acquis\") ne correspond pas à ses critères (qui portent en réalité sur les documents des apprenants) : transcrit tel quel, sans reformulation, conformément au document source — voir aussi la ligne 2.11.10 du tableau de synthèse (\"DOCUMENTS DES APPRENANTS\"), qui elle correspond au contenu réel.",
   "isActive": true,
   "header": {
     "fields": [
@@ -55,7 +55,7 @@
       {
         "key": "bp",
         "code": "04",
-        "label": "B.P.                   à",
+        "label": "B.P.               à",
         "type": "text",
         "required": false,
         "common": false,
@@ -64,7 +64,7 @@
       {
         "key": "telephone_email",
         "code": "05",
-        "label": "Téléphone :                                        e-mail :",
+        "label": "Téléphone :               e-mail :",
         "type": "text",
         "required": false,
         "common": false,
@@ -92,7 +92,7 @@
       {
         "key": "dernier_c3",
         "code": "08",
-        "label": "Dernier C3 : Inspecteur :                           Date :                           Cote :",
+        "label": "Dernier C3 : Inspecteur :                Date :                Cote :",
         "type": "text",
         "required": false,
         "common": false,
@@ -114,8 +114,7 @@
         "type": "text",
         "required": true,
         "common": true,
-        "order": 11,
-        "helpText": "Format : 20.. - 20.."
+        "order": 11
       },
       {
         "key": "numero_rapport",
@@ -200,17 +199,33 @@
   },
   "fieldGroups": [
     {
-      "id": "c3-activite-inspectee",
+      "id": "c3das-activite-inspectee",
       "code": "1",
       "title": "Activité(s) inspectée(s)",
       "fields": [
         {
-          "key": "branche",
-          "label": "Branche",
+          "key": "sous_domaine",
+          "label": "Sous/Domaine",
           "type": "text",
           "required": false,
           "common": false,
           "order": 1
+        },
+        {
+          "key": "discipline",
+          "label": "Discipline",
+          "type": "text",
+          "required": false,
+          "common": false,
+          "order": 2
+        },
+        {
+          "key": "code_matiere",
+          "label": "Code Matr.",
+          "type": "text",
+          "required": false,
+          "common": false,
+          "order": 3
         },
         {
           "key": "classe",
@@ -218,7 +233,15 @@
           "type": "text",
           "required": false,
           "common": false,
-          "order": 2
+          "order": 4
+        },
+        {
+          "key": "effectif_p_i",
+          "label": "P/I",
+          "type": "text",
+          "required": false,
+          "common": false,
+          "order": 5
         },
         {
           "key": "heure",
@@ -226,87 +249,79 @@
           "type": "text",
           "required": false,
           "common": false,
-          "order": 3
+          "order": 6
         },
         {
-          "key": "effectif_p_i",
-          "label": "Effectif P / I",
-          "type": "text",
-          "required": false,
-          "common": false,
-          "order": 4
-        },
-        {
-          "key": "sujet",
-          "label": "Sujet",
+          "key": "savoirs_essentiels",
+          "label": "Savoirs essentiels",
           "type": "textarea",
           "required": false,
           "common": false,
-          "order": 5
+          "order": 7
         }
       ]
     }
   ],
   "sections": [
     {
-      "id": "c3-s21",
+      "id": "c3das-s21",
       "code": "2.1",
       "title": "Personnalité",
       "order": 1,
       "criteria": [
         {
-          "id": "c3-c21-1",
+          "id": "c3das-c21-1",
           "code": "2.1.1",
           "label": "Présentation",
           "maxScore": 4,
           "order": 1
         },
         {
-          "id": "c3-c21-2",
+          "id": "c3das-c21-2",
           "code": "2.1.2",
           "label": "Elocution",
           "maxScore": 4,
           "order": 2
         },
         {
-          "id": "c3-c21-3",
+          "id": "c3das-c21-3",
           "code": "2.1.3",
           "label": "Autorité",
           "maxScore": 4,
           "order": 3
         },
         {
-          "id": "c3-c21-4",
+          "id": "c3das-c21-4",
           "code": "2.1.4",
           "label": "Sens de responsabilité",
           "maxScore": 4,
           "order": 4
         },
         {
-          "id": "c3-c21-5",
+          "id": "c3das-c21-5",
           "code": "2.1.5",
           "label": "Assiduité",
           "maxScore": 4,
           "order": 5
         },
         {
-          "id": "c3-c21-6",
+          "id": "c3das-c21-6",
           "code": "2.1.6",
           "label": "Tenue de la classe",
           "maxScore": 4,
           "order": 6
         },
         {
-          "id": "c3-c21-7",
+          "id": "c3das-c21-7",
           "code": "2.1.7",
-          "label": "Décoration",
+          "label": "Respect de l'autorité",
           "maxScore": 4,
           "order": 7
         },
         {
-          "id": "c3-c21-8",
+          "id": "c3das-c21-8",
           "code": "2.1.8",
-          "label": "Respect de l'autorité",
+          "label": "Tenue, atelier, laboratoire/Terr",
           "maxScore": 4,
           "order": 8
         }
@@ -320,41 +335,41 @@
       "custom_fields": []
     },
     {
-      "id": "c3-s22",
+      "id": "c3das-s22",
       "code": "2.2",
       "title": "Maîtrise de la matière",
       "order": 2,
       "criteria": [
         {
-          "id": "c3-c22-1",
+          "id": "c3das-c22-1",
           "code": "2.2.1",
           "label": "Exactitude",
           "maxScore": 4,
           "order": 1
         },
         {
-          "id": "c3-c22-2",
+          "id": "c3das-c22-2",
           "code": "2.2.2",
           "label": "Dosage",
           "maxScore": 4,
           "order": 2
         },
         {
-          "id": "c3-c22-3",
+          "id": "c3das-c22-3",
           "code": "2.2.3",
           "label": "Formulation",
           "maxScore": 4,
           "order": 3
         },
         {
-          "id": "c3-c22-4",
+          "id": "c3das-c22-4",
           "code": "2.2.4",
           "label": "Adaptation au niveau",
           "maxScore": 4,
           "order": 4
         },
         {
-          "id": "c3-c22-5",
+          "id": "c3das-c22-5",
           "code": "2.2.5",
           "label": "Réponses aux questions",
           "maxScore": 4,
@@ -370,41 +385,41 @@
       "custom_fields": []
     },
     {
-      "id": "c3-s23",
+      "id": "c3das-s23",
       "code": "2.3",
       "title": "Maîtrise du programme /curriculum",
       "order": 3,
       "criteria": [
         {
-          "id": "c3-c23-1",
+          "id": "c3das-c23-1",
           "code": "2.3.1",
           "label": "Connaissance",
           "maxScore": 4,
           "order": 1
         },
         {
-          "id": "c3-c23-2",
+          "id": "c3das-c23-2",
           "code": "2.3.2",
           "label": "Conformité",
           "maxScore": 4,
           "order": 2
         },
         {
-          "id": "c3-c23-3",
+          "id": "c3das-c23-3",
           "code": "2.3.3",
           "label": "Progression",
           "maxScore": 4,
           "order": 3
         },
         {
-          "id": "c3-c23-4",
+          "id": "c3das-c23-4",
           "code": "2.3.4",
-          "label": "Adaptation au Milieu",
+          "label": "Contextualisation",
           "maxScore": 4,
           "order": 4
         },
         {
-          "id": "c3-c23-5",
+          "id": "c3das-c23-5",
           "code": "2.3.5",
           "label": "Décloisonnement",
           "maxScore": 4,
@@ -420,57 +435,128 @@
       "custom_fields": []
     },
     {
-      "id": "c3-s24",
+      "id": "c3das-s24",
       "code": "2.4",
-      "title": "Structure de la leçon",
+      "title": "Organisation des activités initiales",
       "order": 4,
       "criteria": [
         {
-          "id": "c3-c24-1",
+          "id": "c3das-c24-1",
           "code": "2.4.1",
           "label": "Prérequis",
           "maxScore": 4,
           "order": 1
         },
         {
-          "id": "c3-c24-2",
+          "id": "c3das-c24-2",
           "code": "2.4.2",
-          "label": "Motivation",
+          "label": "Présentation de la situation contextualisée",
           "maxScore": 4,
           "order": 2
         },
         {
-          "id": "c3-c24-3",
+          "id": "c3das-c24-3",
           "code": "2.4.3",
-          "label": "Inscription au journal des apprenants",
+          "label": "Lecture de la situation par les apprenants",
           "maxScore": 4,
           "order": 3
         },
         {
-          "id": "c3-c24-4",
+          "id": "c3das-c24-4",
           "code": "2.4.4",
-          "label": "Développement",
+          "label": "Explication de la situation par les apprenants",
           "maxScore": 4,
           "order": 4
         },
         {
-          "id": "c3-c24-5",
+          "id": "c3das-c24-5",
           "code": "2.4.5",
-          "label": "Enchaînement",
+          "label": "Clarification de la situation par l'enseignant",
           "maxScore": 4,
           "order": 5
         },
         {
-          "id": "c3-c24-6",
+          "id": "c3das-c24-6",
           "code": "2.4.6",
-          "label": "Synthèse",
+          "label": "Motivation",
           "maxScore": 4,
           "order": 6
         },
         {
-          "id": "c3-c24-7",
+          "id": "c3das-c24-7",
           "code": "2.4.7",
-          "label": "Application",
+          "label": "Découverte du savoir essentiel",
+          "maxScore": 4,
+          "order": 7
+        },
+        {
+          "id": "c3das-c24-8",
+          "code": "2.4.8",
+          "label": "Inscription au journal de classe des apprenants",
+          "maxScore": 4,
+          "order": 8
+        }
+      ],
+      "observationsLabel": "Observations",
+      "adviceZone": {
+        "enabled": true,
+        "label": "Conseils",
+        "required": false
+      },
+      "custom_fields": []
+    },
+    {
+      "id": "c3das-s25",
+      "code": "2.5",
+      "title": "Organisation des activités principales",
+      "order": 5,
+      "criteria": [
+        {
+          "id": "c3das-c25-1",
+          "code": "2.5.1",
+          "label": "Organisation de la classe et consignes",
+          "maxScore": 4,
+          "order": 1
+        },
+        {
+          "id": "c3das-c25-2",
+          "code": "2.5.2",
+          "label": "Mise en activité de la classe",
+          "maxScore": 4,
+          "order": 2
+        },
+        {
+          "id": "c3das-c25-3",
+          "code": "2.5.3",
+          "label": "Disponibilisation du matériel didactique",
+          "maxScore": 4,
+          "order": 3
+        },
+        {
+          "id": "c3das-c25-4",
+          "code": "2.5.4",
+          "label": "Manipulation de matériel didactique par les apprenants",
+          "maxScore": 4,
+          "order": 4
+        },
+        {
+          "id": "c3das-c25-5",
+          "code": "2.5.5",
+          "label": "Identification des objets, opérateurs et résultat",
+          "maxScore": 4,
+          "order": 5
+        },
+        {
+          "id": "c3das-c25-6",
+          "code": "2.5.6",
+          "label": "Présentation de la production des apprenants",
+          "maxScore": 4,
+          "order": 6
+        },
+        {
+          "id": "c3das-c25-7",
+          "code": "2.5.7",
+          "label": "Analyse mathétique",
           "maxScore": 4,
           "order": 7
         }
@@ -484,181 +570,159 @@
       "custom_fields": []
     },
     {
-      "id": "c3-s25",
-      "code": "2.5",
-      "title": "Stratégies",
-      "order": 5,
+      "id": "c3das-s26",
+      "code": "2.6",
+      "title": "Organisation de la synthèse",
+      "order": 6,
       "criteria": [
         {
-          "id": "c3-c25-1",
-          "code": "2.5.1",
+          "id": "c3das-c26-1",
+          "code": "2.6.1",
+          "label": "Questions de l'ens. Et réponse des appr.",
+          "maxScore": 4,
+          "order": 1
+        },
+        {
+          "id": "c3das-c26-2",
+          "code": "2.6.2",
+          "label": "participation des appr à la production de la synthèse",
+          "maxScore": 4,
+          "order": 2
+        },
+        {
+          "id": "c3das-c26-3",
+          "code": "2.6.3",
+          "label": "Elaboration de la synthèse (résumé) par les appr",
+          "maxScore": 4,
+          "order": 3
+        },
+        {
+          "id": "c3das-c26-4",
+          "code": "2.6.4",
+          "label": "Ambiance du travail",
+          "maxScore": 4,
+          "order": 4
+        },
+        {
+          "id": "c3das-c26-5",
+          "code": "2.6.5",
+          "label": "Interaction dans la classe",
+          "maxScore": 4,
+          "order": 5
+        }
+      ],
+      "observationsLabel": "Observations",
+      "adviceZone": {
+        "enabled": true,
+        "label": "Conseils",
+        "required": false
+      },
+      "custom_fields": []
+    },
+    {
+      "id": "c3das-s27",
+      "code": "2.7",
+      "title": "Organisation de l'évaluation",
+      "order": 7,
+      "criteria": [
+        {
+          "id": "c3das-c27-1",
+          "code": "2.7.1",
+          "label": "Contrôle de la maitrise des savoirs essentiels",
+          "maxScore": 4,
+          "order": 1
+        },
+        {
+          "id": "c3das-c27-2",
+          "code": "2.7.2",
+          "label": "Présentation de la situation similaire aux Apprenants",
+          "maxScore": 4,
+          "order": 2
+        },
+        {
+          "id": "c3das-c27-3",
+          "code": "2.7.3",
+          "label": "Vérification du traitement de la situation similaire par l'Enseignant",
+          "maxScore": 4,
+          "order": 3
+        },
+        {
+          "id": "c3das-c27-4",
+          "code": "2.7.4",
+          "label": "Atteinte de la compétence",
+          "maxScore": 4,
+          "order": 4
+        },
+        {
+          "id": "c3das-c27-5",
+          "code": "2.7.5",
+          "label": "Evaluation inspectorale",
+          "maxScore": 4,
+          "order": 5
+        }
+      ],
+      "observationsLabel": "Observations",
+      "adviceZone": {
+        "enabled": true,
+        "label": "Conseils",
+        "required": false
+      },
+      "custom_fields": []
+    },
+    {
+      "id": "c3das-s28",
+      "code": "2.8",
+      "title": "Stratégies",
+      "order": 8,
+      "criteria": [
+        {
+          "id": "c3das-c28-1",
+          "code": "2.8.1",
           "label": "Didactique générale",
           "maxScore": 4,
           "order": 1
         },
         {
-          "id": "c3-c25-2",
-          "code": "2.5.2",
+          "id": "c3das-c28-2",
+          "code": "2.8.2",
           "label": "Didactique de discipline",
           "maxScore": 4,
           "order": 2
         },
         {
-          "id": "c3-c25-3",
-          "code": "2.5.3",
+          "id": "c3das-c28-3",
+          "code": "2.8.3",
           "label": "Imagination pédagogique",
           "maxScore": 4,
           "order": 3
         },
         {
-          "id": "c3-c25-4",
-          "code": "2.5.4",
-          "label": "Facilité de transmission",
-          "maxScore": 4,
-          "order": 4
-        }
-      ],
-      "observationsLabel": "Observations",
-      "adviceZone": {
-        "enabled": true,
-        "label": "Conseils",
-        "required": false
-      },
-      "custom_fields": []
-    },
-    {
-      "id": "c3-s26",
-      "code": "2.6",
-      "title": "Moyens d'enseignement",
-      "order": 6,
-      "criteria": [
-        {
-          "id": "c3-c26-1",
-          "code": "2.6.1",
-          "label": "Manuel (s) de base",
-          "maxScore": 4,
-          "order": 1
-        },
-        {
-          "id": "c3-c26-2",
-          "code": "2.6.2",
-          "label": "Matériel didactique",
-          "maxScore": 4,
-          "order": 2
-        },
-        {
-          "id": "c3-c26-3",
-          "code": "2.6.3",
-          "label": "Utilisation du tableau",
-          "maxScore": 4,
-          "order": 3
-        }
-      ],
-      "observationsLabel": "Observations",
-      "adviceZone": {
-        "enabled": true,
-        "label": "Conseils",
-        "required": false
-      },
-      "custom_fields": []
-    },
-    {
-      "id": "c3-s27",
-      "code": "2.7",
-      "title": "Participation des apprenants",
-      "order": 7,
-      "criteria": [
-        {
-          "id": "c3-c27-1",
-          "code": "2.7.1",
-          "label": "Questions de l'enseignant et réponses des apprenants",
-          "maxScore": 4,
-          "order": 1
-        },
-        {
-          "id": "c3-c27-2",
-          "code": "2.7.2",
-          "label": "Travail individuel",
-          "maxScore": 4,
-          "order": 2
-        },
-        {
-          "id": "c3-c27-3",
-          "code": "2.7.3",
-          "label": "Travail de groupe",
-          "maxScore": 4,
-          "order": 3
-        },
-        {
-          "id": "c3-c27-4",
-          "code": "2.7.4",
-          "label": "Discipline",
-          "maxScore": 4,
-          "order": 4
-        },
-        {
-          "id": "c3-c27-5",
-          "code": "2.7.5",
-          "label": "Ambiance de travail",
-          "maxScore": 4,
-          "order": 5
-        }
-      ],
-      "observationsLabel": "Observations",
-      "adviceZone": {
-        "enabled": true,
-        "label": "Conseils",
-        "required": false
-      },
-      "custom_fields": []
-    },
-    {
-      "id": "c3-s28",
-      "code": "2.8",
-      "title": "Documents des apprenants",
-      "order": 8,
-      "criteria": [
-        {
-          "id": "c3-c28-1",
-          "code": "2.8.1",
-          "label": "Journal de classe",
-          "maxScore": 4,
-          "order": 1
-        },
-        {
-          "id": "c3-c28-2",
-          "code": "2.8.2",
-          "label": "Brouillon ou ardoise",
-          "maxScore": 4,
-          "order": 2
-        },
-        {
-          "id": "c3-c28-3",
-          "code": "2.8.3",
-          "label": "Cahier de cours",
-          "maxScore": 4,
-          "order": 3
-        },
-        {
-          "id": "c3-c28-4",
+          "id": "c3das-c28-4",
           "code": "2.8.4",
-          "label": "Manuel (s) de base",
+          "label": "Facilitation",
           "maxScore": 4,
           "order": 4
         },
         {
-          "id": "c3-c28-5",
+          "id": "c3das-c28-5",
           "code": "2.8.5",
-          "label": "Travaux scolaires",
+          "label": "Consignes",
           "maxScore": 4,
           "order": 5
         },
         {
-          "id": "c3-c28-6",
+          "id": "c3das-c28-6",
           "code": "2.8.6",
-          "label": "Cahier de communication",
+          "label": "Organisation du travail individuel",
           "maxScore": 4,
           "order": 6
+        },
+        {
+          "id": "c3das-c28-7",
+          "code": "2.8.6",
+          "label": "Organisation du travail en groupe",
+          "maxScore": 4,
+          "order": 7
         }
       ],
       "observationsLabel": "Observations",
@@ -670,73 +734,66 @@
       "custom_fields": []
     },
     {
-      "id": "c3-s29",
+      "id": "c3das-s29",
       "code": "2.9",
       "title": "Documents de l'enseignant",
       "order": 9,
       "criteria": [
         {
-          "id": "c3-c29-1",
+          "id": "c3das-c29-1",
           "code": "2.9.1",
           "label": "Prévisions de matières",
           "maxScore": 4,
           "order": 1
         },
         {
-          "id": "c3-c29-2",
+          "id": "c3das-c29-2",
           "code": "2.9.2",
           "label": "Journal de classe",
           "maxScore": 4,
           "order": 2
         },
         {
-          "id": "c3-c29-3",
+          "id": "c3das-c29-3",
           "code": "2.9.3",
-          "label": "Fiche de la leçon",
+          "label": "Fiche d'exploitation de la matrice",
           "maxScore": 4,
           "order": 3
         },
         {
-          "id": "c3-c29-4",
+          "id": "c3das-c29-4",
           "code": "2.9.4",
           "label": "Fichier du cours",
           "maxScore": 4,
           "order": 4
         },
         {
-          "id": "c3-c29-5",
+          "id": "c3das-c29-5",
           "code": "2.9.5",
-          "label": "Cahier de points",
+          "label": "Cahier de cote",
           "maxScore": 4,
           "order": 5
         },
         {
-          "id": "c3-c29-6",
+          "id": "c3das-c29-6",
           "code": "2.9.6",
           "label": "Cahier de questions",
           "maxScore": 4,
           "order": 6
         },
         {
-          "id": "c3-c29-7",
+          "id": "c3das-c29-7",
           "code": "2.9.7",
-          "label": "Livre du maître",
+          "label": "Livre de l'Enseignant",
           "maxScore": 4,
           "order": 7
         },
         {
-          "id": "c3-c29-8",
+          "id": "c3das-c29-8",
           "code": "2.9.8",
-          "label": "Documentation autre",
-          "maxScore": 4,
-          "order": 8
-        },
-        {
-          "id": "c3-c29-9",
-          "code": "2.9.9",
           "label": "Registre d'appel",
           "maxScore": 4,
-          "order": 9
+          "order": 8
         }
       ],
       "observationsLabel": "Observations",
@@ -748,38 +805,52 @@
       "custom_fields": []
     },
     {
-      "id": "c3-s210",
+      "id": "c3das-s210",
       "code": "2.10",
       "title": "Evaluation de l'acquis",
       "order": 10,
       "criteria": [
         {
-          "id": "c3-c210-1",
+          "id": "c3das-c210-1",
           "code": "2.10.1",
           "label": "Evaluation progressive",
           "maxScore": 4,
           "order": 1
         },
         {
-          "id": "c3-c210-2",
+          "id": "c3das-c210-2",
           "code": "2.10.2",
-          "label": "Evaluation",
+          "label": "Brouillon",
           "maxScore": 4,
           "order": 2
         },
         {
-          "id": "c3-c210-3",
+          "id": "c3das-c210-3",
           "code": "2.10.3",
-          "label": "Atteinte de l'objectif",
+          "label": "Cahier de cours",
           "maxScore": 4,
           "order": 3
         },
         {
-          "id": "c3-c210-4",
+          "id": "c3das-c210-4",
           "code": "2.10.4",
-          "label": "Evaluation inspectorale",
+          "label": "Manuel (s)",
           "maxScore": 4,
           "order": 4
+        },
+        {
+          "id": "c3das-c210-5",
+          "code": "2.10.5",
+          "label": "Travaux scolaires/Devoirs",
+          "maxScore": 4,
+          "order": 5
+        },
+        {
+          "id": "c3das-c210-6",
+          "code": "2.10.6",
+          "label": "Cahier de communication",
+          "maxScore": 4,
+          "order": 6
         }
       ],
       "observationsLabel": "Observations",
@@ -859,12 +930,12 @@
             "max": 12
           },
           {
-            "min": 8,
+            "min": 9,
             "max": 9
           },
           {
             "min": 6,
-            "max": 7
+            "max": 8
           },
           {
             "min": 5,
@@ -884,20 +955,20 @@
             "max": 16
           },
           {
-            "min": 11,
+            "min": 12,
             "max": 12
           },
           {
             "min": 8,
-            "max": 10
+            "max": 11
           },
           {
-            "min": 6,
+            "min": 7,
             "max": 7
           },
           {
             "min": 0,
-            "max": 5
+            "max": 6
           }
         ]
       },
@@ -930,12 +1001,12 @@
         "criteriaCount": 6,
         "ranges": [
           {
-            "min": 19,
+            "min": 20,
             "max": 24
           },
           {
             "min": 17,
-            "max": 18
+            "max": 19
           },
           {
             "min": 12,
@@ -955,24 +1026,24 @@
         "criteriaCount": 7,
         "ranges": [
           {
-            "min": 22,
+            "min": 23,
             "max": 28
           },
           {
             "min": 20,
-            "max": 21
+            "max": 22
           },
           {
             "min": 14,
             "max": 19
           },
           {
-            "min": 11,
+            "min": 12,
             "max": 13
           },
           {
             "min": 0,
-            "max": 10
+            "max": 11
           }
         ]
       },
@@ -984,12 +1055,12 @@
             "max": 32
           },
           {
-            "min": 22,
+            "min": 23,
             "max": 25
           },
           {
             "min": 16,
-            "max": 21
+            "max": 22
           },
           {
             "min": 13,
@@ -1057,48 +1128,48 @@
     "title": "2.11. Evaluation synthétique",
     "rows": [
       {
-        "sectionId": "c3-s21",
-        "label": "2.11.1. PERSONNALITÉ"
+        "sectionId": "c3das-s21",
+        "label": "2.11.1. PERSONNALITE"
       },
       {
-        "sectionId": "c3-s22",
-        "label": "2.11.2. MAÎTRISE DE LA MATIÈRE"
+        "sectionId": "c3das-s22",
+        "label": "2.11.2. MAITRISE DE LA MATIERE"
       },
       {
-        "sectionId": "c3-s23",
-        "label": "2.11.3. MAÎTRISE DU PROGRAMME /CURRICULUM"
+        "sectionId": "c3das-s23",
+        "label": "2.11.3. MAITRISE DU PROGRAMME"
       },
       {
-        "sectionId": "c3-s24",
-        "label": "2.11.4. STRUCTURE DE LA LEÇON"
+        "sectionId": "c3das-s24",
+        "label": "2.11.4. RGANISATION DES ACTIVITES INITIALES"
       },
       {
-        "sectionId": "c3-s25",
-        "label": "2.11.5. STRATÉGIES"
+        "sectionId": "c3das-s25",
+        "label": "2.11.5. ORGANISATION DES ACTIVITES PRINCIPALES"
       },
       {
-        "sectionId": "c3-s26",
-        "label": "2.11.6. MOYENS D'ENSEIGNEMENT"
+        "sectionId": "c3das-s26",
+        "label": "2.11.6. ORGANISATION DE LA SYNTHESE"
       },
       {
-        "sectionId": "c3-s27",
-        "label": "2.11.7. PARTICIPATION DES APPRENANTS"
+        "sectionId": "c3das-s27",
+        "label": "2.11.7. ORGANISATION DE L'EVALUATION"
       },
       {
-        "sectionId": "c3-s28",
-        "label": "2.11.8. DOCUMENTS DES APPRENANTS"
+        "sectionId": "c3das-s28",
+        "label": "2.11.8. STRATEGIE"
       },
       {
-        "sectionId": "c3-s29",
+        "sectionId": "c3das-s29",
         "label": "2.11.9. DOCUMENTS DE L'ENSEIGNANT"
       },
       {
-        "sectionId": "c3-s210",
-        "label": "2.11.10. EVALUATION DE L'ACQUIS"
+        "sectionId": "c3das-s210",
+        "label": "2.11.10. DOCUMENTS DES APPRENANTS"
       }
     ],
     "conversionCriteriaCount": 10,
-    "finalMentionLabel": "NOTE FINALE",
+    "finalMentionLabel": "4. Note finale",
     "finalMentionHelpText": "Une des cinq notes traditionnelles en toutes lettres",
     "sealLabel": "Sceau de l'établissement"
   },
