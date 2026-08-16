@@ -79,14 +79,21 @@ API NestJS. Deux tables PostgreSQL, gérées par des migrations TypeORM
 
 Voir `backend/README.md` et `database/README.md`.
 
-### Web (`/web`) et Mobile (`/mobile`)
+### Mobile (`/mobile`)
 
-Scaffolds initiaux (React + Vite pour le web, Flutter pour le mobile),
-connectés au modèle partagé. L'interface de saisie/consultation des
-formulaires sera construite dans une prochaine itération — voir
-`web/README.md` et `mobile/README.md` (ce dernier documente l'étape
+`DynamicFormScreen` génère automatiquement toute l'interface de saisie
+(identification → sections notées → synthèse + signatures) pour
+n'importe lequel des 5 formulaires à partir de sa seule configuration
+JSON. État géré via Provider, auto-sauvegarde locale en SQLite à chaque
+modification. Voir `mobile/README.md` pour le détail (et l'étape
 `flutter create .` nécessaire pour générer les projets natifs
 Android/iOS, absents du SDK dans cet environnement de développement).
+
+### Web (`/web`)
+
+Scaffold initial (React + Vite), connecté au modèle partagé. L'interface
+de saisie/consultation des formulaires sera construite dans une
+prochaine itération — voir `web/README.md`.
 
 ## Démarrage rapide
 
@@ -107,10 +114,9 @@ npm run dev --workspace=web     # http://localhost:5173
 
 ## Prochaines étapes
 
-- Moteur de rendu dynamique mobile (`DynamicFormScreen`) consommant les 5
-  configurations `shared/forms/*.json`.
 - Génération des projets natifs mobile (`flutter create .`) et
-  implémentation de la synchronisation avec le backend.
+  synchronisation des brouillons soumis avec `POST /form-submissions`.
+- Liste des brouillons en cours côté mobile (reprise, suppression).
 - Interface web de saisie/consultation des formulaires, s'appuyant sur
   `shared/forms/*.json` et `computeSectionScore`.
 - Authentification et autorisations par rôle (inspecteur, chef

@@ -6,20 +6,35 @@
 
 /// Les 5 formulaires officiels IGE pris en charge par la plateforme.
 enum FormCode {
-  c2('C2'),
-  c3('C3'),
-  c3b('C3B'),
-  c3m('C3M'),
-  c3das('C3_DAS');
+  c2('C2', 'c2'),
+  c3('C3', 'c3'),
+  c3b('C3B', 'c3b'),
+  c3m('C3M', 'c3m'),
+  c3das('C3_DAS', 'c3_das');
 
-  const FormCode(this.code);
+  const FormCode(this.code, this.id);
 
+  /// Code officiel IGE (ex: "C3_DAS"), utilisé dans le JSON des templates.
   final String code;
+
+  /// Identifiant en minuscules (ex: "c3_das"), utilisé dans les routes /
+  /// paramètres d'écran et les noms de fichiers d'assets.
+  final String id;
 
   static FormCode fromCode(String code) {
     return FormCode.values.firstWhere(
       (value) => value.code == code,
       orElse: () => throw ArgumentError('Code de formulaire inconnu: $code'),
+    );
+  }
+
+  /// Résout un identifiant tel que reçu par [DynamicFormScreen] ("c2", "c3",
+  /// "c3b", "c3m", "c3_das") — insensible à la casse.
+  static FormCode fromId(String id) {
+    final normalized = id.trim().toLowerCase();
+    return FormCode.values.firstWhere(
+      (value) => value.id == normalized,
+      orElse: () => throw ArgumentError('Identifiant de formulaire inconnu: $id'),
     );
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'core/models/form_template.dart';
 import 'core/models/form_template_repository.dart';
 import 'core/theme/app_theme.dart';
+import 'features/dynamic_form/screens/dynamic_form_screen.dart';
 
 void main() {
   runApp(const C3DigitalApp());
@@ -21,10 +22,8 @@ class C3DigitalApp extends StatelessWidget {
   }
 }
 
-/// Écran d'accueil provisoire : liste les templates de formulaires
-/// embarqués, pour valider que le modèle partagé se charge correctement
-/// côté mobile. La saisie effective des formulaires sera implémentée dans
-/// une prochaine itération.
+/// Écran d'accueil : liste les 5 formulaires IGE embarqués et ouvre
+/// [DynamicFormScreen] pour celui choisi.
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -43,12 +42,21 @@ class HomeScreen extends StatelessWidget {
           }
           final templates = snapshot.data ?? [];
           return ListView.builder(
+            padding: const EdgeInsets.symmetric(vertical: 8),
             itemCount: templates.length,
             itemBuilder: (context, index) {
               final template = templates[index];
               return ListTile(
                 title: Text(template.name),
-                subtitle: Text('${template.code.code} · v${template.version} · ${template.sections.length} section(s)'),
+                subtitle: Text(
+                  '${template.code.code} · v${template.version} · ${template.sections.length} section(s)',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => DynamicFormScreen(formCode: template.code)),
+                  );
+                },
               );
             },
           );

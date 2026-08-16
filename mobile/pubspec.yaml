@@ -14,11 +14,13 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
 
-  # Dépendances prévues pour les prochaines itérations (saisie hors-ligne,
-  # synchronisation avec le backend, capture de signature) :
+  provider: ^6.1.2          # gestion d'état de DynamicFormScreen
+  sqflite: ^2.3.3+1         # persistance locale des brouillons (offline-first)
+  path: ^1.9.0              # résolution du chemin de la base SQLite
+  signature: ^5.5.0         # capture des signatures manuscrites (enseignant, chef, inspecteur)
+
+  # Dépendance prévue pour la synchronisation avec le backend (prochaine itération) :
   # http: ^1.2.0            # appels vers l'API NestJS
-  # sqflite: ^2.3.0         # persistance locale des brouillons (offline-first)
-  # signature: ^5.5.0       # capture des signatures manuscrites
 
 dev_dependencies:
   flutter_test:
