@@ -15,7 +15,10 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { EnseignantEntity } from '../../enseignants/entities/enseignant.entity';
+import { EtablissementEntity } from '../../etablissements/entities/etablissement.entity';
 import { FormTemplateEntity } from '../../form-templates/entities/form-template.entity';
+import { InspecteurEntity } from '../../inspecteurs/entities/inspecteur.entity';
 
 /** Statuts possibles, alignés sur `FormSubmissionStatus` (shared). */
 export const FORM_SUBMISSION_STATUSES: FormSubmissionStatus[] = [
@@ -84,6 +87,48 @@ export class FormSubmissionEntity {
    */
   @Column({ name: 'client_updated_at', type: 'timestamptz', nullable: true })
   clientUpdatedAt: Date | null;
+
+  /**
+   * Liens relationnels optionnels vers l'annuaire — voir la migration
+   * `CreateAuthAndDirectory` : utilisés pour l'autorisation par rôle
+   * (`modules/auth`) et les agrégations du tableau de bord, pas pour
+   * l'affichage (qui reste basé sur `header`, la source de vérité fidèle
+   * au document officiel).
+   */
+  @Index()
+  @Column({ name: 'etablissement_id', type: 'uuid', nullable: true })
+  etablissementId: string | null;
+
+  @ManyToOne(() => EtablissementEntity, { onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'etablissement_id' })
+  etablissement: EtablissementEntity | null;
+
+  @Column({ name: 'enseignant_id', type: 'uuid', nullable: true })
+  enseignantId: string | null;
+
+  @ManyToOne(() => EnseignantEntity, { onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'enseignant_id' })
+  enseignant: EnseignantEntity | null;
+
+  @Index()
+  @Column({ name: 'inspecteur_id', type: 'uuid', nullable: true })
+  inspecteurId: string | null;
+
+  @ManyToOne(() => InspecteurEntity, { onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'inspecteur_id' })
+  inspecteur: InspecteurEntity | null;
+
+  /**
+   * Score de synthèse final, dénormalisé — voir
+   * `overall-score.util.ts#computeOverallScore` et la migration
+   * `AddOverallScoreToFormSubmissions`. `null` tant que le calcul n'a pas
+   * pu aboutir (ex : brouillon incomplet).
+   */
+  @Column({ name: 'overall_percentage', type: 'numeric', precision: 5, scale: 2, nullable: true })
+  overallPercentage: string | null;
+
+  @Column({ name: 'overall_mention', type: 'varchar', length: 50, nullable: true })
+  overallMention: string | null;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;

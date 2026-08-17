@@ -1,8 +1,12 @@
 import 'dotenv/config';
 import { DataSource } from 'typeorm';
+import { EnseignantEntity } from '../modules/enseignants/entities/enseignant.entity';
+import { EtablissementEntity } from '../modules/etablissements/entities/etablissement.entity';
 import { FormTemplateEntity } from '../modules/form-templates/entities/form-template.entity';
 import { FormSubmissionEntity } from '../modules/form-submissions/entities/form-submission.entity';
+import { InspecteurEntity } from '../modules/inspecteurs/entities/inspecteur.entity';
 import { FormSubmissionVersionEntity } from '../modules/sync/entities/form-submission-version.entity';
+import { UserEntity } from '../modules/users/entities/user.entity';
 
 /**
  * DataSource utilisé exclusivement par la CLI TypeORM (génération et
@@ -21,6 +25,10 @@ export default new DataSource({
     FormTemplateEntity,
     FormSubmissionEntity,
     FormSubmissionVersionEntity,
+    EtablissementEntity,
+    EnseignantEntity,
+    InspecteurEntity,
+    UserEntity,
   ],
   migrations: ['src/database/migrations/*.ts'],
   synchronize: false,

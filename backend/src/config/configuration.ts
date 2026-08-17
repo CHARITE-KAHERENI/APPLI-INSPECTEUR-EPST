@@ -9,6 +9,10 @@ export interface AppConfig {
     synchronize: boolean;
     ssl: boolean;
   };
+  auth: {
+    jwtSecret: string;
+    jwtExpiresIn: string;
+  };
 }
 
 export default (): AppConfig => ({
@@ -23,5 +27,11 @@ export default (): AppConfig => ({
     // les migrations TypeORM (src/database/migrations).
     synchronize: process.env.DATABASE_SYNCHRONIZE === 'true',
     ssl: process.env.DATABASE_SSL === 'true',
+  },
+  auth: {
+    // Valeur de repli utilisable uniquement en développement local — TOUJOURS
+    // définir JWT_SECRET en production (voir .env.example).
+    jwtSecret: process.env.JWT_SECRET ?? 'dev-only-insecure-secret-change-me',
+    jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? '12h',
   },
 });

@@ -1,6 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+import { DataSource, EntityManager } from 'typeorm';
 import { FormSubmissionEntity } from '../form-submissions/entities/form-submission.entity';
+import { computeOverallScore } from '../form-submissions/overall-score.util';
+import { FormTemplateEntity } from '../form-templates/entities/form-template.entity';
 import { FormSubmissionVersionEntity } from './entities/form-submission-version.entity';
 import { BatchSyncSubmissionsDto } from './dto/batch-sync-submissions.dto';
 import { SyncSubmissionItemDto } from './dto/sync-submission-item.dto';
@@ -101,6 +103,7 @@ export class SyncService {
 
       const existing = await submissionRepo.findOne({ where: { id: item.id } });
       const clientUpdatedAt = new Date(item.clientUpdatedAt);
+      const overall = await this.computeOverallScoreFor(manager, item.templateId, item.sections);
 
       if (!existing) {
         const created = submissionRepo.create({
@@ -118,6 +121,11 @@ export class SyncService {
           clientUpdatedAt,
           submittedAt: item.status !== 'brouillon' ? new Date() : null,
           syncedAt: new Date(),
+          etablissementId: item.etablissementId ?? null,
+          enseignantId: item.enseignantId ?? null,
+          inspecteurId: item.inspecteurId ?? null,
+          overallPercentage: overall.percentage !== null ? overall.percentage.toFixed(2) : null,
+          overallMention: overall.mention,
         });
         const saved = await submissionRepo.save(created);
         return this.toResult(item, saved, { applied: true, conflict: false });
@@ -168,11 +176,22 @@ export class SyncService {
       existing.status = item.status;
       existing.clientUpdatedAt = clientUpdatedAt;
       existing.syncedAt = new Date();
+      existing.overallPercentage = overall.percentage !== null ? overall.percentage.toFixed(2) : null;
+      existing.overallMention = overall.mention;
       if (item.status !== 'brouillon' && !existing.submittedAt) {
         existing.submittedAt = new Date();
       }
       if (item.deviceId) {
         existing.deviceId = item.deviceId;
+      }
+      if (item.etablissementId) {
+        existing.etablissementId = item.etablissementId;
+      }
+      if (item.enseignantId) {
+        existing.enseignantId = item.enseignantId;
+      }
+      if (item.inspecteurId) {
+        existing.inspecteurId = item.inspecteurId;
       }
 
       const saved = await submissionRepo.save(existing);
@@ -181,6 +200,26 @@ export class SyncService {
         conflict: isConflict,
       });
     });
+  }
+
+  /**
+   * Recharge la définition du template pour calculer le score de
+   * synthèse final de l'entrée reçue (voir
+   * `overall-score.util.ts#computeOverallScore`) — dénormalisé sur
+   * `form_submissions` pour les agrégations du tableau de bord IGE.
+   * Le template pouvant avoir été désactivé depuis (nouvelle version),
+   * on le recherche par `id` sans filtrer sur `isActive`.
+   */
+  private async computeOverallScoreFor(
+    manager: EntityManager,
+    templateId: string,
+    sections: SyncSubmissionItemDto['sections'],
+  ): Promise<{ percentage: number | null; mention: string | null }> {
+    const template = await manager.getRepository(FormTemplateEntity).findOne({ where: { id: templateId } });
+    if (!template) {
+      return { percentage: null, mention: null };
+    }
+    return computeOverallScore(template.definition, sections);
   }
 
   private toResult(

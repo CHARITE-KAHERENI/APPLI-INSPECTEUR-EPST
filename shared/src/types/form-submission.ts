@@ -70,6 +70,17 @@ export interface FormSubmission {
   status: FormSubmissionStatus;
   /** Identifiant de l'inspecteur ayant créé le formulaire. */
   createdBy?: string;
+  /**
+   * Liens relationnels optionnels vers les référentiels (voir
+   * `shared/src/types/directory.ts`) — distincts du contenu texte libre
+   * de `header` (qui reste la source de vérité pour le PDF/l'affichage :
+   * "Etablissement : Institut de la Paix"). Utilisés pour l'autorisation
+   * par rôle et les tableaux de bord (voir `modules/auth`), pas toujours
+   * renseignés (ex: anciens formulaires, saisie non liée à l'annuaire).
+   */
+  etablissementId?: string | null;
+  enseignantId?: string | null;
+  inspecteurId?: string | null;
   /** Identifiant de l'appareil mobile à l'origine de la saisie (traçabilité offline-first). */
   deviceId?: string;
   createdAt: string;

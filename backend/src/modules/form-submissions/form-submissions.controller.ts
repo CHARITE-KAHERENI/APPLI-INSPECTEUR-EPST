@@ -1,8 +1,13 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { UserEntity } from '../users/entities/user.entity';
 import { CreateFormSubmissionDto } from './dto/create-form-submission.dto';
+import { QueryFormSubmissionDto } from './dto/query-form-submission.dto';
 import { UpdateFormSubmissionStatusDto } from './dto/update-form-submission-status.dto';
 import { FormSubmissionsService } from './form-submissions.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('form-submissions')
 export class FormSubmissionsController {
   constructor(
@@ -15,14 +20,27 @@ export class FormSubmissionsController {
     return this.formSubmissionsService.create(dto);
   }
 
+  /**
+   * Cartes de synthèse + graphique du tableau de bord IGE (web) — voir
+   * PROMPT 6 : nombre d'inspections par formulaire, score moyen par
+   * formulaire, établissements actifs, dernières inspections. Déclarée
+   * avant `:id` pour que "stats" ne soit pas interprété comme un
+   * identifiant.
+   */
+  @Get('stats')
+  stats(@CurrentUser() user: UserEntity) {
+    return this.formSubmissionsService.stats(user);
+  }
+
+  /** Page "Inspections" (web) : liste filtrée, restreinte au périmètre du rôle de l'utilisateur. */
   @Get()
-  findAll() {
-    return this.formSubmissionsService.findAll();
+  findAll(@CurrentUser() user: UserEntity, @Query() query: QueryFormSubmissionDto) {
+    return this.formSubmissionsService.findAllScopedForUser(user, query);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.formSubmissionsService.findOne(id);
+  findOne(@Param('id') id: string, @CurrentUser() user: UserEntity) {
+    return this.formSubmissionsService.findOneScoped(id, user);
   }
 
   /** Fait transitionner le statut : brouillon -> soumis -> synchronise. */

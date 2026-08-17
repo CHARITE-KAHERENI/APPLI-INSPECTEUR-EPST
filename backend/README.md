@@ -10,10 +10,11 @@ Scaffoldé avec `@nestjs/cli`. Persistance via **TypeORM** + **PostgreSQL**.
 ## Démarrage
 
 ```bash
-cp .env.example .env          # ajuster si besoin (voir docker-compose.yml à la racine)
+cp .env.example .env          # ajuster si besoin (voir docker-compose.yml à la racine) — dont JWT_SECRET
 npm install                   # depuis la racine du monorepo (workspaces)
-npm run migration:run         # crée form_templates et form_submissions
+npm run migration:run         # crée toutes les tables (templates, formulaires, annuaire, comptes)
 npm run seed:form-templates   # charge shared/forms/*.json (5 formulaires)
+npm run seed:auth-directory   # comptes de démonstration (un par rôle) + annuaire + inspections fictives
 npm run start:dev
 ```
 
@@ -24,36 +25,114 @@ Un Postgres local est fourni via Docker à la racine du repo :
 
 ```
 src/
-├── config/                        # Chargement de la config (.env)
+├── config/                        # Chargement de la config (.env), dont JWT_SECRET
 ├── database/
 │   ├── data-source.ts             # DataSource TypeORM (CLI migrations)
 │   ├── migrations/                # Migrations SQL versionnées
-│   └── seeds/seed-form-templates.ts
+│   └── seeds/
+│       ├── seed-form-templates.ts
+│       └── seed-auth-and-directory.ts   # Comptes de démo + annuaire + inspections fictives
 └── modules/
+    ├── auth/                      # JWT (login, /auth/me), guards, décorateurs @Roles/@CurrentUser
+    ├── users/                     # Comptes de connexion (pas de CRUD public — voir Authentification)
+    ├── etablissements/            # CRUD annuaire des établissements
+    ├── enseignants/                # CRUD annuaire des enseignants
+    ├── inspecteurs/                # CRUD annuaire des inspecteurs
     ├── form-templates/            # Entité + service + controller (lecture des templates)
-    ├── form-submissions/          # Entité + service + controller (CRUD des formulaires remplis)
+    ├── form-submissions/          # Entité + service + controller (formulaires remplis, avec autorisation par rôle)
     ├── sync/                      # Réception de la file de synchronisation mobile hors-ligne
     └── pdf/                       # Génération PDF fidèle aux documents Word officiels
 ```
 
 ## Endpoints (v0)
 
-| Méthode | Route                          | Description                                   |
-| ------- | ------------------------------- | ---------------------------------------------- |
-| GET     | `/form-templates`               | Liste les templates actifs                     |
-| GET     | `/form-templates/:code`         | Template actif le plus récent pour un code     |
-| POST    | `/form-submissions`             | Crée un formulaire en statut `brouillon`       |
-| GET     | `/form-submissions`             | Liste les formulaires                          |
-| GET     | `/form-submissions/:id`         | Détail d'un formulaire                         |
-| PATCH   | `/form-submissions/:id/status`  | Transition `brouillon → soumis → synchronise`  |
-| POST    | `/sync/submissions`             | Réception en lot de la file de synchronisation mobile (voir ci-dessous) |
-| GET     | `/sync/status`                  | Vérification de connectivité légère avant une synchronisation complète |
-| GET     | `/sync/submissions/:id/history` | Version actuelle + versions remplacées, consultables par l'IGE (voir ci-dessous) |
-| GET     | `/form-submissions/:id/pdf`     | PDF du formulaire, visuellement fidèle au document Word officiel (voir ci-dessous) |
+| Méthode | Route                                | Auth | Description                                   |
+| ------- | -------------------------------------- | ---- | ---------------------------------------------- |
+| POST    | `/auth/login`                          | —    | `{ email, password }` -> `{ accessToken, user }` |
+| GET     | `/auth/me`                             | JWT  | Profil de l'utilisateur authentifié             |
+| GET     | `/form-templates`                      | —    | Liste les templates actifs                      |
+| GET     | `/form-templates/:code`                | —    | Template actif le plus récent pour un code      |
+| POST    | `/form-submissions`                    | JWT  | Crée un formulaire en statut `brouillon`        |
+| GET     | `/form-submissions/stats`              | JWT  | Cartes de synthèse + graphique du tableau de bord (voir ci-dessous) |
+| GET     | `/form-submissions`                    | JWT  | Liste les formulaires, filtrable, restreinte au périmètre du rôle |
+| GET     | `/form-submissions/:id`                | JWT  | Détail d'un formulaire (403 hors périmètre)     |
+| PATCH   | `/form-submissions/:id/status`         | JWT  | Transition `brouillon → soumis → synchronise`   |
+| GET     | `/form-submissions/:id/pdf`            | JWT  | PDF du formulaire, fidèle au document Word officiel (voir plus bas) |
+| GET/POST/PATCH/DELETE | `/etablissements[/:id]`  | JWT  | CRUD annuaire — écriture réservée à `ige_admin`/`super_admin` |
+| GET/POST/PATCH/DELETE | `/enseignants[/:id]`     | JWT  | idem, filtrable par `etablissementId`           |
+| GET/POST/PATCH/DELETE | `/inspecteurs[/:id]`     | JWT  | idem                                            |
+| POST    | `/sync/submissions`                    | —    | Réception en lot de la file de synchronisation mobile (voir ci-dessous) |
+| GET     | `/sync/status`                         | —    | Vérification de connectivité légère avant une synchronisation complète |
+| GET     | `/sync/submissions/:id/history`        | —    | Version actuelle + versions remplacées, consultables par l'IGE (voir ci-dessous) |
 
-L'authentification, les règles d'autorisation par rôle (inspecteur / chef
-d'établissement) et la validation métier fine des sections/critères ne sont
-pas encore implémentées — prévues dans une prochaine itération.
+`/sync/*` reste sans authentification : c'est l'application mobile
+hors-ligne qui y écrit, et elle n'implémente pas encore de connexion
+(voir "Ce qui n'est pas couvert" ci-dessous).
+
+## Authentification & autorisation (PROMPT 6)
+
+JWT (`@nestjs/jwt` + `passport-jwt`), mots de passe hashés avec
+`bcryptjs`. Cinq rôles (`@c3-digital/shared` `UserRole`) :
+`inspecteur`, `enseignant`, `chef_etablissement`, `ige_admin`,
+`super_admin`.
+
+- `JwtAuthGuard` (voir `modules/auth/guards/`) exige un jeton valide et
+  attache l'utilisateur (`UserEntity`) à `request.user`.
+- `RolesGuard` + `@Roles('ige_admin', 'super_admin')` restreignent une
+  route à des rôles précis (utilisé pour les écritures sur l'annuaire).
+- `@CurrentUser()` (décorateur de paramètre) injecte l'utilisateur
+  authentifié dans un handler de contrôleur.
+
+**Règles de visibilité des formulaires** (`FormSubmissionsService`,
+méthode privée `applyScope`) :
+
+| Rôle                  | Voit                                                              |
+| ---------------------- | ------------------------------------------------------------------ |
+| `super_admin`           | Tout, sans restriction                                              |
+| `ige_admin`             | Les formulaires des établissements de sa zone (`user.zone`, ex: "Nord-Kivu 2", comparée à `etablissement.zone`) — non restreint si `user.zone` n'est pas définie |
+| `chef_etablissement`    | Les formulaires de son établissement (`user.etablissementId`)      |
+| `inspecteur`            | Ses propres formulaires (`user.inspecteurId`)                      |
+| `enseignant`            | Les formulaires le concernant (`user.enseignantId`)                |
+
+Un compte dont l'identifiant de rattachement (`etablissementId` /
+`inspecteurId` / `enseignantId`) n'est pas configuré ne voit rien pour
+cette dimension, plutôt que de se voir attribuer par défaut un accès
+plus large que prévu. Ces règles s'appliquent à `GET /form-submissions`
+(liste), `GET /form-submissions/:id` (403 si hors périmètre) et
+`GET /form-submissions/:id/pdf`.
+
+Ces liens de rattachement (sur `form_submissions` comme sur `users`) sont
+des colonnes `etablissement_id`/`enseignant_id`/`inspecteur_id`
+distinctes du texte libre de `header` (qui reste la source de vérité
+pour l'affichage/le PDF) — voir la migration `CreateAuthAndDirectory`.
+**Limite connue** : l'application mobile ne renseigne pas encore ces
+liens lors de la synchronisation (son écran de saisie garde un en-tête
+en texte libre, non relié à l'annuaire) — un formulaire créé depuis
+mobile n'est donc visible aujourd'hui que par `super_admin`, tant que
+cette liaison n'est pas ajoutée côté mobile. Le script de seed peuple
+des exemples avec ces liens déjà renseignés pour permettre de tester
+les 5 rôles dès maintenant (voir "Comptes de démonstration" plus bas).
+
+### `GET /form-submissions/stats` — tableau de bord IGE
+
+Alimente le tableau de bord web (cartes de synthèse + graphique de
+répartition) : nombre d'inspections et score moyen par formulaire,
+nombre d'établissements actifs, dernières inspections — tous restreints
+au même périmètre par rôle que la liste. Le score moyen s'appuie sur
+`form_submissions.overall_percentage`, calculé et dénormalisé à chaque
+création/synchronisation (voir
+`modules/form-submissions/overall-score.util.ts` — même algorithme que
+`shared/src/scoring.ts#computeSynthesisScore`, pour ne jamais
+réapproximer le barème officiel en SQL).
+
+### Comptes de démonstration
+
+`npm run seed:auth-directory` crée un compte par rôle (mot de passe
+`password123` pour tous), un annuaire minimal (2 établissements dans
+des zones IGE différentes, avec enseignants/inspecteurs) et 2
+inspections fictives — de quoi tester les 5 rôles et la restriction par
+zone immédiatement. Détail des comptes dans le script lui-même et dans
+`web/README.md`.
 
 ### `POST /sync/submissions` — synchronisation hors-ligne
 
@@ -137,9 +216,11 @@ npm run generate:sample-pdf   # écrit backend/tmp/c3-sample.pdf (+ .html)
 ## Scripts utiles
 
 ```bash
-npm run build              # nest build
-npm run migration:generate # génère une migration à partir des diffs d'entités
-npm run migration:revert   # annule la dernière migration
+npm run build               # nest build
+npm run migration:generate  # génère une migration à partir des diffs d'entités
+npm run migration:revert    # annule la dernière migration
+npm run seed:form-templates # charge shared/forms/*.json
+npm run seed:auth-directory # comptes de démo + annuaire + inspections fictives
 npm run generate:sample-pdf # génère un PDF C3 d'exemple (données fictives) pour validation visuelle
 npm run lint
 npm run test

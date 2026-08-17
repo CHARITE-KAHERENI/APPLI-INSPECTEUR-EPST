@@ -4,7 +4,7 @@ import type {
   SectionResponse,
   SignatureResponse,
 } from '@c3-digital/shared';
-import { IsArray, IsIn, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsIn, IsObject, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreateFormSubmissionDto {
   @IsString()
@@ -37,4 +37,21 @@ export class CreateFormSubmissionDto {
   @IsOptional()
   @IsString()
   deviceId?: string;
+
+  /**
+   * Liens optionnels vers l'annuaire (voir `shared/src/types/directory.ts`)
+   * — utilisés pour l'autorisation par rôle et les agrégations du tableau
+   * de bord, distincts du texte libre de `header`.
+   */
+  @IsOptional()
+  @IsUUID()
+  etablissementId?: string;
+
+  @IsOptional()
+  @IsUUID()
+  enseignantId?: string;
+
+  @IsOptional()
+  @IsUUID()
+  inspecteurId?: string;
 }

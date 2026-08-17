@@ -117,3 +117,142 @@ CREATE INDEX IF NOT EXISTS idx_form_submission_versions_submission_id
   ON form_submission_versions (submission_id);
 CREATE INDEX IF NOT EXISTS idx_form_submission_versions_is_conflict
   ON form_submission_versions (is_conflict);
+
+-- =========================================================================
+-- Comptes utilisateurs (authentification JWT, 5 rôles) et référentiels
+-- "annuaire" (établissements, enseignants, inspecteurs) — voir PROMPT 6,
+-- backend/src/modules/{auth,etablissements,enseignants,inspecteurs}.
+-- =========================================================================
+
+CREATE TABLE IF NOT EXISTS etablissements (
+  id             uuid        NOT NULL DEFAULT gen_random_uuid(),
+  nom            varchar(255) NOT NULL,
+  code           varchar(50),
+  province       varchar(100),
+  sous_division  varchar(150),
+  milieu         varchar(20),
+  -- Zone d'inspection IGE (ex: "Nord-Kivu 2") — comparée à users.zone
+  -- pour restreindre ce qu'un ige_admin peut consulter.
+  zone           varchar(100),
+  created_at     timestamptz NOT NULL DEFAULT now(),
+  updated_at     timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT pk_etablissements PRIMARY KEY (id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_etablissements_zone ON etablissements (zone);
+CREATE INDEX IF NOT EXISTS idx_etablissements_nom ON etablissements (nom);
+
+DROP TRIGGER IF EXISTS trg_etablissements_set_updated_at ON etablissements;
+CREATE TRIGGER trg_etablissements_set_updated_at
+BEFORE UPDATE ON etablissements
+FOR EACH ROW
+EXECUTE FUNCTION set_updated_at();
+
+CREATE TABLE IF NOT EXISTS enseignants (
+  id                uuid        NOT NULL DEFAULT gen_random_uuid(),
+  nom               varchar(255) NOT NULL,
+  sexe              varchar(5),
+  matiere           varchar(150),
+  etablissement_id  uuid,
+  created_at        timestamptz NOT NULL DEFAULT now(),
+  updated_at        timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT pk_enseignants PRIMARY KEY (id),
+  CONSTRAINT fk_enseignants_etablissement FOREIGN KEY (etablissement_id)
+    REFERENCES etablissements (id) ON DELETE SET NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_enseignants_etablissement_id ON enseignants (etablissement_id);
+CREATE INDEX IF NOT EXISTS idx_enseignants_nom ON enseignants (nom);
+
+DROP TRIGGER IF EXISTS trg_enseignants_set_updated_at ON enseignants;
+CREATE TRIGGER trg_enseignants_set_updated_at
+BEFORE UPDATE ON enseignants
+FOR EACH ROW
+EXECUTE FUNCTION set_updated_at();
+
+CREATE TABLE IF NOT EXISTS inspecteurs (
+  id             uuid        NOT NULL DEFAULT gen_random_uuid(),
+  nom            varchar(255) NOT NULL,
+  sexe           varchar(5),
+  poste_attache  varchar(255),
+  zone           varchar(100),
+  created_at     timestamptz NOT NULL DEFAULT now(),
+  updated_at     timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT pk_inspecteurs PRIMARY KEY (id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_inspecteurs_zone ON inspecteurs (zone);
+CREATE INDEX IF NOT EXISTS idx_inspecteurs_nom ON inspecteurs (nom);
+
+DROP TRIGGER IF EXISTS trg_inspecteurs_set_updated_at ON inspecteurs;
+CREATE TRIGGER trg_inspecteurs_set_updated_at
+BEFORE UPDATE ON inspecteurs
+FOR EACH ROW
+EXECUTE FUNCTION set_updated_at();
+
+CREATE TABLE IF NOT EXISTS users (
+  id              uuid        NOT NULL DEFAULT gen_random_uuid(),
+  email           varchar(255) NOT NULL,
+  password_hash   varchar(255) NOT NULL,
+  full_name       varchar(255) NOT NULL,
+  role            varchar(30) NOT NULL,
+  -- Zone d'inspection IGE (ex: "Nord-Kivu 2") — pertinent pour ige_admin.
+  zone            varchar(100),
+  etablissement_id uuid,
+  enseignant_id   uuid,
+  inspecteur_id   uuid,
+  is_active       boolean     NOT NULL DEFAULT true,
+  created_at      timestamptz NOT NULL DEFAULT now(),
+  updated_at      timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT pk_users PRIMARY KEY (id),
+  CONSTRAINT uq_users_email UNIQUE (email),
+  CONSTRAINT ck_users_role CHECK (role IN
+    ('inspecteur', 'enseignant', 'chef_etablissement', 'ige_admin', 'super_admin')),
+  CONSTRAINT fk_users_etablissement FOREIGN KEY (etablissement_id)
+    REFERENCES etablissements (id) ON DELETE SET NULL,
+  CONSTRAINT fk_users_enseignant FOREIGN KEY (enseignant_id)
+    REFERENCES enseignants (id) ON DELETE SET NULL,
+  CONSTRAINT fk_users_inspecteur FOREIGN KEY (inspecteur_id)
+    REFERENCES inspecteurs (id) ON DELETE SET NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_users_role ON users (role);
+
+DROP TRIGGER IF EXISTS trg_users_set_updated_at ON users;
+CREATE TRIGGER trg_users_set_updated_at
+BEFORE UPDATE ON users
+FOR EACH ROW
+EXECUTE FUNCTION set_updated_at();
+
+-- Liens optionnels de form_submissions vers l'annuaire ci-dessus :
+-- utilisés pour l'autorisation par rôle et les agrégations du tableau de
+-- bord, distincts du texte libre de `header` (qui reste la source de
+-- vérité pour l'affichage/le PDF — ex: "Etablissement : Institut de la Paix").
+ALTER TABLE form_submissions
+  ADD COLUMN IF NOT EXISTS etablissement_id uuid,
+  ADD COLUMN IF NOT EXISTS enseignant_id uuid,
+  ADD COLUMN IF NOT EXISTS inspecteur_id uuid;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_form_submissions_etablissement') THEN
+    ALTER TABLE form_submissions
+      ADD CONSTRAINT fk_form_submissions_etablissement FOREIGN KEY (etablissement_id)
+        REFERENCES etablissements (id) ON DELETE SET NULL,
+      ADD CONSTRAINT fk_form_submissions_enseignant FOREIGN KEY (enseignant_id)
+        REFERENCES enseignants (id) ON DELETE SET NULL,
+      ADD CONSTRAINT fk_form_submissions_inspecteur FOREIGN KEY (inspecteur_id)
+        REFERENCES inspecteurs (id) ON DELETE SET NULL;
+  END IF;
+END $$;
+
+CREATE INDEX IF NOT EXISTS idx_form_submissions_etablissement_id ON form_submissions (etablissement_id);
+CREATE INDEX IF NOT EXISTS idx_form_submissions_inspecteur_id ON form_submissions (inspecteur_id);
+
+-- Score de synthèse final, dénormalisé à chaque création/synchronisation
+-- (voir backend/src/modules/form-submissions/overall-score.util.ts) —
+-- évite de réapproximer le barème officiel en SQL pour les agrégations
+-- du tableau de bord IGE ("score moyen par formulaire").
+ALTER TABLE form_submissions
+  ADD COLUMN IF NOT EXISTS overall_percentage numeric(5,2),
+  ADD COLUMN IF NOT EXISTS overall_mention varchar(50);

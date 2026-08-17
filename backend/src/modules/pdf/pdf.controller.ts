@@ -1,17 +1,22 @@
 import type { FormTemplate } from '@c3-digital/shared';
-import { Controller, Get, Param, Res } from '@nestjs/common';
+import { Controller, Get, Param, Res, UseGuards } from '@nestjs/common';
 import type { Response } from 'express';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { FormSubmissionsService } from '../form-submissions/form-submissions.service';
 import { FormTemplatesService } from '../form-templates/form-templates.service';
+import { UserEntity } from '../users/entities/user.entity';
 import { PdfSubmissionInput } from './pdf-submission-input';
 import { PdfTemplateService } from './pdf-template.service';
 import { PdfService } from './pdf.service';
 
 /**
- * Génération PDF côté serveur d'un formulaire rempli (utilisée par le
- * futur web de consultation, et par tout appelant de l'API) — voir
- * `mobile/lib/core/pdf/` pour l'équivalent hors-ligne côté mobile.
+ * Génération PDF côté serveur d'un formulaire rempli (utilisée par le web
+ * de consultation) — voir `mobile/lib/core/pdf/` pour l'équivalent
+ * hors-ligne côté mobile. Restreint au même périmètre par rôle que
+ * `GET /form-submissions/:id` (voir `FormSubmissionsService.findOneScoped`).
  */
+@UseGuards(JwtAuthGuard)
 @Controller('form-submissions')
 export class PdfController {
   constructor(
@@ -22,8 +27,12 @@ export class PdfController {
   ) {}
 
   @Get(':id/pdf')
-  async downloadPdf(@Param('id') id: string, @Res() res: Response): Promise<void> {
-    const submission = await this.formSubmissionsService.findOne(id);
+  async downloadPdf(
+    @Param('id') id: string,
+    @CurrentUser() user: UserEntity,
+    @Res() res: Response,
+  ): Promise<void> {
+    const submission = await this.formSubmissionsService.findOneScoped(id, user);
     const templateEntity = await this.formTemplatesService.findById(submission.templateId);
 
     const template: FormTemplate = {

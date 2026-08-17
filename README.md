@@ -91,9 +91,12 @@ Android/iOS, absents du SDK dans cet environnement de développement).
 
 ### Web (`/web`)
 
-Scaffold initial (React + Vite), connecté au modèle partagé. L'interface
-de saisie/consultation des formulaires sera construite dans une
-prochaine itération — voir `web/README.md`.
+React 19 + Vite + Tailwind v4, connecté à l'API backend via React Query.
+Tableau de bord IGE (cartes de synthèse, répartition des inspections par
+formulaire), page "Inspections" filtrable avec export PDF/CSV, fiches
+"Établissements" et "Inspecteurs" avec historique — accès protégé par
+connexion (JWT), sidebar reprenant l'identité visuelle bleu marine
+`#1F4E78`. Voir `web/README.md`.
 
 ## Démarrage rapide
 
@@ -106,10 +109,12 @@ cd backend
 cp .env.example .env
 npm run migration:run
 npm run seed:form-templates     # charge les 5 templates (C2, C3, C3B, C3M, C3_DAS)
+npm run seed:auth-directory     # comptes de démo (un par rôle) + annuaire + inspections fictives
 npm run start:dev               # http://localhost:3000
 
 # dans un autre terminal
-npm run dev --workspace=web     # http://localhost:5173
+cp web/.env.example web/.env.local
+npm run dev --workspace=web     # http://localhost:5173 — voir web/README.md pour les comptes de démo
 ```
 
 ## Mode hors-ligne et synchronisation (mobile)
@@ -123,6 +128,16 @@ versions consultable par l'IGE). Voir `mobile/README.md` (section "Mode
 hors-ligne et synchronisation") et `backend/README.md` (endpoints
 `POST /sync/submissions`, `GET /sync/status`,
 `GET /sync/submissions/:id/history`) pour le détail.
+
+## Comptes, rôles et autorisation
+
+Authentification JWT, 5 rôles (`inspecteur`, `enseignant`,
+`chef_etablissement`, `ige_admin`, `super_admin`). Chaque rôle ne voit
+que les formulaires dans son périmètre (son établissement, ses propres
+inspections, sa zone IGE pour l'IGE, tout pour un super administrateur)
+— voir `backend/README.md` (section "Authentification & autorisation")
+pour le détail des règles et `web/README.md` pour les comptes de
+démonstration.
 
 ## Génération PDF
 
@@ -142,7 +157,11 @@ l'écran de synthèse). Voir `backend/README.md` et `mobile/README.md`
   `mobile/README.md`.
 - Liste des brouillons en cours côté mobile (reprise, suppression) et
   écran de paramètres pour configurer l'URL du serveur.
-- Interface web de saisie/consultation des formulaires, s'appuyant sur
-  `shared/forms/*.json` et `computeSectionScore`.
-- Authentification et autorisations par rôle (inspecteur, chef
-  d'établissement, administration IGE).
+- Relier l'en-tête des formulaires mobile à l'annuaire (établissements/
+  enseignants/inspecteurs) plutôt qu'au texte libre actuel, pour que les
+  formulaires créés hors-ligne héritent aussi de l'autorisation par rôle
+  côté web (voir "Limite connue" dans `backend/README.md`).
+- Authentification mobile (l'app de saisie n'a pas encore de connexion ;
+  `/sync/*` reste volontairement ouvert en attendant).
+- Interface web de saisie de formulaire (aujourd'hui uniquement
+  consultation) et gestion des comptes utilisateurs.

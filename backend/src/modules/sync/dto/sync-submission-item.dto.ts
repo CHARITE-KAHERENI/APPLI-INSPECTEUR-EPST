@@ -81,4 +81,23 @@ export class SyncSubmissionItemDto {
   @IsOptional()
   @IsString()
   deviceId?: string;
+
+  /**
+   * Liens optionnels vers l'annuaire (voir `shared/src/types/directory.ts`)
+   * — pas encore renseignés par l'application mobile actuelle (l'en-tête
+   * y reste du texte libre, non relié à un `Etablissement`/`Enseignant`/
+   * `Inspecteur` précis) ; acceptés dès maintenant pour ne pas nécessiter
+   * de nouvelle migration lorsque cette liaison sera ajoutée côté mobile.
+   */
+  @IsOptional()
+  @IsUUID()
+  etablissementId?: string;
+
+  @IsOptional()
+  @IsUUID()
+  enseignantId?: string;
+
+  @IsOptional()
+  @IsUUID()
+  inspecteurId?: string;
 }

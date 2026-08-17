@@ -128,9 +128,13 @@ export function computeSectionScore(
  * Portage de `mobile/lib/core/models/scoring.dart#computeSynthesisScore`
  * (initialement ajoutée côté Dart seulement) : les deux implémentations
  * doivent rester alignées.
+ *
+ * N'a besoin que de `conversionTable`/`synthesis` : typé sur ce sous-ensemble
+ * (plutôt que sur `FormTemplate` en entier) pour rester appelable avec un
+ * objet partiel (voir `backend/src/modules/form-submissions/overall-score.util.ts`).
  */
 export function computeSynthesisScore(
-  template: FormTemplate,
+  template: Pick<FormTemplate, 'conversionTable' | 'synthesis'>,
   sectionScores: Record<string, SectionScoreResult | undefined>,
 ): ConversionResult {
   const rowCount = template.synthesis.rows.length;

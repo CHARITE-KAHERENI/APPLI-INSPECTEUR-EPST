@@ -4,13 +4,22 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import configuration, { AppConfig } from './config/configuration';
+import { AuthModule } from './modules/auth/auth.module';
+import { EnseignantEntity } from './modules/enseignants/entities/enseignant.entity';
+import { EnseignantsModule } from './modules/enseignants/enseignants.module';
+import { EtablissementEntity } from './modules/etablissements/entities/etablissement.entity';
+import { EtablissementsModule } from './modules/etablissements/etablissements.module';
 import { FormSubmissionEntity } from './modules/form-submissions/entities/form-submission.entity';
 import { FormSubmissionsModule } from './modules/form-submissions/form-submissions.module';
 import { FormTemplateEntity } from './modules/form-templates/entities/form-template.entity';
 import { FormTemplatesModule } from './modules/form-templates/form-templates.module';
+import { InspecteurEntity } from './modules/inspecteurs/entities/inspecteur.entity';
+import { InspecteursModule } from './modules/inspecteurs/inspecteurs.module';
 import { PdfModule } from './modules/pdf/pdf.module';
 import { FormSubmissionVersionEntity } from './modules/sync/entities/form-submission-version.entity';
 import { SyncModule } from './modules/sync/sync.module';
+import { UserEntity } from './modules/users/entities/user.entity';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
@@ -34,6 +43,10 @@ import { SyncModule } from './modules/sync/sync.module';
             FormTemplateEntity,
             FormSubmissionEntity,
             FormSubmissionVersionEntity,
+            EtablissementEntity,
+            EnseignantEntity,
+            InspecteurEntity,
+            UserEntity,
           ],
           synchronize: db.synchronize,
         };
@@ -43,6 +56,11 @@ import { SyncModule } from './modules/sync/sync.module';
     FormSubmissionsModule,
     SyncModule,
     PdfModule,
+    UsersModule,
+    AuthModule,
+    EtablissementsModule,
+    EnseignantsModule,
+    InspecteursModule,
   ],
   controllers: [AppController],
   providers: [AppService],
