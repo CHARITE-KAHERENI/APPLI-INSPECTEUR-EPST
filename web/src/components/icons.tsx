@@ -80,3 +80,13 @@ export function DownloadIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function WalletIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M3 7a2 2 0 0 1 2-2h13a1 1 0 0 1 1 1v2" />
+      <rect x="3" y="7" width="18" height="13" rx="2" />
+      <path d="M16 13.5h3.5a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H16a1.5 1.5 0 0 1 0-3Z" />
+    </svg>
+  );
+}

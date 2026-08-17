@@ -13,6 +13,10 @@ export interface AppConfig {
     jwtSecret: string;
     jwtExpiresIn: string;
   };
+  subscriptions: {
+    /** Secret partagé attendu sur `POST /subscriptions/webhooks/:provider` — voir `WebhookSecretGuard`. */
+    webhookSecret: string;
+  };
 }
 
 export default (): AppConfig => ({
@@ -33,5 +37,14 @@ export default (): AppConfig => ({
     // définir JWT_SECRET en production (voir .env.example).
     jwtSecret: process.env.JWT_SECRET ?? 'dev-only-insecure-secret-change-me',
     jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? '12h',
+  },
+  subscriptions: {
+    // Valeur de repli utilisable uniquement en développement local — TOUJOURS
+    // définir SUBSCRIPTIONS_WEBHOOK_SECRET en production, à remplacer par la
+    // vérification de signature propre à chaque passerelle réelle une fois
+    // les comptes marchands connectés (voir backend/README.md).
+    webhookSecret:
+      process.env.SUBSCRIPTIONS_WEBHOOK_SECRET ??
+      'dev-only-insecure-webhook-secret-change-me',
   },
 });

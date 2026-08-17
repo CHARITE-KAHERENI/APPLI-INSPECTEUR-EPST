@@ -27,8 +27,12 @@ export function computeOverallScore(
   sections: SectionResponse[],
 ): OverallScoreResult {
   try {
-    const sectionsById = new Map(sections.map((section) => [section.sectionId, section]));
-    const bandByMention = new Map(template.conversionTable.bands.map((band) => [band.mention, band]));
+    const sectionsById = new Map(
+      sections.map((section) => [section.sectionId, section]),
+    );
+    const bandByMention = new Map(
+      template.conversionTable.bands.map((band) => [band.mention, band]),
+    );
 
     const sectionScores: Record<string, SectionScoreResult> = {};
     for (const row of template.synthesis.rows) {

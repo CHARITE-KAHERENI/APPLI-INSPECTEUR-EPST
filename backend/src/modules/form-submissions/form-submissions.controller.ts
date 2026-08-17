@@ -1,6 +1,16 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { SubscriptionGuard } from '../subscriptions/guards/subscription.guard';
 import { UserEntity } from '../users/entities/user.entity';
 import { CreateFormSubmissionDto } from './dto/create-form-submission.dto';
 import { QueryFormSubmissionDto } from './dto/query-form-submission.dto';
@@ -14,7 +24,13 @@ export class FormSubmissionsController {
     private readonly formSubmissionsService: FormSubmissionsService,
   ) {}
 
-  /** Crée un formulaire en statut "brouillon" (saisie initiale, potentiellement hors-ligne). */
+  /**
+   * Crée un formulaire en statut "brouillon" (saisie initiale,
+   * potentiellement hors-ligne). `SubscriptionGuard` bloque cette route
+   * pour un compte `chef_etablissement`/`inspecteur` en lecture seule
+   * (essai/abonnement expiré) — voir PROMPT 7, point 3.
+   */
+  @UseGuards(SubscriptionGuard)
   @Post()
   create(@Body() dto: CreateFormSubmissionDto) {
     return this.formSubmissionsService.create(dto);
@@ -34,7 +50,10 @@ export class FormSubmissionsController {
 
   /** Page "Inspections" (web) : liste filtrée, restreinte au périmètre du rôle de l'utilisateur. */
   @Get()
-  findAll(@CurrentUser() user: UserEntity, @Query() query: QueryFormSubmissionDto) {
+  findAll(
+    @CurrentUser() user: UserEntity,
+    @Query() query: QueryFormSubmissionDto,
+  ) {
     return this.formSubmissionsService.findAllScopedForUser(user, query);
   }
 

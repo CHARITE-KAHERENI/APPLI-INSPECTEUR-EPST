@@ -31,8 +31,12 @@ export class CreateAuthAndDirectory1700000003000 implements MigrationInterface {
         CONSTRAINT "pk_etablissements" PRIMARY KEY ("id")
       );
     `);
-    await queryRunner.query(`CREATE INDEX "idx_etablissements_zone" ON "etablissements" ("zone");`);
-    await queryRunner.query(`CREATE INDEX "idx_etablissements_nom" ON "etablissements" ("nom");`);
+    await queryRunner.query(
+      `CREATE INDEX "idx_etablissements_zone" ON "etablissements" ("zone");`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "idx_etablissements_nom" ON "etablissements" ("nom");`,
+    );
     await queryRunner.query(`
       CREATE TRIGGER "trg_etablissements_set_updated_at"
       BEFORE UPDATE ON "etablissements"
@@ -54,8 +58,12 @@ export class CreateAuthAndDirectory1700000003000 implements MigrationInterface {
           REFERENCES "etablissements" ("id") ON DELETE SET NULL
       );
     `);
-    await queryRunner.query(`CREATE INDEX "idx_enseignants_etablissement_id" ON "enseignants" ("etablissement_id");`);
-    await queryRunner.query(`CREATE INDEX "idx_enseignants_nom" ON "enseignants" ("nom");`);
+    await queryRunner.query(
+      `CREATE INDEX "idx_enseignants_etablissement_id" ON "enseignants" ("etablissement_id");`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "idx_enseignants_nom" ON "enseignants" ("nom");`,
+    );
     await queryRunner.query(`
       CREATE TRIGGER "trg_enseignants_set_updated_at"
       BEFORE UPDATE ON "enseignants"
@@ -75,8 +83,12 @@ export class CreateAuthAndDirectory1700000003000 implements MigrationInterface {
         CONSTRAINT "pk_inspecteurs" PRIMARY KEY ("id")
       );
     `);
-    await queryRunner.query(`CREATE INDEX "idx_inspecteurs_zone" ON "inspecteurs" ("zone");`);
-    await queryRunner.query(`CREATE INDEX "idx_inspecteurs_nom" ON "inspecteurs" ("nom");`);
+    await queryRunner.query(
+      `CREATE INDEX "idx_inspecteurs_zone" ON "inspecteurs" ("zone");`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "idx_inspecteurs_nom" ON "inspecteurs" ("nom");`,
+    );
     await queryRunner.query(`
       CREATE TRIGGER "trg_inspecteurs_set_updated_at"
       BEFORE UPDATE ON "inspecteurs"
@@ -110,7 +122,9 @@ export class CreateAuthAndDirectory1700000003000 implements MigrationInterface {
           REFERENCES "inspecteurs" ("id") ON DELETE SET NULL
       );
     `);
-    await queryRunner.query(`CREATE INDEX "idx_users_role" ON "users" ("role");`);
+    await queryRunner.query(
+      `CREATE INDEX "idx_users_role" ON "users" ("role");`,
+    );
     await queryRunner.query(`
       CREATE TRIGGER "trg_users_set_updated_at"
       BEFORE UPDATE ON "users"
@@ -142,8 +156,12 @@ export class CreateAuthAndDirectory1700000003000 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP INDEX IF EXISTS "idx_form_submissions_inspecteur_id";`);
-    await queryRunner.query(`DROP INDEX IF EXISTS "idx_form_submissions_etablissement_id";`);
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS "idx_form_submissions_inspecteur_id";`,
+    );
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS "idx_form_submissions_etablissement_id";`,
+    );
     await queryRunner.query(`
       ALTER TABLE "form_submissions"
         DROP CONSTRAINT IF EXISTS "fk_form_submissions_inspecteur",
@@ -157,16 +175,24 @@ export class CreateAuthAndDirectory1700000003000 implements MigrationInterface {
         DROP COLUMN IF EXISTS "etablissement_id";
     `);
 
-    await queryRunner.query(`DROP TRIGGER IF EXISTS "trg_users_set_updated_at" ON "users";`);
+    await queryRunner.query(
+      `DROP TRIGGER IF EXISTS "trg_users_set_updated_at" ON "users";`,
+    );
     await queryRunner.query(`DROP TABLE IF EXISTS "users";`);
 
-    await queryRunner.query(`DROP TRIGGER IF EXISTS "trg_inspecteurs_set_updated_at" ON "inspecteurs";`);
+    await queryRunner.query(
+      `DROP TRIGGER IF EXISTS "trg_inspecteurs_set_updated_at" ON "inspecteurs";`,
+    );
     await queryRunner.query(`DROP TABLE IF EXISTS "inspecteurs";`);
 
-    await queryRunner.query(`DROP TRIGGER IF EXISTS "trg_enseignants_set_updated_at" ON "enseignants";`);
+    await queryRunner.query(
+      `DROP TRIGGER IF EXISTS "trg_enseignants_set_updated_at" ON "enseignants";`,
+    );
     await queryRunner.query(`DROP TABLE IF EXISTS "enseignants";`);
 
-    await queryRunner.query(`DROP TRIGGER IF EXISTS "trg_etablissements_set_updated_at" ON "etablissements";`);
+    await queryRunner.query(
+      `DROP TRIGGER IF EXISTS "trg_etablissements_set_updated_at" ON "etablissements";`,
+    );
     await queryRunner.query(`DROP TABLE IF EXISTS "etablissements";`);
   }
 }

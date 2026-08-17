@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, Repository } from 'typeorm';
+import { SubscribersService } from '../subscriptions/subscribers.service';
 import { CreateInspecteurDto } from './dto/create-inspecteur.dto';
 import { QueryInspecteurDto } from './dto/query-inspecteur.dto';
 import { UpdateInspecteurDto } from './dto/update-inspecteur.dto';
@@ -11,10 +12,18 @@ export class InspecteursService {
   constructor(
     @InjectRepository(InspecteurEntity)
     private readonly repository: Repository<InspecteurEntity>,
+    private readonly subscribersService: SubscribersService,
   ) {}
 
-  create(dto: CreateInspecteurDto): Promise<InspecteurEntity> {
-    return this.repository.save(this.repository.create(dto));
+  /**
+   * Active automatiquement l'essai gratuit de 14 jours à la création du
+   * compte inspecteur — voir PROMPT 7, point 1, et
+   * `SubscribersService.createTrialForInspecteur`.
+   */
+  async create(dto: CreateInspecteurDto): Promise<InspecteurEntity> {
+    const inspecteur = await this.repository.save(this.repository.create(dto));
+    await this.subscribersService.createTrialForInspecteur(inspecteur.id);
+    return inspecteur;
   }
 
   findAll(query: QueryInspecteurDto): Promise<InspecteurEntity[]> {
@@ -35,7 +44,10 @@ export class InspecteursService {
     return inspecteur;
   }
 
-  async update(id: string, dto: UpdateInspecteurDto): Promise<InspecteurEntity> {
+  async update(
+    id: string,
+    dto: UpdateInspecteurDto,
+  ): Promise<InspecteurEntity> {
     const inspecteur = await this.findOne(id);
     Object.assign(inspecteur, dto);
     return this.repository.save(inspecteur);

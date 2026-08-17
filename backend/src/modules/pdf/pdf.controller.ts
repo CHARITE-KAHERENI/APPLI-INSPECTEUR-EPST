@@ -32,8 +32,13 @@ export class PdfController {
     @CurrentUser() user: UserEntity,
     @Res() res: Response,
   ): Promise<void> {
-    const submission = await this.formSubmissionsService.findOneScoped(id, user);
-    const templateEntity = await this.formTemplatesService.findById(submission.templateId);
+    const submission = await this.formSubmissionsService.findOneScoped(
+      id,
+      user,
+    );
+    const templateEntity = await this.formTemplatesService.findById(
+      submission.templateId,
+    );
 
     const template: FormTemplate = {
       id: templateEntity.id,

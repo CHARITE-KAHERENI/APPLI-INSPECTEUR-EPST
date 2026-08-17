@@ -22,6 +22,8 @@ cp web/.env.example web/.env.local   # VITE_API_BASE_URL (défaut: http://localh
 #   npm run migration:run --workspace=backend
 #   npm run seed:form-templates --workspace=backend
 #   npm run seed:auth-directory --workspace=backend   # comptes de démonstration
+#   npm run seed:subscription-plans --workspace=backend
+#   npm run seed:subscriptions-demo --workspace=backend  # états d'abonnement variés (page "Abonnements")
 
 npm run dev --workspace=web      # http://localhost:5173
 ```
@@ -56,8 +58,10 @@ src/
 │   ├── DashboardPage.tsx        # Cartes de synthèse + répartition par formulaire + dernières inspections
 │   ├── InspectionsPage.tsx      # Tableau filtrable + export PDF/CSV
 │   ├── EtablissementsPage.tsx / EtablissementDetailPage.tsx
-│   └── InspecteursPage.tsx / InspecteurDetailPage.tsx
-├── components/               # StatCard, MentionBadge, FormCodeBadge, FormCodeBarList, icônes SVG...
+│   ├── InspecteursPage.tsx / InspecteurDetailPage.tsx
+│   └── AbonnementsPage.tsx      # IGE uniquement — essai, revenus, paiements, relances (PROMPT 7)
+├── components/               # StatCard, MentionBadge, FormCodeBadge, FormCodeBarList, RevenueByPlanBarList,
+│                              # SubscriberStatusBadge, icônes SVG...
 ├── hooks/useApi.ts           # Hooks React Query (un par ressource de l'API)
 ├── lib/
 │   ├── api.ts                # Instance axios (jeton JWT en en-tête, événement 401 -> déconnexion)
@@ -79,6 +83,19 @@ section Authentification) ; le web n'a donc pas besoin de dupliquer cette
 logique — la sidebar affiche simplement le rôle et, le cas échéant, la
 zone de l'utilisateur connecté, et chaque écran reçoit déjà des données
 correctement filtrées par l'API.
+
+## Page "Abonnements" (PROMPT 7)
+
+Visible uniquement pour `ige_admin`/`super_admin` (entrée sidebar
+conditionnelle) : cartes de synthèse (comptes en essai/actifs/lecture
+seule, revenu total), revenus par formule (`RevenueByPlanBarList`, même
+convention à une seule teinte de marque que `FormCodeBarList` — voir
+skill `dataviz`), liste des comptes facturables avec statut
+(`SubscriberStatusBadge`) et échéance, historique des paiements et
+relances envoyées avant expiration. Consomme
+`GET /subscriptions/admin/{overview,subscribers,payments,notifications}`,
+déjà restreints à la zone IGE côté backend comme le reste de
+l'application.
 
 ## Export "Excel"
 

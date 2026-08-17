@@ -28,7 +28,13 @@ const COLORS = {
 };
 
 /** Note 0-4 -> couleur, même échelle que `AppColors.scoreScale` (mobile). */
-const SCORE_COLORS = [COLORS.danger, COLORS.warning, COLORS.accent, COLORS.primary, COLORS.positive];
+const SCORE_COLORS = [
+  COLORS.danger,
+  COLORS.warning,
+  COLORS.accent,
+  COLORS.primary,
+  COLORS.positive,
+];
 
 const LETTERHEAD = {
   country: 'REPUBLIQUE DEMOCRATIQUE DU CONGO',
@@ -61,7 +67,13 @@ function escapeHtml(value: unknown): string {
   if (value === null || value === undefined) {
     return '';
   }
-  return String(value)
+  const text =
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'boolean'
+      ? String(value)
+      : JSON.stringify(value);
+  return text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
@@ -142,7 +154,9 @@ export class PdfTemplateService {
   }
 
   render(template: FormTemplate, submission: PdfSubmissionInput): string {
-    const sectionsById = new Map(submission.sections.map((s) => [s.sectionId, s]));
+    const sectionsById = new Map(
+      submission.sections.map((s) => [s.sectionId, s]),
+    );
 
     const blocks: Array<{ code: string | undefined; html: string }> = [
       ...template.fieldGroups.map((group) => ({
@@ -151,14 +165,19 @@ export class PdfTemplateService {
       })),
       ...template.sections.map((section) => ({
         code: section.code,
-        html: this.renderSection(section, sectionsById.get(section.id), template.conversionTable),
+        html: this.renderSection(section, sectionsById.get(section.id)),
       })),
     ];
     blocks.sort((a, b) => compareCodes(a.code, b.code));
 
-    const bigTitle = template.name.replace(new RegExp(`^${escapeRegExp(template.code)}\\s*-\\s*`), '').toUpperCase();
+    const bigTitle = template.name
+      .replace(new RegExp(`^${escapeRegExp(template.code)}\\s*-\\s*`), '')
+      .toUpperCase();
 
-    const customObservationsHtml = this.renderCustomObservations(template, submission.sections);
+    const customObservationsHtml = this.renderCustomObservations(
+      template,
+      submission.sections,
+    );
 
     return `<!doctype html>
 <html lang="fr">
@@ -183,8 +202,13 @@ export class PdfTemplateService {
   // En-tête (lettre à en-tête RDC/ministère/logo + bloc d'identification)
   // -----------------------------------------------------------------------
 
-  private renderLetterhead(template: FormTemplate, submission: PdfSubmissionInput): string {
-    const fields = [...template.header.fields].sort((a, b) => a.order - b.order);
+  private renderLetterhead(
+    template: FormTemplate,
+    submission: PdfSubmissionInput,
+  ): string {
+    const fields = [...template.header.fields].sort(
+      (a, b) => a.order - b.order,
+    );
 
     const rows: string[] = [];
     let sideListField: FormHeaderField | null = null;
@@ -203,7 +227,10 @@ export class PdfTemplateService {
         continue;
       }
 
-      if (field.type === 'select' && (field.options?.length ?? 0) >= SIDE_LIST_MIN_OPTIONS) {
+      if (
+        field.type === 'select' &&
+        (field.options?.length ?? 0) >= SIDE_LIST_MIN_OPTIONS
+      ) {
         sideListField = field;
         continue;
       }
@@ -218,7 +245,10 @@ export class PdfTemplateService {
       if (lastRowIndex >= 0) {
         const chosen = field.options?.find((o) => o.value === value);
         const inline = `<span class="inline-field">${escapeHtml(field.label)} : <b>${chosen ? escapeHtml(chosen.label) : '—'}</b></span>`;
-        rows[lastRowIndex] = rows[lastRowIndex].replace('</td></tr>', ` ${inline}</td></tr>`);
+        rows[lastRowIndex] = rows[lastRowIndex].replace(
+          '</td></tr>',
+          ` ${inline}</td></tr>`,
+        );
       }
     }
 
@@ -258,7 +288,10 @@ export class PdfTemplateService {
     return `<div class="side-list"><div class="side-list-title">${escapeHtml(field.label)}</div>${items}</div>`;
   }
 
-  private renderClassificationBox(field: FormHeaderField, value: unknown): string {
+  private renderClassificationBox(
+    field: FormHeaderField,
+    value: unknown,
+  ): string {
     const items = (field.options ?? [])
       .map((option) => {
         const selected = option.value === value;
@@ -272,7 +305,10 @@ export class PdfTemplateService {
   // Groupes de champs non notés (ex: "1. Activité(s) inspectée(s)")
   // -----------------------------------------------------------------------
 
-  private renderFieldGroup(group: FormFieldGroup, header: FormHeaderValues): string {
+  private renderFieldGroup(
+    group: FormFieldGroup,
+    header: FormHeaderValues,
+  ): string {
     const shortFields = group.fields.filter((f) => f.type !== 'textarea');
     const longFields = group.fields.filter((f) => f.type === 'textarea');
 
@@ -316,10 +352,14 @@ export class PdfTemplateService {
   private renderSection(
     section: FormSectionTemplate,
     response: PdfSectionResponse | undefined,
-    conversionTable: ConversionTable,
   ): string {
-    const responsesById = new Map((response?.criteria ?? []).map((c) => [c.criterionId, c]));
-    const maxScore = section.criteria.reduce((sum, c) => sum + c.maxScore * (c.weight ?? 1), 0);
+    const responsesById = new Map(
+      (response?.criteria ?? []).map((c) => [c.criterionId, c]),
+    );
+    const maxScore = section.criteria.reduce(
+      (sum, c) => sum + c.maxScore * (c.weight ?? 1),
+      0,
+    );
 
     const rows = section.criteria
       .map((criterion) => {
@@ -374,15 +414,24 @@ export class PdfTemplateService {
   // Tableau de conversion + évaluation synthétique + signatures
   // -----------------------------------------------------------------------
 
-  private renderSynthesisConversionSignatures(template: FormTemplate, submission: PdfSubmissionInput): string {
+  private renderSynthesisConversionSignatures(
+    template: FormTemplate,
+    submission: PdfSubmissionInput,
+  ): string {
     const { synthesis, conversionTable } = template;
-    const sectionsById = new Map(submission.sections.map((s) => [s.sectionId, s]));
+    const sectionsById = new Map(
+      submission.sections.map((s) => [s.sectionId, s]),
+    );
 
-    const bandByMention = new Map(conversionTable.bands.map((b) => [b.mention, b]));
+    const bandByMention = new Map(
+      conversionTable.bands.map((b) => [b.mention, b]),
+    );
     const sectionScores: Record<string, SectionScoreResult> = {};
     for (const row of synthesis.rows) {
       const response = sectionsById.get(row.sectionId);
-      const band = response?.mention ? bandByMention.get(response.mention) : undefined;
+      const band = response?.mention
+        ? bandByMention.get(response.mention)
+        : undefined;
       sectionScores[row.sectionId] = {
         totalScore: response?.totalScore ?? 0,
         maxScore: response?.maxScore ?? 0,
@@ -403,7 +452,11 @@ export class PdfTemplateService {
       })
       .join('');
 
-    let finalResult: { scoreOn4: number; percentage: number; mention: string } | null = null;
+    let finalResult: {
+      scoreOn4: number;
+      percentage: number;
+      mention: string;
+    } | null = null;
     try {
       finalResult = computeSynthesisScore(template, sectionScores);
     } catch {
@@ -450,14 +503,18 @@ export class PdfTemplateService {
           .map(
             (b) =>
               `<tr><td>${b.scoreOn4}</td><td>${b.minPercentage} – ${b.maxPercentage}</td><td>${escapeHtml(b.mention)}</td>${
-                hasSecondary ? `<td>${escapeHtml(b.secondaryMention ?? '')}</td>` : ''
+                hasSecondary
+                  ? `<td>${escapeHtml(b.secondaryMention ?? '')}</td>`
+                  : ''
               }</tr>`,
           )
           .join('')}
       </table>`;
     }
 
-    const rows = [...(table.rows ?? [])].sort((a, b) => a.criteriaCount - b.criteriaCount);
+    const rows = [...(table.rows ?? [])].sort(
+      (a, b) => a.criteriaCount - b.criteriaCount,
+    );
     return `<table class="conversion-table">
       <tr><th>NOTE</th>${bands.map((b) => `<th>${b.scoreOn4}</th>`).join('')}</tr>
       <tr><td>%</td>${bands.map((b) => `<td>${b.minPercentage} – ${b.maxPercentage}</td>`).join('')}</tr>
@@ -471,16 +528,26 @@ export class PdfTemplateService {
     </table>`;
   }
 
-  private renderSignatures(template: FormTemplate, submission: PdfSubmissionInput): string {
-    const roles = [...template.signatures.roles].sort((a, b) => a.order - b.order);
+  private renderSignatures(
+    template: FormTemplate,
+    submission: PdfSubmissionInput,
+  ): string {
+    const roles = [...template.signatures.roles].sort(
+      (a, b) => a.order - b.order,
+    );
     const byRole = new Map(submission.signatures.map((s) => [s.role, s]));
 
     return roles
       .map((roleTemplate) => {
         const signature = byRole.get(roleTemplate.role);
-        const dateLabel = formatDateFr(signature?.signedAt) ?? '..... / ..... / ..........';
-        const placeLabel = signature?.place ? escapeHtml(signature.place) : '..........................';
-        const nameLabel = signature?.signedByName ? escapeHtml(signature.signedByName) : '..........................';
+        const dateLabel =
+          formatDateFr(signature?.signedAt) ?? '..... / ..... / ..........';
+        const placeLabel = signature?.place
+          ? escapeHtml(signature.place)
+          : '..........................';
+        const nameLabel = signature?.signedByName
+          ? escapeHtml(signature.signedByName)
+          : '..........................';
 
         return `<div class="signature-block">
           <div class="signature-role">${escapeHtml(roleTemplate.label)}</div>
@@ -500,14 +567,23 @@ export class PdfTemplateService {
   // Observations complémentaires de l'inspecteur (hors grille officielle)
   // -----------------------------------------------------------------------
 
-  private renderCustomObservations(template: FormTemplate, sections: PdfSectionResponse[]): string {
-    const sectionLabelById = new Map(template.sections.map((s) => [s.id, `${s.code}. ${s.title}`]));
+  private renderCustomObservations(
+    template: FormTemplate,
+    sections: PdfSectionResponse[],
+  ): string {
+    const sectionLabelById = new Map(
+      template.sections.map((s) => [s.id, `${s.code}. ${s.title}`]),
+    );
 
-    const entries: Array<{ sectionLabel: string; observation: PdfCustomObservation }> = [];
+    const entries: Array<{
+      sectionLabel: string;
+      observation: PdfCustomObservation;
+    }> = [];
     for (const section of sections) {
       for (const observation of section.customObservations ?? []) {
         entries.push({
-          sectionLabel: sectionLabelById.get(section.sectionId) ?? section.sectionId,
+          sectionLabel:
+            sectionLabelById.get(section.sectionId) ?? section.sectionId,
           observation,
         });
       }

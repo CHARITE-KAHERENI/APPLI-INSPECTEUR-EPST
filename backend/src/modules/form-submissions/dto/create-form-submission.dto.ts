@@ -4,7 +4,14 @@ import type {
   SectionResponse,
   SignatureResponse,
 } from '@c3-digital/shared';
-import { IsArray, IsIn, IsObject, IsOptional, IsString, IsUUID } from 'class-validator';
+import {
+  IsArray,
+  IsIn,
+  IsObject,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
 export class CreateFormSubmissionDto {
   @IsString()

@@ -22,6 +22,7 @@ dependencies:
   connectivity_plus: ^6.0.5     # détection de la connectivité pour déclencher la synchronisation
   pdf: ^3.11.1                  # génération PDF locale (hors-ligne), même moteur de mise en page que le backend
   printing: ^5.13.3             # aperçu / partage / impression du PDF généré, sans connexion requise
+  shared_preferences: ^2.3.2    # persistance locale du jeton JWT + profil utilisateur (voir core/auth)
 
 dev_dependencies:
   flutter_test:

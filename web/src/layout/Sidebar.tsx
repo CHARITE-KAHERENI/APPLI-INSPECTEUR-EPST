@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../auth/useAuth';
-import { BuildingIcon, DashboardIcon, ListIcon, LogoutIcon, PeopleIcon } from '../components/icons';
+import { BuildingIcon, DashboardIcon, ListIcon, LogoutIcon, PeopleIcon, WalletIcon } from '../components/icons';
 
 const ROLE_LABELS: Record<string, string> = {
   inspecteur: 'Inspecteur',
@@ -17,8 +17,13 @@ const NAV_ITEMS = [
   { to: '/inspecteurs', label: 'Inspecteurs', icon: PeopleIcon, end: false },
 ];
 
+/** Page IGE (comptes en essai, revenus, paiements) — voir PROMPT 7. */
+const ADMIN_NAV_ITEM = { to: '/abonnements', label: 'Abonnements', icon: WalletIcon, end: false };
+
 export function Sidebar() {
   const { user, logout } = useAuth();
+  const navItems =
+    user?.role === 'ige_admin' || user?.role === 'super_admin' ? [...NAV_ITEMS, ADMIN_NAV_ITEM] : NAV_ITEMS;
 
   return (
     <aside className="flex h-screen w-64 shrink-0 flex-col bg-brand-primary text-white">
@@ -33,7 +38,7 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 space-y-1 px-3">
-        {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
+        {navItems.map(({ to, label, icon: Icon, end }) => (
           <NavLink
             key={to}
             to={to}

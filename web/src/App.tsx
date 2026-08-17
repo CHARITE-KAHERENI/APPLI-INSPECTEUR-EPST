@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { LoginPage } from './auth/LoginPage';
 import { ProtectedRoute } from './auth/ProtectedRoute';
 import { AppShell } from './layout/AppShell';
+import { AbonnementsPage } from './pages/AbonnementsPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { EtablissementDetailPage } from './pages/EtablissementDetailPage';
 import { EtablissementsPage } from './pages/EtablissementsPage';
@@ -26,6 +27,7 @@ export function App() {
         <Route path="/etablissements/:id" element={<EtablissementDetailPage />} />
         <Route path="/inspecteurs" element={<InspecteursPage />} />
         <Route path="/inspecteurs/:id" element={<InspecteurDetailPage />} />
+        <Route path="/abonnements" element={<AbonnementsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

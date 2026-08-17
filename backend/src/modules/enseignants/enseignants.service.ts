@@ -21,7 +21,9 @@ export class EnseignantsService {
     return this.repository.find({
       where: {
         ...(query.search ? { nom: ILike(`%${query.search}%`) } : {}),
-        ...(query.etablissementId ? { etablissementId: query.etablissementId } : {}),
+        ...(query.etablissementId
+          ? { etablissementId: query.etablissementId }
+          : {}),
       },
       order: { nom: 'ASC' },
     });
@@ -35,7 +37,10 @@ export class EnseignantsService {
     return enseignant;
   }
 
-  async update(id: string, dto: UpdateEnseignantDto): Promise<EnseignantEntity> {
+  async update(
+    id: string,
+    dto: UpdateEnseignantDto,
+  ): Promise<EnseignantEntity> {
     const enseignant = await this.findOne(id);
     Object.assign(enseignant, dto);
     return this.repository.save(enseignant);

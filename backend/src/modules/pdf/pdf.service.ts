@@ -34,7 +34,9 @@ function resolveExecutablePath(): string {
     return envPath;
   }
 
-  const found = CANDIDATE_EXECUTABLE_PATHS.find((candidate) => existsSync(candidate));
+  const found = CANDIDATE_EXECUTABLE_PATHS.find((candidate) =>
+    existsSync(candidate),
+  );
   if (found) {
     return found;
   }

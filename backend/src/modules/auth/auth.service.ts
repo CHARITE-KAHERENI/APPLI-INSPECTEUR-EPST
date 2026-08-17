@@ -15,7 +15,9 @@ export class AuthService {
   ) {}
 
   async login(dto: LoginDto): Promise<LoginResponse> {
-    const user = await this.usersService.findByEmail(dto.email.toLowerCase().trim());
+    const user = await this.usersService.findByEmail(
+      dto.email.toLowerCase().trim(),
+    );
     if (!user || !user.isActive) {
       throw new UnauthorizedException('Identifiants invalides.');
     }
@@ -25,7 +27,11 @@ export class AuthService {
       throw new UnauthorizedException('Identifiants invalides.');
     }
 
-    const payload: JwtPayload = { sub: user.id, email: user.email, role: user.role };
+    const payload: JwtPayload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    };
     const accessToken = await this.jwtService.signAsync(payload);
 
     return { accessToken, user: this.toAuthUser(user) };

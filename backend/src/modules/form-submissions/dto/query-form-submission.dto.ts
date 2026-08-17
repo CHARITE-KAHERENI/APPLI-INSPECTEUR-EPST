@@ -1,6 +1,12 @@
 import { FORM_CODES } from '@c3-digital/shared';
 import type { FormCode, FormSubmissionStatus } from '@c3-digital/shared';
-import { IsDateString, IsIn, IsOptional, IsString, IsUUID } from 'class-validator';
+import {
+  IsDateString,
+  IsIn,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
 const STATUSES: FormSubmissionStatus[] = ['brouillon', 'soumis', 'synchronise'];
 

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -16,6 +17,11 @@ import { FormTemplatesModule } from './modules/form-templates/form-templates.mod
 import { InspecteurEntity } from './modules/inspecteurs/entities/inspecteur.entity';
 import { InspecteursModule } from './modules/inspecteurs/inspecteurs.module';
 import { PdfModule } from './modules/pdf/pdf.module';
+import { PaymentEntity } from './modules/subscriptions/entities/payment.entity';
+import { SubscriberEntity } from './modules/subscriptions/entities/subscriber.entity';
+import { SubscriptionNotificationEntity } from './modules/subscriptions/entities/subscription-notification.entity';
+import { SubscriptionPlanEntity } from './modules/subscriptions/entities/subscription-plan.entity';
+import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module';
 import { FormSubmissionVersionEntity } from './modules/sync/entities/form-submission-version.entity';
 import { SyncModule } from './modules/sync/sync.module';
 import { UserEntity } from './modules/users/entities/user.entity';
@@ -27,6 +33,7 @@ import { UsersModule } from './modules/users/users.module';
       isGlobal: true,
       load: [configuration],
     }),
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService<AppConfig, true>) => {
@@ -47,6 +54,10 @@ import { UsersModule } from './modules/users/users.module';
             EnseignantEntity,
             InspecteurEntity,
             UserEntity,
+            SubscriptionPlanEntity,
+            SubscriberEntity,
+            PaymentEntity,
+            SubscriptionNotificationEntity,
           ],
           synchronize: db.synchronize,
         };
@@ -61,6 +72,7 @@ import { UsersModule } from './modules/users/users.module';
     EtablissementsModule,
     EnseignantsModule,
     InspecteursModule,
+    SubscriptionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

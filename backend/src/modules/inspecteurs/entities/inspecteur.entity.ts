@@ -20,7 +20,12 @@ export class InspecteurEntity {
   @Column({ type: 'varchar', length: 5, nullable: true })
   sexe: string | null;
 
-  @Column({ name: 'poste_attache', type: 'varchar', length: 255, nullable: true })
+  @Column({
+    name: 'poste_attache',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
   posteAttache: string | null;
 
   /** Zone d'inspection IGE (ex: "Nord-Kivu 2") — voir `UserEntity.zone`. */

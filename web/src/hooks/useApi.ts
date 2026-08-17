@@ -1,4 +1,13 @@
-import type { Enseignant, Etablissement, Inspecteur } from '@c3-digital/shared';
+import type {
+  Enseignant,
+  Etablissement,
+  Inspecteur,
+  Payment,
+  Subscriber,
+  SubscriptionAdminOverview,
+  SubscriptionNotification,
+  SubscriptionPlan,
+} from '@c3-digital/shared';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import type { ApiFormSubmission, DashboardStats, FormSubmissionFilters } from '../types/api';
@@ -91,6 +100,70 @@ export function useInspecteur(id: string | undefined) {
       return data;
     },
     enabled: Boolean(id),
+  });
+}
+
+// --- Abonnements (page IGE — voir PROMPT 7) --------------------------------
+
+export function useSubscriptionAdminOverview() {
+  return useQuery({
+    queryKey: ['subscriptions', 'admin', 'overview'],
+    queryFn: async () => {
+      const { data } = await api.get<SubscriptionAdminOverview>('/subscriptions/admin/overview');
+      return data;
+    },
+  });
+}
+
+export function useSubscriptionAdminSubscribers(status?: string) {
+  return useQuery({
+    queryKey: ['subscriptions', 'admin', 'subscribers', status ?? ''],
+    queryFn: async () => {
+      const { data } = await api.get<Subscriber[]>('/subscriptions/admin/subscribers', {
+        params: status ? { status } : undefined,
+      });
+      return data;
+    },
+  });
+}
+
+export function useSubscriptionAdminPayments() {
+  return useQuery({
+    queryKey: ['subscriptions', 'admin', 'payments'],
+    queryFn: async () => {
+      const { data } = await api.get<Payment[]>('/subscriptions/admin/payments');
+      return data;
+    },
+  });
+}
+
+export function useSubscriptionAdminNotifications() {
+  return useQuery({
+    queryKey: ['subscriptions', 'admin', 'notifications'],
+    queryFn: async () => {
+      const { data } = await api.get<SubscriptionNotification[]>('/subscriptions/admin/notifications');
+      return data;
+    },
+  });
+}
+
+export function useSubscriptionPlans() {
+  return useQuery({
+    queryKey: ['subscriptions', 'plans'],
+    queryFn: async () => {
+      const { data } = await api.get<SubscriptionPlan[]>('/subscriptions/plans');
+      return data;
+    },
+  });
+}
+
+export function useMySubscriber() {
+  return useQuery({
+    queryKey: ['subscriptions', 'me'],
+    queryFn: async () => {
+      const { data } = await api.get<Subscriber | null>('/subscriptions/me');
+      return data;
+    },
   });
 }
 

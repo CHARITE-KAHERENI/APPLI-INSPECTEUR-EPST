@@ -124,10 +124,21 @@ export class FormSubmissionEntity {
    * `AddOverallScoreToFormSubmissions`. `null` tant que le calcul n'a pas
    * pu aboutir (ex : brouillon incomplet).
    */
-  @Column({ name: 'overall_percentage', type: 'numeric', precision: 5, scale: 2, nullable: true })
+  @Column({
+    name: 'overall_percentage',
+    type: 'numeric',
+    precision: 5,
+    scale: 2,
+    nullable: true,
+  })
   overallPercentage: string | null;
 
-  @Column({ name: 'overall_mention', type: 'varchar', length: 50, nullable: true })
+  @Column({
+    name: 'overall_mention',
+    type: 'varchar',
+    length: 50,
+    nullable: true,
+  })
   overallMention: string | null;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })

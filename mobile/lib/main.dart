@@ -3,13 +3,16 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'core/auth/auth_session.dart';
 import 'core/db/reference_data_repository.dart';
 import 'core/models/form_template.dart';
 import 'core/models/form_template_repository.dart';
 import 'core/sync/sync_engine.dart';
 import 'core/sync/sync_status_banner.dart';
 import 'core/theme/app_theme.dart';
+import 'features/auth/login_screen.dart';
 import 'features/dynamic_form/screens/dynamic_form_screen.dart';
+import 'features/profile/profile_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,9 +22,15 @@ void main() {
   // l'en-tête d'un formulaire.
   unawaited(const ReferenceDataRepository().hydrateFromAssetsIfEmpty());
 
+  final authSession = AuthSession();
+  unawaited(authSession.restore());
+
   runApp(
-    ChangeNotifierProvider<SyncEngine>(
-      create: (_) => SyncEngine()..start(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider<SyncEngine>(create: (_) => SyncEngine()..start()),
+        ChangeNotifierProvider<AuthSession>.value(value: authSession),
+      ],
       child: const C3DigitalApp(),
     ),
   );
@@ -59,7 +68,23 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('c3-digital')),
+      appBar: AppBar(
+        title: const Text('c3-digital'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.account_circle_outlined),
+            tooltip: 'Profil',
+            onPressed: () {
+              final session = context.read<AuthSession>();
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => session.isAuthenticated ? const ProfileScreen() : const LoginScreen(),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
       body: FutureBuilder<List<FormTemplate>>(
         future: const FormTemplateRepository().loadAll(),
         builder: (context, snapshot) {

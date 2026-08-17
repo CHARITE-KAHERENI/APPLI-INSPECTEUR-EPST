@@ -5,6 +5,10 @@ import { EtablissementEntity } from '../modules/etablissements/entities/etabliss
 import { FormTemplateEntity } from '../modules/form-templates/entities/form-template.entity';
 import { FormSubmissionEntity } from '../modules/form-submissions/entities/form-submission.entity';
 import { InspecteurEntity } from '../modules/inspecteurs/entities/inspecteur.entity';
+import { PaymentEntity } from '../modules/subscriptions/entities/payment.entity';
+import { SubscriberEntity } from '../modules/subscriptions/entities/subscriber.entity';
+import { SubscriptionNotificationEntity } from '../modules/subscriptions/entities/subscription-notification.entity';
+import { SubscriptionPlanEntity } from '../modules/subscriptions/entities/subscription-plan.entity';
 import { FormSubmissionVersionEntity } from '../modules/sync/entities/form-submission-version.entity';
 import { UserEntity } from '../modules/users/entities/user.entity';
 
@@ -29,6 +33,10 @@ export default new DataSource({
     EnseignantEntity,
     InspecteurEntity,
     UserEntity,
+    SubscriptionPlanEntity,
+    SubscriberEntity,
+    PaymentEntity,
+    SubscriptionNotificationEntity,
   ],
   migrations: ['src/database/migrations/*.ts'],
   synchronize: false,

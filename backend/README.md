@@ -12,9 +12,11 @@ Scaffoldé avec `@nestjs/cli`. Persistance via **TypeORM** + **PostgreSQL**.
 ```bash
 cp .env.example .env          # ajuster si besoin (voir docker-compose.yml à la racine) — dont JWT_SECRET
 npm install                   # depuis la racine du monorepo (workspaces)
-npm run migration:run         # crée toutes les tables (templates, formulaires, annuaire, comptes)
+npm run migration:run         # crée toutes les tables (templates, formulaires, annuaire, comptes, abonnements)
 npm run seed:form-templates   # charge shared/forms/*.json (5 formulaires)
 npm run seed:auth-directory   # comptes de démonstration (un par rôle) + annuaire + inspections fictives
+npm run seed:subscription-plans  # les 3 formules payantes (mensuel, annuel, pack 10/20/50)
+npm run seed:subscriptions-demo  # états d'abonnement variés sur les comptes de démo (essai/actif/lecture seule)
 npm run start:dev
 ```
 
@@ -41,7 +43,8 @@ src/
     ├── form-templates/            # Entité + service + controller (lecture des templates)
     ├── form-submissions/          # Entité + service + controller (formulaires remplis, avec autorisation par rôle)
     ├── sync/                      # Réception de la file de synchronisation mobile hors-ligne
-    └── pdf/                       # Génération PDF fidèle aux documents Word officiels
+    ├── pdf/                       # Génération PDF fidèle aux documents Word officiels
+    └── subscriptions/             # Essai gratuit, formules payantes, paiement (PROMPT 7)
 ```
 
 ## Endpoints (v0)
@@ -64,6 +67,14 @@ src/
 | POST    | `/sync/submissions`                    | —    | Réception en lot de la file de synchronisation mobile (voir ci-dessous) |
 | GET     | `/sync/status`                         | —    | Vérification de connectivité légère avant une synchronisation complète |
 | GET     | `/sync/submissions/:id/history`        | —    | Version actuelle + versions remplacées, consultables par l'IGE (voir ci-dessous) |
+| GET     | `/subscriptions/plans`                 | JWT  | Les 3 formules actives (mensuel, annuel, pack 10/20/50)   |
+| GET     | `/subscriptions/me`                    | JWT  | Compte facturable de l'utilisateur connecté (`null` si rôle non facturable) |
+| POST    | `/subscriptions/checkout`               | JWT  | Ouvre un paiement (`chef_etablissement`/`inspecteur` uniquement) |
+| POST    | `/subscriptions/webhooks/:provider`     | secret partagé | Confirmation de paiement (voir "Abonnements & paiement") |
+| GET     | `/subscriptions/admin/overview`         | JWT  | Vue d'ensemble (essai/actif/lecture seule, revenus) — `ige_admin`/`super_admin` |
+| GET     | `/subscriptions/admin/subscribers`      | JWT  | Liste des comptes facturables, filtrable — `ige_admin`/`super_admin` |
+| GET     | `/subscriptions/admin/payments`         | JWT  | Historique des paiements — `ige_admin`/`super_admin` |
+| GET     | `/subscriptions/admin/notifications`    | JWT  | Relances envoyées avant expiration — `ige_admin`/`super_admin` |
 
 `/sync/*` reste sans authentification : c'est l'application mobile
 hors-ligne qui y écrit, et elle n'implémente pas encore de connexion
@@ -133,6 +144,63 @@ des zones IGE différentes, avec enseignants/inspecteurs) et 2
 inspections fictives — de quoi tester les 5 rôles et la restriction par
 zone immédiatement. Détail des comptes dans le script lui-même et dans
 `web/README.md`.
+
+## Abonnements & paiement (PROMPT 7)
+
+Chaque compte facturable (`chef_etablissement` ou `inspecteur`, un
+établissement OU un inspecteur — jamais les deux) a une ligne dans
+`subscribers`, créée automatiquement en statut `essai` (14 jours,
+accès complet) à la création de la fiche annuaire correspondante
+(`EtablissementsService.create` / `InspecteursService.create`, voir
+`SubscribersService.createTrialFor*`).
+
+**3 formules** (`subscription_plans`, communes aux deux types de
+compte) — voir `seed-subscription-plans.ts` :
+
+| Formule    | Prix         | Détail                                              |
+| ---------- | ------------ | ----------------------------------------------------- |
+| Mensuel    | 15 000 FC / mois | Renouvellement automatique (`auto_renew`)          |
+| Annuel     | 126 000 FC / an  | ≈ -30% vs mensuel, renouvellement automatique      |
+| Pack (×3)  | 2 000 FC / inspection | Packs de 10 / 20 / 50, valables 6 mois, cumulables |
+
+**Cycle de vie** (`subscribers.status`, voir
+`SubscriptionsSchedulerService`, cron quotidien) :
+`essai` → (paiement confirmé) → `actif` → (essai/abonnement/pack expiré
+sans renouvellement) → `lecture_seule`. En lecture seule,
+`SubscriptionGuard` bloque `POST /form-submissions` pour
+`chef_etablissement`/`inspecteur` — la consultation
+(`GET /form-submissions*`) n'est jamais bloquée. `POST
+/sync/submissions` (mobile, sans authentification aujourd'hui) applique
+la même règle en best-effort, uniquement si l'entrée porte déjà un
+`etablissementId`/`inspecteurId` (voir "Limite connue" ci-dessus).
+
+**Paiement** — interface générique `PaymentGatewayService`
+(`initiatePayment`), implémentée par `MockPaymentGateway` pour cette
+itération : `POST /subscriptions/checkout` ouvre une transaction
+`en_attente` et renvoie des instructions ; l'activation du compte n'a
+lieu qu'à la confirmation asynchrone reçue sur
+`POST /subscriptions/webhooks/:provider` (protégée par un secret
+partagé, en-tête `X-Webhook-Secret` — voir `SUBSCRIPTIONS_WEBHOOK_SECRET`
+dans `.env.example`), jamais au checkout lui-même — fidèle au
+fonctionnement réel du mobile money (M-Pesa, Orange Money, Airtel
+Money) et de la carte bancaire. **Pour brancher un vrai fournisseur**
+(ex: CinetPay, agrégateur couvrant mobile money + carte en RDC) :
+implémenter `PaymentGatewayService` et l'enregistrer à la place de
+`MockPaymentGateway` dans `subscriptions.module.ts`
+(`{ provide: PAYMENT_GATEWAY, useClass: ... }`), puis adapter
+`WebhookConfirmDto`/`WebhookSecretGuard` au format et à la
+vérification de signature du fournisseur.
+
+**Relances** (`subscription_notifications`) : le même cron génère une
+notification J-3 avant expiration (essai, abonnement, pack) et une à
+l'expiration effective — consultées sur la page "Abonnements" (web,
+IGE). Aucun canal d'envoi réel (e-mail/SMS) n'est branché : c'est un
+historique interne pour l'instant.
+
+```bash
+npm run seed:subscription-plans   # les 5 lignes de formules (mensuel/annuel/pack_10/20/50)
+npm run seed:subscriptions-demo   # applique des états variés aux comptes de démo existants
+```
 
 ### `POST /sync/submissions` — synchronisation hors-ligne
 
@@ -221,6 +289,8 @@ npm run migration:generate  # génère une migration à partir des diffs d'entit
 npm run migration:revert    # annule la dernière migration
 npm run seed:form-templates # charge shared/forms/*.json
 npm run seed:auth-directory # comptes de démo + annuaire + inspections fictives
+npm run seed:subscription-plans  # les 3 formules payantes (mensuel/annuel/pack 10/20/50)
+npm run seed:subscriptions-demo  # états d'abonnement variés sur les comptes de démo
 npm run generate:sample-pdf # génère un PDF C3 d'exemple (données fictives) pour validation visuelle
 npm run lint
 npm run test

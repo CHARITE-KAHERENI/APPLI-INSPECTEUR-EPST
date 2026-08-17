@@ -82,7 +82,9 @@ async function seed() {
   });
 
   // --- Comptes utilisateurs (un par rôle) ---
-  const users: Array<Partial<UserEntity> & { email: string; fullName: string }> = [
+  const users: Array<
+    Partial<UserEntity> & { email: string; fullName: string }
+  > = [
     {
       email: 'super.admin@exemple.cd',
       fullName: 'Super Administrateur (exemple)',
@@ -120,7 +122,9 @@ async function seed() {
   }
 
   // --- Inspections de démonstration ---
-  const c3Template = await templateRepo.findOne({ where: { code: 'C3', isActive: true } });
+  const c3Template = await templateRepo.findOne({
+    where: { code: 'C3', isActive: true },
+  });
   if (c3Template) {
     await upsertDemoSubmission(submissionRepo, c3Template, {
       reportNumber: 'RP-DEMO-NK2-001',
@@ -144,7 +148,10 @@ async function seed() {
 
   await dataSource.destroy();
 
-  console.log('\nComptes de démonstration (mot de passe : "%s") :', DEMO_PASSWORD);
+  console.log(
+    '\nComptes de démonstration (mot de passe : "%s") :',
+    DEMO_PASSWORD,
+  );
   for (const user of users) {
     console.log(`  - ${user.email}  (${user.role})`);
   }
@@ -158,7 +165,9 @@ async function upsertEtablissement(
   const entity = existing ?? repo.create();
   Object.assign(entity, data);
   const saved = await repo.save(entity);
-  console.log(`✓ Établissement "${saved.nom}" (${existing ? 'mis à jour' : 'créé'})`);
+  console.log(
+    `✓ Établissement "${saved.nom}" (${existing ? 'mis à jour' : 'créé'})`,
+  );
   return saved;
 }
 
@@ -170,7 +179,9 @@ async function upsertEnseignant(
   const entity = existing ?? repo.create();
   Object.assign(entity, data);
   const saved = await repo.save(entity);
-  console.log(`✓ Enseignant "${saved.nom}" (${existing ? 'mis à jour' : 'créé'})`);
+  console.log(
+    `✓ Enseignant "${saved.nom}" (${existing ? 'mis à jour' : 'créé'})`,
+  );
   return saved;
 }
 
@@ -182,7 +193,9 @@ async function upsertInspecteur(
   const entity = existing ?? repo.create();
   Object.assign(entity, data);
   const saved = await repo.save(entity);
-  console.log(`✓ Inspecteur "${saved.nom}" (${existing ? 'mis à jour' : 'créé'})`);
+  console.log(
+    `✓ Inspecteur "${saved.nom}" (${existing ? 'mis à jour' : 'créé'})`,
+  );
   return saved;
 }
 
@@ -194,7 +207,9 @@ async function upsertUser(
   const entity = existing ?? repo.create();
   Object.assign(entity, data);
   const saved = await repo.save(entity);
-  console.log(`✓ Utilisateur "${saved.email}" (${existing ? 'mis à jour' : 'créé'})`);
+  console.log(
+    `✓ Utilisateur "${saved.email}" (${existing ? 'mis à jour' : 'créé'})`,
+  );
   return saved;
 }
 
@@ -214,26 +229,36 @@ async function upsertDemoSubmission(
     inspecteur: InspecteurEntity;
   },
 ): Promise<FormSubmissionEntity> {
-  const sections: SectionResponse[] = template.definition.sections.map((section) => {
-    const scores = fictionalScores(section.criteria.length);
-    const responses: CriterionResponse[] = section.criteria.map((criterion, index) => ({
-      criterionId: criterion.id,
-      score: scores[index] as CriterionResponse['score'],
-    }));
-    const result = computeSectionScore(section, responses, template.definition.conversionTable);
-    return {
-      sectionId: section.id,
-      criteria: responses,
-      totalScore: result.totalScore,
-      maxScore: result.maxScore,
-      percentage: result.percentage,
-      mention: result.mention,
-    };
-  });
+  const sections: SectionResponse[] = template.definition.sections.map(
+    (section) => {
+      const scores = fictionalScores(section.criteria.length);
+      const responses: CriterionResponse[] = section.criteria.map(
+        (criterion, index) => ({
+          criterionId: criterion.id,
+          score: scores[index] as CriterionResponse['score'],
+        }),
+      );
+      const result = computeSectionScore(
+        section,
+        responses,
+        template.definition.conversionTable,
+      );
+      return {
+        sectionId: section.id,
+        criteria: responses,
+        totalScore: result.totalScore,
+        maxScore: result.maxScore,
+        percentage: result.percentage,
+        mention: result.mention,
+      };
+    },
+  );
 
   const overall = computeOverallScore(template.definition, sections);
 
-  const existing = await repo.findOne({ where: { reportNumber: data.reportNumber } });
+  const existing = await repo.findOne({
+    where: { reportNumber: data.reportNumber },
+  });
   const entity = existing ?? repo.create();
   entity.templateId = template.id;
   entity.formCode = template.code;
@@ -253,7 +278,8 @@ async function upsertDemoSubmission(
   entity.etablissementId = data.etablissement.id;
   entity.enseignantId = data.enseignant.id;
   entity.inspecteurId = data.inspecteur.id;
-  entity.overallPercentage = overall.percentage !== null ? overall.percentage.toFixed(2) : null;
+  entity.overallPercentage =
+    overall.percentage !== null ? overall.percentage.toFixed(2) : null;
   entity.overallMention = overall.mention;
 
   const saved = await repo.save(entity);

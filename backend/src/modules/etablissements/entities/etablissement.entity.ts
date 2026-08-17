@@ -28,7 +28,12 @@ export class EtablissementEntity {
   @Column({ type: 'varchar', length: 100, nullable: true })
   province: string | null;
 
-  @Column({ name: 'sous_division', type: 'varchar', length: 150, nullable: true })
+  @Column({
+    name: 'sous_division',
+    type: 'varchar',
+    length: 150,
+    nullable: true,
+  })
   sousDivision: string | null;
 
   @Column({ type: 'varchar', length: 20, nullable: true })

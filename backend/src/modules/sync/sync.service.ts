@@ -3,6 +3,7 @@ import { DataSource, EntityManager } from 'typeorm';
 import { FormSubmissionEntity } from '../form-submissions/entities/form-submission.entity';
 import { computeOverallScore } from '../form-submissions/overall-score.util';
 import { FormTemplateEntity } from '../form-templates/entities/form-template.entity';
+import { SubscriberEntity } from '../subscriptions/entities/subscriber.entity';
 import { FormSubmissionVersionEntity } from './entities/form-submission-version.entity';
 import { BatchSyncSubmissionsDto } from './dto/batch-sync-submissions.dto';
 import { SyncSubmissionItemDto } from './dto/sync-submission-item.dto';
@@ -74,9 +75,7 @@ export class SyncService {
    * récente d'abord), avec leur motif d'archivage — permet à l'IGE de
    * consulter les deux versions lorsqu'un conflit a été détecté.
    */
-  async getSubmissionHistory(
-    submissionId: string,
-  ): Promise<{
+  async getSubmissionHistory(submissionId: string): Promise<{
     current: FormSubmissionEntity | null;
     versions: FormSubmissionVersionEntity[];
   }> {
@@ -103,9 +102,37 @@ export class SyncService {
 
       const existing = await submissionRepo.findOne({ where: { id: item.id } });
       const clientUpdatedAt = new Date(item.clientUpdatedAt);
-      const overall = await this.computeOverallScoreFor(manager, item.templateId, item.sections);
+      const overall = await this.computeOverallScoreFor(
+        manager,
+        item.templateId,
+        item.sections,
+      );
 
       if (!existing) {
+        // Vérification "best-effort" de la lecture seule (PROMPT 7, point
+        // 3) : l'app mobile n'a pas encore d'authentification (voir
+        // README, "Prochaines étapes"), donc `/sync/submissions` reste un
+        // endpoint ouvert et ce contrôle ne s'applique que si l'entrée
+        // porte déjà un `etablissementId`/`inspecteurId` (annuaire relié
+        // côté mobile) — sans ces identifiants, rien n'est bloqué ici.
+        const readOnly = await this.isAccountReadOnly(
+          manager,
+          item.etablissementId,
+          item.inspecteurId,
+        );
+        if (readOnly) {
+          return {
+            localId: item.localId,
+            submissionId: item.id,
+            status: 'error',
+            applied: false,
+            conflict: false,
+            message:
+              'Compte en lecture seule (essai gratuit ou abonnement expiré) : impossible de créer une ' +
+              'nouvelle inspection. Consultez GET /subscriptions/plans pour choisir une formule.',
+          };
+        }
+
         const created = submissionRepo.create({
           id: item.id,
           templateId: item.templateId,
@@ -124,7 +151,8 @@ export class SyncService {
           etablissementId: item.etablissementId ?? null,
           enseignantId: item.enseignantId ?? null,
           inspecteurId: item.inspecteurId ?? null,
-          overallPercentage: overall.percentage !== null ? overall.percentage.toFixed(2) : null,
+          overallPercentage:
+            overall.percentage !== null ? overall.percentage.toFixed(2) : null,
           overallMention: overall.mention,
         });
         const saved = await submissionRepo.save(created);
@@ -176,7 +204,8 @@ export class SyncService {
       existing.status = item.status;
       existing.clientUpdatedAt = clientUpdatedAt;
       existing.syncedAt = new Date();
-      existing.overallPercentage = overall.percentage !== null ? overall.percentage.toFixed(2) : null;
+      existing.overallPercentage =
+        overall.percentage !== null ? overall.percentage.toFixed(2) : null;
       existing.overallMention = overall.mention;
       if (item.status !== 'brouillon' && !existing.submittedAt) {
         existing.submittedAt = new Date();
@@ -215,11 +244,34 @@ export class SyncService {
     templateId: string,
     sections: SyncSubmissionItemDto['sections'],
   ): Promise<{ percentage: number | null; mention: string | null }> {
-    const template = await manager.getRepository(FormTemplateEntity).findOne({ where: { id: templateId } });
+    const template = await manager
+      .getRepository(FormTemplateEntity)
+      .findOne({ where: { id: templateId } });
     if (!template) {
       return { percentage: null, mention: null };
     }
     return computeOverallScore(template.definition, sections);
+  }
+
+  private async isAccountReadOnly(
+    manager: EntityManager,
+    etablissementId?: string | null,
+    inspecteurId?: string | null,
+  ): Promise<boolean> {
+    if (!etablissementId && !inspecteurId) {
+      return false;
+    }
+    const subscriber = await manager.getRepository(SubscriberEntity).findOne({
+      where: etablissementId
+        ? { etablissementId }
+        : { inspecteurId: inspecteurId as string },
+    });
+    if (!subscriber) {
+      return false;
+    }
+    return (
+      subscriber.status === 'lecture_seule' || subscriber.status === 'expire'
+    );
   }
 
   private toResult(

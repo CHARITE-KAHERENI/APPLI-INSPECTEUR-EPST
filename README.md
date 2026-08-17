@@ -110,6 +110,8 @@ cp .env.example .env
 npm run migration:run
 npm run seed:form-templates     # charge les 5 templates (C2, C3, C3B, C3M, C3_DAS)
 npm run seed:auth-directory     # comptes de démo (un par rôle) + annuaire + inspections fictives
+npm run seed:subscription-plans # les 3 formules payantes (mensuel, annuel, pack 10/20/50)
+npm run seed:subscriptions-demo # états d'abonnement variés sur les comptes de démo
 npm run start:dev               # http://localhost:3000
 
 # dans un autre terminal
@@ -139,6 +141,23 @@ inspections, sa zone IGE pour l'IGE, tout pour un super administrateur)
 pour le détail des règles et `web/README.md` pour les comptes de
 démonstration.
 
+## Essai gratuit et abonnement
+
+À la création d'un compte établissement ou inspecteur, un essai gratuit
+de 14 jours démarre automatiquement (accès complet). Passé ce délai,
+sans formule active, le compte bascule en **lecture seule** (historique
+consultable, création de nouvelles inspections bloquée) et se voit
+proposer 3 formules payantes — mensuel (15 000 FC), annuel (126 000 FC,
+≈ -30%) ou pack à l'usage (2 000 FC/inspection, packs de 10/20/50,
+valables 6 mois) — payables par mobile money local (M-Pesa, Orange
+Money, Airtel Money) ou carte bancaire via une interface de passerelle
+générique (webhook de confirmation), prête à être connectée à un vrai
+prestataire (ex: CinetPay). Vue d'ensemble, revenus, paiements et
+relances : page "Abonnements" (web, IGE) ; sélection de formule et
+paiement : profil utilisateur (mobile). Voir `backend/README.md`
+(section "Abonnements & paiement"), `web/README.md` et
+`mobile/README.md` (section "Connexion & abonnement").
+
 ## Génération PDF
 
 Chaque formulaire rempli peut être exporté en PDF visuellement fidèle au
@@ -161,7 +180,13 @@ l'écran de synthèse). Voir `backend/README.md` et `mobile/README.md`
   enseignants/inspecteurs) plutôt qu'au texte libre actuel, pour que les
   formulaires créés hors-ligne héritent aussi de l'autorisation par rôle
   côté web (voir "Limite connue" dans `backend/README.md`).
-- Authentification mobile (l'app de saisie n'a pas encore de connexion ;
-  `/sync/*` reste volontairement ouvert en attendant).
+- La connexion mobile (voir "Essai gratuit et abonnement" ci-dessus)
+  couvre le profil et l'abonnement, mais pas encore la saisie/synchronisation
+  elle-même : `/sync/*` reste volontairement ouvert, et l'en-tête d'un
+  formulaire mobile n'est pas encore relié à un compte utilisateur.
 - Interface web de saisie de formulaire (aujourd'hui uniquement
   consultation) et gestion des comptes utilisateurs.
+- Connexion d'une vraie passerelle de paiement (ex: CinetPay) à la place
+  du mock `PaymentGatewayService`, et renouvellement automatique
+  effectif des abonnements `auto_renew` (le champ existe, mais rien ne
+  débite encore à échéance).

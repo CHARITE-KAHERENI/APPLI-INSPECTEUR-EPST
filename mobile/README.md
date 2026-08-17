@@ -41,6 +41,13 @@ lib/
 │   ├── api/
 │   │   ├── api_config.dart            # URL de base de l'API backend
 │   │   └── sync_api_client.dart       # POST /sync/submissions, GET /sync/status, GET .../history
+│   ├── auth/                          # Session de connexion (PROMPT 7, point 6 — voir ci-dessous)
+│   │   ├── auth_models.dart           # AuthUser, UserRole — miroir de shared/src/types/auth.ts
+│   │   ├── auth_api_client.dart       # POST /auth/login, GET /auth/me
+│   │   └── auth_session.dart          # ChangeNotifier : jeton + profil, persistés (SharedPreferences)
+│   ├── subscription/                  # Essai gratuit / abonnement (PROMPT 7)
+│   │   ├── subscription_models.dart   # SubscriptionPlan, Subscriber, PaymentMethod — miroir shared
+│   │   └── subscription_api_client.dart   # GET /subscriptions/plans, /me, POST /checkout
 │   ├── sync/
 │   │   ├── sync_models.dart           # SyncAction, SyncQueueStatus, SyncQueueEntry
 │   │   ├── sync_queue_repository.dart # File de synchronisation locale (table sync_queue)
@@ -65,8 +72,14 @@ lib/
     │   └── widgets/                   # Pilules de note, badge de score, signature, champs d'en-tête...
     ├── history/
     │   └── submission_history_screen.dart  # Consultation des versions archivées (conflits de sync)
-    └── pdf/
-        └── pdf_preview_screen.dart    # Aperçu / partage / impression du PDF généré (package printing)
+    ├── pdf/
+    │   └── pdf_preview_screen.dart    # Aperçu / partage / impression du PDF généré (package printing)
+    ├── auth/
+    │   └── login_screen.dart          # Connexion (POST /auth/login) — accessible depuis le profil
+    ├── profile/
+    │   └── profile_screen.dart        # Identité + statut d'abonnement, bouton "Choisir une formule"
+    └── subscription/
+        └── plan_selection_screen.dart # Sélection de formule + paiement (mobile money / carte)
 
 assets/form-templates/                 # Copies de shared/forms (voir ci-dessous)
 assets/reference-data/                 # Jeu d'exemple établissements/enseignants (voir ci-dessous)
@@ -205,6 +218,41 @@ signature (`SignaturePadField`, à côté de la zone de dessin) sont
 nouveaux dans cette itération — ce dernier complète `SignatureDraft` pour
 que "Fait à ... le ..." puisse être affiché sur le PDF plutôt que laissé
 en blanc.
+
+## Connexion & abonnement (PROMPT 7)
+
+Point d'entrée **additif**, distinct de la saisie hors-ligne : un bouton
+"Profil" (icône compte, en haut à droite de l'écran d'accueil) ouvre
+`LoginScreen` si aucune session n'est active, sinon `ProfileScreen`
+directement. Le reste de l'application (formulaires, synchronisation,
+PDF local) reste utilisable sans connexion ni compte, exactement comme
+avant cette itération — `/sync/*` reste volontairement ouvert (voir
+"Ce qui n'est pas couvert" dans `backend/README.md`).
+
+- `AuthSession` (`core/auth/auth_session.dart`, `ChangeNotifier` fourni
+  via `Provider` dans `main.dart`) gère `POST /auth/login`, persiste le
+  jeton + le profil en local (`shared_preferences`) pour rester connecté
+  d'un lancement à l'autre, et revalide en arrière-plan via
+  `GET /auth/me` (déconnexion automatique si le jeton n'est plus valide).
+- `ProfileScreen` affiche l'identité du compte et, pour un rôle
+  facturable (`chef_etablissement`/`inspecteur` — voir
+  `UserRole.isBillable`), l'état de son abonnement
+  (`GET /subscriptions/me`) : essai en cours, formule active, ou lecture
+  seule avec le message d'explication du blocage de création
+  d'inspection.
+- `PlanSelectionScreen` liste les formules (`GET /subscriptions/plans`)
+  et le choix du mode de paiement (M-Pesa, Orange Money, Airtel Money,
+  carte bancaire), puis ouvre la transaction (`POST
+  /subscriptions/checkout`). Comme pour un paiement mobile money réel,
+  la confirmation est asynchrone (webhook côté serveur) : l'écran
+  affiche les instructions renvoyées, et l'utilisateur revient sur son
+  profil (tirer-pour-actualiser) pour voir le statut mis à jour une fois
+  le paiement confirmé.
+
+**Note sécurité** : le jeton est stocké via `shared_preferences` (non
+chiffré), un compromis assumé pour cette itération — voir le
+commentaire en tête de `auth_session.dart` pour le durcissement
+attendu (`flutter_secure_storage`) avant un déploiement réel.
 
 ## Modèle de données partagé
 
