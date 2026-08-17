@@ -4,3 +4,4 @@ export * from './form-submission';
 export * from './auth';
 export * from './directory';
 export * from './subscription';
+export * from './ai';

@@ -1,7 +1,12 @@
 import { Outlet } from 'react-router-dom';
+import { ChatbotWidget } from '../components/ChatbotWidget';
 import { Sidebar } from './Sidebar';
 
-/** Enveloppe commune des écrans authentifiés : sidebar + zone de contenu défilante. */
+/**
+ * Enveloppe commune des écrans authentifiés : sidebar + zone de contenu
+ * défilante + chatbot d'assistance flottant (PROMPT 8, point 3 — tous
+ * rôles, voir `ChatbotWidget`).
+ */
 export function AppShell() {
   return (
     <div className="flex min-h-screen bg-brand-bg">
@@ -11,6 +16,7 @@ export function AppShell() {
           <Outlet />
         </div>
       </main>
+      <ChatbotWidget />
     </div>
   );
 }

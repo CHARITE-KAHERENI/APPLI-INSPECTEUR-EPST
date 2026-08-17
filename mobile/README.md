@@ -48,6 +48,8 @@ lib/
 │   ├── subscription/                  # Essai gratuit / abonnement (PROMPT 7)
 │   │   ├── subscription_models.dart   # SubscriptionPlan, Subscriber, PaymentMethod — miroir shared
 │   │   └── subscription_api_client.dart   # GET /subscriptions/plans, /me, POST /checkout
+│   ├── ai/                            # Assistant de rédaction (PROMPT 8, point 1)
+│   │   └── ai_api_client.dart         # POST /ai/writing-assistant
 │   ├── sync/
 │   │   ├── sync_models.dart           # SyncAction, SyncQueueStatus, SyncQueueEntry
 │   │   ├── sync_queue_repository.dart # File de synchronisation locale (table sync_queue)
@@ -69,7 +71,8 @@ lib/
     │   │   ├── identification_step.dart
     │   │   ├── section_step.dart
     │   │   └── synthesis_step.dart
-    │   └── widgets/                   # Pilules de note, badge de score, signature, champs d'en-tête...
+    │   └── widgets/                   # Pilules de note, badge de score, signature, champs d'en-tête,
+    │                                   # AiSuggestionSheet (assistant de rédaction, PROMPT 8)
     ├── history/
     │   └── submission_history_screen.dart  # Consultation des versions archivées (conflits de sync)
     ├── pdf/
@@ -253,6 +256,25 @@ avant cette itération — `/sync/*` reste volontairement ouvert (voir
 chiffré), un compromis assumé pour cette itération — voir le
 commentaire en tête de `auth_session.dart` pour le durcissement
 attendu (`flutter_secure_storage`) avant un déploiement réel.
+
+## Assistant de rédaction IA (PROMPT 8)
+
+Bouton "Suggestion IA" dans la zone "conseils" de chaque section notée
+(`SectionStep`) : envoie les notes brutes déjà saisies dans ce champ à
+`POST /ai/writing-assistant`, et affiche la reformulation dans une feuille
+modale (`AiSuggestionSheet`) — éditable, avec "Régénérer" (nouvel appel) et
+"Accepter" (remplace le contenu du champ "conseils"). Deux conditions
+avant l'appel, chacune avec un message explicite plutôt qu'un blocage
+silencieux :
+
+- **Connexion internet** : vérifiée via `ConnectivityService` avant
+  l'appel — hors-ligne, un dialogue "Fonction IA indisponible hors-ligne"
+  s'affiche avec un bouton "Continuer sans IA" (aucun blocage de la
+  saisie, purement informatif).
+- **Session active** : l'assistant de rédaction exige un jeton JWT (même
+  session que le profil/abonnement, voir "Connexion & abonnement"
+  ci-dessus) — un inspecteur non connecté voit un message l'invitant à se
+  connecter depuis le profil, avec la même option de continuer sans IA.
 
 ## Modèle de données partagé
 

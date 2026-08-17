@@ -1,4 +1,7 @@
 import type {
+  AiTrendAnalysis,
+  ChatRequest,
+  ChatResponse,
   Enseignant,
   Etablissement,
   Inspecteur,
@@ -7,8 +10,10 @@ import type {
   SubscriptionAdminOverview,
   SubscriptionNotification,
   SubscriptionPlan,
+  WritingAssistantRequest,
+  WritingAssistantResponse,
 } from '@c3-digital/shared';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import type { ApiFormSubmission, DashboardStats, FormSubmissionFilters } from '../types/api';
 
@@ -162,6 +167,52 @@ export function useMySubscriber() {
     queryKey: ['subscriptions', 'me'],
     queryFn: async () => {
       const { data } = await api.get<Subscriber | null>('/subscriptions/me');
+      return data;
+    },
+  });
+}
+
+// --- Intelligence artificielle (PROMPT 8) -----------------------------------
+
+/** Assistant de rédaction — voir `pages/AssistantIaPage.tsx`. */
+export function useWritingAssistant() {
+  return useMutation({
+    mutationFn: async (payload: WritingAssistantRequest) => {
+      const { data } = await api.post<WritingAssistantResponse>('/ai/writing-assistant', payload);
+      return data;
+    },
+  });
+}
+
+export function useLatestTrendAnalysis() {
+  return useQuery({
+    queryKey: ['ai', 'trend-analyses', 'latest'],
+    queryFn: async () => {
+      const { data } = await api.get<AiTrendAnalysis | null>('/ai/trend-analyses/latest');
+      return data;
+    },
+  });
+}
+
+/** Réservé à `super_admin` — voir `AiController.generateTrendAnalysis`. */
+export function useGenerateTrendAnalysis() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const { data } = await api.post<AiTrendAnalysis>('/ai/trend-analyses/generate');
+      return data;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['ai', 'trend-analyses'] });
+    },
+  });
+}
+
+/** Chatbot d'assistance — voir `components/ChatbotWidget.tsx`. */
+export function useChat() {
+  return useMutation({
+    mutationFn: async (payload: ChatRequest) => {
+      const { data } = await api.post<ChatResponse>('/ai/chat', payload);
       return data;
     },
   });

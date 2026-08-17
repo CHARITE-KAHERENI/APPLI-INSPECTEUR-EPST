@@ -59,9 +59,11 @@ src/
 │   ├── InspectionsPage.tsx      # Tableau filtrable + export PDF/CSV
 │   ├── EtablissementsPage.tsx / EtablissementDetailPage.tsx
 │   ├── InspecteursPage.tsx / InspecteurDetailPage.tsx
-│   └── AbonnementsPage.tsx      # IGE uniquement — essai, revenus, paiements, relances (PROMPT 7)
+│   ├── AbonnementsPage.tsx      # IGE uniquement — essai, revenus, paiements, relances (PROMPT 7)
+│   ├── AssistantIaPage.tsx      # Assistant de rédaction IA, tous rôles (PROMPT 8)
+│   └── AnalyseIaPage.tsx        # IGE uniquement — synthèse quotidienne des tendances (PROMPT 8)
 ├── components/               # StatCard, MentionBadge, FormCodeBadge, FormCodeBarList, RevenueByPlanBarList,
-│                              # SubscriberStatusBadge, icônes SVG...
+│                              # SubscriberStatusBadge, ChatbotWidget (PROMPT 8), icônes SVG...
 ├── hooks/useApi.ts           # Hooks React Query (un par ressource de l'API)
 ├── lib/
 │   ├── api.ts                # Instance axios (jeton JWT en en-tête, événement 401 -> déconnexion)
@@ -96,6 +98,27 @@ relances envoyées avant expiration. Consomme
 `GET /subscriptions/admin/{overview,subscribers,payments,notifications}`,
 déjà restreints à la zone IGE côté backend comme le reste de
 l'application.
+
+## Intelligence artificielle (PROMPT 8)
+
+- **Assistant IA** (`/assistant-ia`, tous rôles) : le web n'a pas encore
+  d'écran de saisie de formulaire (voir "Prochaines étapes", README
+  racine) — cette page expose donc l'assistant de rédaction comme un
+  outil autonome (formulaire, section, notes brutes -> suggestion
+  copiable), plutôt que de l'intégrer dans un formulaire qui n'existe
+  pas côté web. Un état d'erreur explicite ("Fonction IA indisponible")
+  s'affiche si l'appel échoue, sans bloquer l'utilisateur.
+- **Analyse IA** (`/analyse-ia`, IGE uniquement) : dernière synthèse
+  quotidienne (`GET /ai/trend-analyses/latest`), organisée en 3 sections
+  visuellement distinctes — Alertes (rouge), Tendances (bleu), Points
+  positifs (vert) — avec un bouton "Générer maintenant" pour
+  `super_admin` (déclenchement manuel sans attendre le cron).
+- **Chatbot** (`ChatbotWidget`, tous rôles) : bulle flottante montée dans
+  `AppShell`, donc présente sur toutes les pages authentifiées. Envoie
+  `POST /ai/chat` avec l'historique de la conversation reconstruit côté
+  client (pas de session serveur) ; les permissions par rôle sont déjà
+  appliquées côté backend (voir `ChatbotToolsService`), ce composant n'a
+  donc aucune logique de restriction à dupliquer.
 
 ## Export "Excel"
 

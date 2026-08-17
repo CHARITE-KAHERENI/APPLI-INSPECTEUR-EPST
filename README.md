@@ -112,6 +112,7 @@ npm run seed:form-templates     # charge les 5 templates (C2, C3, C3B, C3M, C3_D
 npm run seed:auth-directory     # comptes de démo (un par rôle) + annuaire + inspections fictives
 npm run seed:subscription-plans # les 3 formules payantes (mensuel, annuel, pack 10/20/50)
 npm run seed:subscriptions-demo # états d'abonnement variés sur les comptes de démo
+# ANTHROPIC_API_KEY dans .env pour activer les 3 fonctionnalités IA (sinon désactivées proprement, voir plus bas)
 npm run start:dev               # http://localhost:3000
 
 # dans un autre terminal
@@ -158,6 +159,23 @@ paiement : profil utilisateur (mobile). Voir `backend/README.md`
 (section "Abonnements & paiement"), `web/README.md` et
 `mobile/README.md` (section "Connexion & abonnement").
 
+## Intelligence artificielle
+
+Trois fonctionnalités s'appuyant sur l'API **Claude (Anthropic)**
+(`ANTHROPIC_API_KEY`, config centralisée dans `backend/src/config/`) :
+un **assistant de rédaction** (mobile et web) qui reformule les notes
+brutes d'un inspecteur en conseil pédagogique structuré (accepter/
+modifier/régénérer, avec un message explicite si hors-ligne ou sans
+session) ; une **analyse des tendances** quotidienne (IGE uniquement,
+page "Analyse IA") distinguant alertes, tendances et points positifs à
+partir des scores agrégés par zone/établissement/formulaire ; et un
+**chatbot** (web, tous rôles, bulle flottante) qui répond aux questions
+sur les données de l'utilisateur via un jeu d'outils contrôlés — jamais
+d'accès SQL direct, chaque outil réutilise les services déjà restreints
+par rôle du reste de l'application. Voir `backend/README.md` (section
+"Intelligence artificielle"), `web/README.md` et `mobile/README.md`
+(section "Assistant de rédaction IA").
+
 ## Génération PDF
 
 Chaque formulaire rempli peut être exporté en PDF visuellement fidèle au
@@ -190,3 +208,6 @@ l'écran de synthèse). Voir `backend/README.md` et `mobile/README.md`
   du mock `PaymentGatewayService`, et renouvellement automatique
   effectif des abonnements `auto_renew` (le champ existe, mais rien ne
   débite encore à échéance).
+- Une fois l'interface web de saisie de formulaire construite (voir
+  ci-dessus), intégrer l'assistant de rédaction IA directement dans la
+  section éditée plutôt que comme outil autonome (`/assistant-ia`).

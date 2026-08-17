@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { DataSource } from 'typeorm';
+import { AiTrendAnalysisEntity } from '../modules/ai/entities/ai-trend-analysis.entity';
 import { EnseignantEntity } from '../modules/enseignants/entities/enseignant.entity';
 import { EtablissementEntity } from '../modules/etablissements/entities/etablissement.entity';
 import { FormTemplateEntity } from '../modules/form-templates/entities/form-template.entity';
@@ -37,6 +38,7 @@ export default new DataSource({
     SubscriberEntity,
     PaymentEntity,
     SubscriptionNotificationEntity,
+    AiTrendAnalysisEntity,
   ],
   migrations: ['src/database/migrations/*.ts'],
   synchronize: false,

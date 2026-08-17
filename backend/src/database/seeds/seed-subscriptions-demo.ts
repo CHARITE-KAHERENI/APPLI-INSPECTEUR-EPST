@@ -29,12 +29,22 @@ async function seed() {
   const planRepo = dataSource.getRepository(SubscriptionPlanEntity);
   const subscriberRepo = dataSource.getRepository(SubscriberEntity);
   const paymentRepo = dataSource.getRepository(PaymentEntity);
-  const notificationRepo = dataSource.getRepository(SubscriptionNotificationEntity);
+  const notificationRepo = dataSource.getRepository(
+    SubscriptionNotificationEntity,
+  );
 
-  const institutDeLaPaix = await etablissementRepo.findOneByOrFail({ nom: 'Institut de la Paix (exemple)' });
-  const epExempleKinshasa = await etablissementRepo.findOneByOrFail({ nom: 'EP Exemple Kinshasa (exemple)' });
-  const tshisekedi = await inspecteurRepo.findOneByOrFail({ nom: 'TSHISEKEDI Paul (fictif)' });
-  const ilunga = await inspecteurRepo.findOneByOrFail({ nom: 'ILUNGA Sarah (fictive)' });
+  const institutDeLaPaix = await etablissementRepo.findOneByOrFail({
+    nom: 'Institut de la Paix (exemple)',
+  });
+  const epExempleKinshasa = await etablissementRepo.findOneByOrFail({
+    nom: 'EP Exemple Kinshasa (exemple)',
+  });
+  const tshisekedi = await inspecteurRepo.findOneByOrFail({
+    nom: 'TSHISEKEDI Paul (fictif)',
+  });
+  const ilunga = await inspecteurRepo.findOneByOrFail({
+    nom: 'ILUNGA Sarah (fictive)',
+  });
 
   const mensuel = await planRepo.findOneByOrFail({ code: 'mensuel' });
   const pack10 = await planRepo.findOneByOrFail({ code: 'pack_10' });
@@ -118,7 +128,9 @@ async function seed() {
 
 async function upsertSubscriber(
   repo: ReturnType<typeof dataSource.getRepository<SubscriberEntity>>,
-  data: Partial<SubscriberEntity> & { accountType: 'etablissement' | 'inspecteur' },
+  data: Partial<SubscriberEntity> & {
+    accountType: 'etablissement' | 'inspecteur';
+  },
 ): Promise<SubscriberEntity> {
   const existing = await repo.findOne({
     where: data.etablissementId
@@ -128,7 +140,9 @@ async function upsertSubscriber(
   const entity = existing ?? repo.create();
   Object.assign(entity, data);
   const saved = await repo.save(entity);
-  console.log(`✓ Subscriber ${saved.accountType} (${saved.status}) — ${existing ? 'mis à jour' : 'créé'}`);
+  console.log(
+    `✓ Subscriber ${saved.accountType} (${saved.status}) — ${existing ? 'mis à jour' : 'créé'}`,
+  );
   return saved;
 }
 
@@ -136,25 +150,39 @@ async function upsertPayment(
   repo: ReturnType<typeof dataSource.getRepository<PaymentEntity>>,
   data: Partial<PaymentEntity> & { providerReference: string },
 ): Promise<PaymentEntity> {
-  const existing = await repo.findOne({ where: { providerReference: data.providerReference } });
-  const entity = existing ?? repo.create();
-  Object.assign(entity, data);
-  const saved = await repo.save(entity);
-  console.log(`✓ Paiement "${saved.providerReference}" (${existing ? 'mis à jour' : 'créé'})`);
-  return saved;
-}
-
-async function upsertNotification(
-  repo: ReturnType<typeof dataSource.getRepository<SubscriptionNotificationEntity>>,
-  data: Partial<SubscriptionNotificationEntity> & { subscriberId: string; type: string },
-): Promise<SubscriptionNotificationEntity> {
   const existing = await repo.findOne({
-    where: { subscriberId: data.subscriberId, type: data.type as SubscriptionNotificationEntity['type'] },
+    where: { providerReference: data.providerReference },
   });
   const entity = existing ?? repo.create();
   Object.assign(entity, data);
   const saved = await repo.save(entity);
-  console.log(`✓ Notification "${saved.type}" (${existing ? 'mise à jour' : 'créée'})`);
+  console.log(
+    `✓ Paiement "${saved.providerReference}" (${existing ? 'mis à jour' : 'créé'})`,
+  );
+  return saved;
+}
+
+async function upsertNotification(
+  repo: ReturnType<
+    typeof dataSource.getRepository<SubscriptionNotificationEntity>
+  >,
+  data: Partial<SubscriptionNotificationEntity> & {
+    subscriberId: string;
+    type: string;
+  },
+): Promise<SubscriptionNotificationEntity> {
+  const existing = await repo.findOne({
+    where: {
+      subscriberId: data.subscriberId,
+      type: data.type,
+    },
+  });
+  const entity = existing ?? repo.create();
+  Object.assign(entity, data);
+  const saved = await repo.save(entity);
+  console.log(
+    `✓ Notification "${saved.type}" (${existing ? 'mise à jour' : 'créée'})`,
+  );
   return saved;
 }
 

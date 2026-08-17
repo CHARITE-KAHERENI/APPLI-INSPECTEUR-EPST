@@ -5,6 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import configuration, { AppConfig } from './config/configuration';
+import { AiModule } from './modules/ai/ai.module';
+import { AiTrendAnalysisEntity } from './modules/ai/entities/ai-trend-analysis.entity';
 import { AuthModule } from './modules/auth/auth.module';
 import { EnseignantEntity } from './modules/enseignants/entities/enseignant.entity';
 import { EnseignantsModule } from './modules/enseignants/enseignants.module';
@@ -58,6 +60,7 @@ import { UsersModule } from './modules/users/users.module';
             SubscriberEntity,
             PaymentEntity,
             SubscriptionNotificationEntity,
+            AiTrendAnalysisEntity,
           ],
           synchronize: db.synchronize,
         };
@@ -73,6 +76,7 @@ import { UsersModule } from './modules/users/users.module';
     EnseignantsModule,
     InspecteursModule,
     SubscriptionsModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [AppService],

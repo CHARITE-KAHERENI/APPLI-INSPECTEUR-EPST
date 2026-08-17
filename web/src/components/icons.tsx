@@ -90,3 +90,21 @@ export function WalletIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function SparkleIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M12 3v4M12 17v4M3 12h4M17 12h4" />
+      <path d="M12 8a4 4 0 0 0 4 4 4 4 0 0 0-4 4 4 4 0 0 0-4-4 4 4 0 0 0 4-4Z" />
+    </svg>
+  );
+}
+
+export function TrendIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M3 17l6-6 4 4 8-8" />
+      <path d="M15 7h6v6" />
+    </svg>
+  );
+}

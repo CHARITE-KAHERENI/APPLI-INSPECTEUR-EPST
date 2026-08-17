@@ -1,3 +1,7 @@
+import type {
+  SubscriberAccountType,
+  SubscriberStatus,
+} from '@c3-digital/shared';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder } from 'typeorm';
@@ -214,6 +218,24 @@ export class SubscribersService {
         .getCount(),
     ]);
     return { trialCount, activeCount, readOnlyCount };
+  }
+
+  /**
+   * Nombre de comptes d'un type donné (`etablissement`/`inspecteur`) dans
+   * un statut donné, dans le périmètre de `user` — utilisé par le
+   * chatbot (`ChatbotToolsService`) pour répondre à des questions du
+   * type "combien d'établissements n'ont pas payé leur abonnement ?"
+   * sans jamais exécuter de SQL fourni par le modèle.
+   */
+  async countByAccountTypeAndStatus(
+    user: UserEntity,
+    accountType: SubscriberAccountType,
+    status: SubscriberStatus,
+  ): Promise<number> {
+    return this.scopedQueryBuilder(user)
+      .andWhere('subscriber.accountType = :accountType', { accountType })
+      .andWhere('subscriber.status = :status', { status })
+      .getCount();
   }
 
   /** IDs de comptes visibles par l'utilisateur — utilisé par `PaymentsService` pour scoper l'historique de paiement. */

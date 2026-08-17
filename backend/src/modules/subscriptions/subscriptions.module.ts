@@ -43,6 +43,11 @@ import { SubscriptionsSchedulerService } from './subscriptions-scheduler.service
     SubscriptionGuard,
     { provide: PAYMENT_GATEWAY, useClass: MockPaymentGateway },
   ],
-  exports: [SubscribersService, SubscriptionPlansService, SubscriptionGuard],
+  exports: [
+    SubscribersService,
+    SubscriptionPlansService,
+    SubscriptionGuard,
+    PaymentsService,
+  ],
 })
 export class SubscriptionsModule {}

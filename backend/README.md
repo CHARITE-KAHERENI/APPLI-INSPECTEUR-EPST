@@ -20,6 +20,11 @@ npm run seed:subscriptions-demo  # états d'abonnement variés sur les comptes d
 npm run start:dev
 ```
 
+Les 3 fonctionnalités IA (assistant de rédaction, analyse des tendances,
+chatbot) nécessitent `ANTHROPIC_API_KEY` dans `.env` — sans elle, les
+routes `/ai/*` répondent `503` proprement plutôt que d'échouer au
+démarrage (voir "Intelligence artificielle" ci-dessous).
+
 Un Postgres local est fourni via Docker à la racine du repo :
 `docker compose up -d db`.
 
@@ -44,7 +49,8 @@ src/
     ├── form-submissions/          # Entité + service + controller (formulaires remplis, avec autorisation par rôle)
     ├── sync/                      # Réception de la file de synchronisation mobile hors-ligne
     ├── pdf/                       # Génération PDF fidèle aux documents Word officiels
-    └── subscriptions/             # Essai gratuit, formules payantes, paiement (PROMPT 7)
+    ├── subscriptions/             # Essai gratuit, formules payantes, paiement (PROMPT 7)
+    └── ai/                        # Assistant de rédaction, analyse des tendances, chatbot (PROMPT 8)
 ```
 
 ## Endpoints (v0)
@@ -75,6 +81,11 @@ src/
 | GET     | `/subscriptions/admin/subscribers`      | JWT  | Liste des comptes facturables, filtrable — `ige_admin`/`super_admin` |
 | GET     | `/subscriptions/admin/payments`         | JWT  | Historique des paiements — `ige_admin`/`super_admin` |
 | GET     | `/subscriptions/admin/notifications`    | JWT  | Relances envoyées avant expiration — `ige_admin`/`super_admin` |
+| POST    | `/ai/writing-assistant`                 | JWT  | Reformule des notes brutes en conseil pédagogique (mobile et web) |
+| GET     | `/ai/trend-analyses/latest`             | JWT  | Dernière synthèse quotidienne — `ige_admin`/`super_admin` |
+| GET     | `/ai/trend-analyses`                    | JWT  | Historique des synthèses — `ige_admin`/`super_admin` |
+| POST    | `/ai/trend-analyses/generate`           | JWT  | Déclenche une génération manuelle — `super_admin` uniquement |
+| POST    | `/ai/chat`                              | JWT  | Chatbot d'assistance (tous rôles, outils contrôlés — voir ci-dessous) |
 
 `/sync/*` reste sans authentification : c'est l'application mobile
 hors-ligne qui y écrit, et elle n'implémente pas encore de connexion
@@ -201,6 +212,48 @@ historique interne pour l'instant.
 npm run seed:subscription-plans   # les 5 lignes de formules (mensuel/annuel/pack_10/20/50)
 npm run seed:subscriptions-demo   # applique des états variés aux comptes de démo existants
 ```
+
+## Intelligence artificielle (PROMPT 8)
+
+Les 3 fonctionnalités utilisent l'API **Claude (Anthropic)** via
+`@anthropic-ai/sdk`, centralisées dans `modules/ai` :
+
+- **Clé et prompts système** : `ANTHROPIC_API_KEY`/`ANTHROPIC_MODEL`
+  (`.env`) et les 3 prompts système sont regroupés dans
+  `config/ai-prompts.ts` (importés dans `config/configuration.ts`,
+  exposés via `ConfigService.get('ai', ...)`). `AnthropicClientService`
+  encapsule le SDK et renvoie une erreur `503` explicite si la clé est
+  absente, plutôt que de faire planter la route ou le cron.
+
+- **Assistant de rédaction** (`POST /ai/writing-assistant`, mobile et
+  web) : reformule les notes brutes d'un inspecteur pour une section
+  notée en conseil pédagogique structuré. Sans état côté serveur — le
+  client (mobile : `SectionStep`/`AiSuggestionSheet` ; web :
+  `AssistantIaPage`) gère l'acceptation/modification/régénération.
+
+- **Analyse des tendances** (`ige_admin`/`super_admin`, page web
+  "Analyse IA") : `TrendAnalysisSchedulerService` (cron quotidien,
+  `EVERY_DAY_AT_3AM`) agrège les scores des 30 derniers jours (par zone,
+  par formulaire, les établissements les plus en difficulté) via
+  `TrendAnalysisService`, compare à la période précédente, puis demande
+  à Claude une synthèse structurée (JSON strict : `alerts`/`trends`/
+  `positives`) stockée dans `ai_trend_analyses`. Une synthèse globale
+  unique par exécution (pas une par zone) : un `ige_admin` la consulte
+  au même titre qu'un `super_admin`. `POST /ai/trend-analyses/generate`
+  (`super_admin`) déclenche une génération manuelle, utile pour tester
+  sans attendre le cron.
+
+- **Chatbot** (`POST /ai/chat`, tous rôles) : boucle de "tool use" de
+  l'API Claude — `ChatbotToolsService` expose un jeu fixe d'outils
+  (`get_inspection_stats`, `get_subscription_admin_overview`,
+  `count_unpaid_accounts`, `get_my_subscription`, `get_app_help`), tous
+  construits sur les services déjà scopés par rôle du reste de
+  l'application (`FormSubmissionsService`, `SubscribersService`,
+  `PaymentsService`) : **le modèle n'exécute jamais de SQL** — il choisit
+  un outil, `ChatbotService` l'exécute côté serveur dans le périmètre de
+  l'utilisateur connecté, et renvoie le résultat au modèle pour la
+  réponse finale. `history` est reconstruit par le client à chaque appel
+  (pas de session de conversation côté serveur).
 
 ### `POST /sync/submissions` — synchronisation hors-ligne
 

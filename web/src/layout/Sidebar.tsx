@@ -1,6 +1,15 @@
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../auth/useAuth';
-import { BuildingIcon, DashboardIcon, ListIcon, LogoutIcon, PeopleIcon, WalletIcon } from '../components/icons';
+import {
+  BuildingIcon,
+  DashboardIcon,
+  ListIcon,
+  LogoutIcon,
+  PeopleIcon,
+  SparkleIcon,
+  TrendIcon,
+  WalletIcon,
+} from '../components/icons';
 
 const ROLE_LABELS: Record<string, string> = {
   inspecteur: 'Inspecteur',
@@ -15,15 +24,19 @@ const NAV_ITEMS = [
   { to: '/inspections', label: 'Inspections', icon: ListIcon, end: false },
   { to: '/etablissements', label: 'Établissements', icon: BuildingIcon, end: false },
   { to: '/inspecteurs', label: 'Inspecteurs', icon: PeopleIcon, end: false },
+  { to: '/assistant-ia', label: 'Assistant IA', icon: SparkleIcon, end: false },
 ];
 
-/** Page IGE (comptes en essai, revenus, paiements) — voir PROMPT 7. */
-const ADMIN_NAV_ITEM = { to: '/abonnements', label: 'Abonnements', icon: WalletIcon, end: false };
+/** Pages IGE — voir PROMPT 7 (Abonnements) et PROMPT 8, point 2 (Analyse IA). */
+const ADMIN_NAV_ITEMS = [
+  { to: '/abonnements', label: 'Abonnements', icon: WalletIcon, end: false },
+  { to: '/analyse-ia', label: 'Analyse IA', icon: TrendIcon, end: false },
+];
 
 export function Sidebar() {
   const { user, logout } = useAuth();
   const navItems =
-    user?.role === 'ige_admin' || user?.role === 'super_admin' ? [...NAV_ITEMS, ADMIN_NAV_ITEM] : NAV_ITEMS;
+    user?.role === 'ige_admin' || user?.role === 'super_admin' ? [...NAV_ITEMS, ...ADMIN_NAV_ITEMS] : NAV_ITEMS;
 
   return (
     <aside className="flex h-screen w-64 shrink-0 flex-col bg-brand-primary text-white">

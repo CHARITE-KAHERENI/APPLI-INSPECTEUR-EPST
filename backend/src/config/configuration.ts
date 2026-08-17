@@ -1,3 +1,9 @@
+import {
+  CHATBOT_SYSTEM_PROMPT,
+  TREND_ANALYSIS_SYSTEM_PROMPT,
+  WRITING_ASSISTANT_SYSTEM_PROMPT,
+} from './ai-prompts';
+
 export interface AppConfig {
   port: number;
   database: {
@@ -16,6 +22,20 @@ export interface AppConfig {
   subscriptions: {
     /** Secret partagé attendu sur `POST /subscriptions/webhooks/:provider` — voir `WebhookSecretGuard`. */
     webhookSecret: string;
+  };
+  /**
+   * Configuration centralisée de l'intégration IA (PROMPT 8) : clé API et
+   * prompts système des 3 usages (assistant de rédaction, analyse des
+   * tendances, chatbot) — voir `modules/ai` et `ai-prompts.ts`.
+   */
+  ai: {
+    apiKey: string;
+    model: string;
+    systemPrompts: {
+      writingAssistant: string;
+      trendAnalysis: string;
+      chatbot: string;
+    };
   };
 }
 
@@ -46,5 +66,17 @@ export default (): AppConfig => ({
     webhookSecret:
       process.env.SUBSCRIPTIONS_WEBHOOK_SECRET ??
       'dev-only-insecure-webhook-secret-change-me',
+  },
+  ai: {
+    // Pas de valeur de repli : une clé absente/vide désactive proprement
+    // les 3 fonctionnalités IA (voir `AnthropicClientService.isConfigured`)
+    // plutôt que d'échouer au démarrage — utile en développement sans clé.
+    apiKey: process.env.ANTHROPIC_API_KEY ?? '',
+    model: process.env.ANTHROPIC_MODEL ?? 'claude-sonnet-5',
+    systemPrompts: {
+      writingAssistant: WRITING_ASSISTANT_SYSTEM_PROMPT,
+      trendAnalysis: TREND_ANALYSIS_SYSTEM_PROMPT,
+      chatbot: CHATBOT_SYSTEM_PROMPT,
+    },
   },
 });

@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../../core/ai/ai_api_client.dart';
+import '../../../core/auth/auth_session.dart';
 import '../../../core/models/form_template.dart';
+import '../../../core/sync/connectivity_service.dart';
 import '../state/dynamic_form_controller.dart';
+import '../widgets/ai_suggestion_sheet.dart';
 import '../widgets/criterion_tile.dart';
 import '../widgets/custom_observation_tile.dart';
 import '../widgets/section_score_badge.dart';
@@ -23,6 +28,7 @@ class _SectionStepState extends State<SectionStep> {
   final Map<String, TextEditingController> _observationControllers = {};
   final Map<String, TextEditingController> _customLabelControllers = {};
   final Map<String, TextEditingController> _customNoteControllers = {};
+  final _connectivityService = ConnectivityService();
   late final TextEditingController _adviceController;
 
   @override
@@ -64,6 +70,70 @@ class _SectionStepState extends State<SectionStep> {
     widget.controller.removeCustomObservation(widget.section.id, observationId);
     _customLabelControllers.remove(observationId)?.dispose();
     _customNoteControllers.remove(observationId)?.dispose();
+  }
+
+  /// Assistant de rédaction IA (PROMPT 8, point 1) : envoie les notes
+  /// brutes actuellement saisies dans la zone "conseils" et propose une
+  /// reformulation structurée. Nécessite une connexion internet ET une
+  /// session active (voir `core/auth/auth_session.dart`) — un message
+  /// clair s'affiche sinon, avec la possibilité de continuer sans IA.
+  Future<void> _requestAiSuggestion() async {
+    final rawNotes = _adviceController.text.trim();
+    if (rawNotes.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Saisissez quelques notes avant de demander une suggestion IA.')),
+      );
+      return;
+    }
+
+    final isOnline = await _connectivityService.hasNetworkConnection();
+    if (!mounted) return;
+    if (!isOnline) {
+      _showUnavailableMessage("Fonction IA indisponible hors-ligne. Vous pouvez continuer sans IA.");
+      return;
+    }
+
+    final session = context.read<AuthSession>();
+    if (!session.isAuthenticated || session.accessToken == null) {
+      _showUnavailableMessage(
+        "Connectez-vous depuis le profil (bouton en haut de l'écran d'accueil) pour utiliser l'assistant IA. "
+        'Vous pouvez continuer sans IA.',
+      );
+      return;
+    }
+
+    final section = widget.section;
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => AiSuggestionSheet(
+        apiClient: AiApiClient(),
+        accessToken: session.accessToken!,
+        formCode: widget.controller.template.code.code,
+        sectionTitle: section.title,
+        rawNotes: rawNotes,
+        onAccept: (suggestion) {
+          setState(() => _adviceController.text = suggestion);
+          widget.controller.setSectionAdvice(section.id, suggestion);
+        },
+      ),
+    );
+  }
+
+  void _showUnavailableMessage(String message) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Assistant IA indisponible'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Continuer sans IA'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -152,6 +222,15 @@ class _SectionStepState extends State<SectionStep> {
                     maxLines: 6,
                     decoration: InputDecoration(hintText: section.adviceZone.placeholder),
                     onChanged: (text) => controller.setSectionAdvice(section.id, text),
+                  ),
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: OutlinedButton.icon(
+                      onPressed: _requestAiSuggestion,
+                      icon: const Icon(Icons.auto_awesome, size: 18),
+                      label: const Text('Suggestion IA'),
+                    ),
                   ),
                 ],
               ),

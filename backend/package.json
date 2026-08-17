@@ -29,6 +29,7 @@
     "generate:sample-pdf": "ts-node -P tsconfig.cli.json -r tsconfig-paths/register scripts/generate-sample-c3-pdf.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.117.1",
     "@c3-digital/shared": "*",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.0",
