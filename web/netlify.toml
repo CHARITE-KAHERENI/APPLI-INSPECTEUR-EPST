@@ -1,0 +1,18 @@
+# Déploiement Netlify (alternative "sans opération" au Dockerfile/nginx —
+# voir web/README.md, section "Déploiement"). À la racine du repo :
+#   Base directory:      (laisser vide — le build a besoin du monorepo entier)
+#   Build command:        npm run build:shared && npm run build --workspace=web
+#   Publish directory:    web/dist
+# Définir VITE_API_BASE_URL dans les variables d'environnement du site
+# Netlify (Site settings -> Environment variables) avant le premier build.
+
+[build]
+  command = "npm run build:shared && npm run build --workspace=web"
+  publish = "web/dist"
+
+# Application monopage (React Router, mode "history") : toute route
+# inconnue de Netlify doit retomber sur index.html.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

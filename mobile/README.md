@@ -297,3 +297,32 @@ flutter pub get
 flutter run
 flutter test
 ```
+
+## Tests (PROMPT 9)
+
+`test/` complète `flutter test` avec la saisie hors-ligne complète des 5
+formulaires, le calcul des scores/mentions, la génération PDF et la file
+de synchronisation locale — voir `test/scoring_all_forms_test.dart`,
+`test/pdf_generator_test.dart`, `test/sync_queue_repository_test.dart`,
+`test/dynamic_form_controller_test.dart`. Les tests SQLite utilisent
+`sqflite_common_ffi` (voir `test/support/sqflite_ffi_setup.dart`) — pas
+besoin d'un appareil/émulateur réel pour `flutter test`. Ces tests
+n'ont pas pu être exécutés dans cet environnement (SDK Flutter absent) ;
+à valider avec `flutter test` avant le déploiement pilote.
+
+## Guide de démarrage rapide pour l'inspecteur (PROMPT 9)
+
+`docs/guide-demarrage-inspecteur.md` (à la racine du repo, avec une
+version imprimable `docs/guide-demarrage-inspecteur.html`) — une page en
+français simple : installation de l'APK, remplissage d'un formulaire en
+5 étapes, réassurance sur le mode hors-ligne. À distribuer avec l'APK aux
+inspecteurs pilotes de Butembo.
+
+## Déploiement — APK signé pour la distribution pilote (PROMPT 9)
+
+Voir `mobile/scripts/README.md` : génération du keystore d'upload,
+configuration de la signature Gradle, puis
+`./mobile/scripts/build-release-apk.sh <URL_API>` pour produire
+`build/app/outputs/flutter-apk/app-release.apk`, distribué directement
+aux inspecteurs pilotes de Butembo (hors Play Store dans un premier
+temps).

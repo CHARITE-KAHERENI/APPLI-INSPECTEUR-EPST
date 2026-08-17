@@ -1,0 +1,38 @@
+# Contexte de build Docker (voir backend/Dockerfile, web/Dockerfile) — on
+# exclut tout ce qui est régénéré par `npm ci` / `npm run build` (repris
+# depuis .gitignore) ainsi que les artefacts non nécessaires à l'image.
+
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+coverage/
+**/coverage/
+*.tsbuildinfo
+.env
+.env.local
+**/.env
+npm-debug.log*
+
+# Flutter / mobile — jamais utilisé par les images backend/web.
+mobile/.dart_tool/
+mobile/.pub-cache/
+mobile/.pub/
+mobile/build/
+mobile/**/android/.gradle/
+mobile/**/ios/Pods/
+
+# Secrets de signature Android (voir mobile/scripts/README.md) — ne
+# doivent jamais entrer dans un contexte de build Docker.
+*.jks
+*.keystore
+key.properties
+
+# Git / IDE / OS
+.git/
+.vscode/
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+*.log

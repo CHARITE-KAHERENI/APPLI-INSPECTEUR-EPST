@@ -17,6 +17,7 @@ npm run seed:form-templates   # charge shared/forms/*.json (5 formulaires)
 npm run seed:auth-directory   # comptes de démonstration (un par rôle) + annuaire + inspections fictives
 npm run seed:subscription-plans  # les 3 formules payantes (mensuel, annuel, pack 10/20/50)
 npm run seed:subscriptions-demo  # états d'abonnement variés sur les comptes de démo (essai/actif/lecture seule)
+npm run seed:demo-butembo        # jeu de données du pilote de Butembo — 4 établissements, inspecteurs, 5 formulaires (PROMPT 9)
 npm run start:dev
 ```
 
@@ -213,6 +214,29 @@ npm run seed:subscription-plans   # les 5 lignes de formules (mensuel/annuel/pac
 npm run seed:subscriptions-demo   # applique des états variés aux comptes de démo existants
 ```
 
+## Pilote de Butembo (PROMPT 9)
+
+`npm run seed:demo-butembo` (après les 3 seeds ci-dessus) crée un jeu de
+données entièrement fictif pour présenter l'application aux utilisateurs
+pilotes de **Butembo (zone IGE "Nord-Kivu 2")** avant la mise en
+production réelle — voir `src/database/seeds/seed-demo-butembo.ts` :
+
+- 4 établissements (EP Butembo Centre, Institut Vijana wa Butembo,
+  Complexe Scolaire La Colombe, EP Kitatumba), 2 inspecteurs et 4
+  enseignants, tous marqués "(pilote)".
+- Un exemple de formulaire **soumis** pour chacun des 5 types officiels
+  (C2, C3, C3B, C3M, C3_DAS).
+- Un essai gratuit de 14 jours démarré pour chaque établissement/
+  inspecteur pilote (comme un vrai compte créé via l'API).
+- 3 comptes de connexion pilote (mot de passe `password123`) :
+  `chef.epbutembocentre@pilote.cd`, `inspecteur.kambale@pilote.cd`,
+  `inspecteur.masika@pilote.cd` — le compte IGE de la zone existant déjà
+  (`ige.nordkivu2@exemple.cd`, voir "Démarrage" ci-dessus) voit ces
+  établissements sans compte supplémentaire.
+
+Script idempotent (relancer sans risque de doublons ; n'écrase pas un
+état d'abonnement déjà avancé lors d'une démonstration en direct).
+
 ## Intelligence artificielle (PROMPT 8)
 
 Les 3 fonctionnalités utilisent l'API **Claude (Anthropic)** via
@@ -334,6 +358,67 @@ reproduit le même contenu avec le package Dart `pdf` (voir
 npm run generate:sample-pdf   # écrit backend/tmp/c3-sample.pdf (+ .html)
 ```
 
+## Tests (PROMPT 9)
+
+```bash
+npm run test        # unitaires — dont scoring.spec.ts (mentions des 5 formulaires) et pdf-template.service.spec.ts
+npm run test:e2e     # end-to-end contre un vrai Postgres (voir docker compose up -d db)
+```
+
+- `src/modules/form-submissions/scoring.spec.ts` — calcul des scores et
+  mentions pour les 5 formulaires (`shared/forms/*.json`) : note maximale
+  -> meilleure mention, note nulle -> pire mention, critère inconnu ->
+  exception, sections vides gérées sans planter.
+- `src/modules/pdf/pdf-template.service.spec.ts` — génération PDF : ancres
+  structurelles (en-tête, sections, tableau de conversion) + comparaison
+  **golden-file** de l'HTML rendu contre une référence commitée
+  (`test/fixtures/pdf-golden/<code>.html`, auto-générée au premier
+  lancement). Le rendu HTML étant déterministe et Puppeteer se contentant
+  de le rasteriser fidèlement, une comparaison octet-à-octet de l'HTML
+  tient lieu de comparaison visuelle sans dépendre d'un vrai navigateur en
+  CI — voir le commentaire en tête du fichier pour le raisonnement complet.
+- `test/sync.e2e-spec.ts` — synchronisation après reconnexion : création,
+  no-op idempotent, mise à jour + archivage de version, **conflit**
+  (`baseServerUpdatedAt` périmé), formulaire invalide.
+- `test/subscription-lifecycle.e2e-spec.ts` — passage **essai gratuit ->
+  compte bloqué -> abonnement actif** : création réelle d'un établissement
+  (déclenche l'essai), expiration forcée + `refreshSubscriptions()`,
+  vérification du blocage (`lecture_seule`, 403 sur `POST
+  /form-submissions`), `checkout` + webhook de confirmation, déblocage.
+
+Le mobile (Flutter) porte des tests équivalents dans `mobile/test/`
+(`scoring_all_forms_test.dart`, `pdf_generator_test.dart`,
+`sync_queue_repository_test.dart`, `dynamic_form_controller_test.dart` —
+saisie complète hors-ligne des 5 formulaires) — voir `mobile/README.md`.
+
+## Déploiement (Docker — PROMPT 9)
+
+`Dockerfile` (multi-étapes) + le service `api` de `docker-compose.yml` à
+la racine du repo construisent une image de production de l'API :
+compilation de `@c3-digital/shared` puis de `nest build`, image finale
+avec Chromium installé (`apt-get install chromium`, déjà dans la liste de
+chemins candidats de `PdfService.resolveExecutablePath()` — aucune
+variable supplémentaire à définir). L'image conserve l'arborescence
+`backend/src` + `shared/forms` (pas seulement `dist/`), car les scripts
+`seed:*`/`migration:*` s'exécutent via `ts-node` et lisent les JSON des
+formulaires directement sur disque.
+
+```bash
+# Depuis la racine du repo. Définir JWT_SECRET / SUBSCRIPTIONS_WEBHOOK_SECRET /
+# ANTHROPIC_API_KEY dans un .env à la racine avant un déploiement réel — voir
+# les commentaires de docker-compose.yml.
+docker compose up -d db api
+
+# Premier démarrage uniquement (ou après une nouvelle migration) :
+docker compose exec api npm run migration:run
+docker compose exec api npm run seed:form-templates
+docker compose exec api npm run seed:auth-directory
+docker compose exec api npm run seed:subscription-plans
+```
+
+L'API écoute alors sur `http://localhost:3000` (voir aussi
+`web/README.md` pour le service `web` du même `docker-compose.yml`).
+
 ## Scripts utiles
 
 ```bash
@@ -344,6 +429,7 @@ npm run seed:form-templates # charge shared/forms/*.json
 npm run seed:auth-directory # comptes de démo + annuaire + inspections fictives
 npm run seed:subscription-plans  # les 3 formules payantes (mensuel/annuel/pack 10/20/50)
 npm run seed:subscriptions-demo  # états d'abonnement variés sur les comptes de démo
+npm run seed:demo-butembo   # jeu de données du pilote de Butembo (PROMPT 9)
 npm run generate:sample-pdf # génère un PDF C3 d'exemple (données fictives) pour validation visuelle
 npm run lint
 npm run test

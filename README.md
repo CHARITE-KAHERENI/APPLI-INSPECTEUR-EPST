@@ -112,6 +112,7 @@ npm run seed:form-templates     # charge les 5 templates (C2, C3, C3B, C3M, C3_D
 npm run seed:auth-directory     # comptes de démo (un par rôle) + annuaire + inspections fictives
 npm run seed:subscription-plans # les 3 formules payantes (mensuel, annuel, pack 10/20/50)
 npm run seed:subscriptions-demo # états d'abonnement variés sur les comptes de démo
+npm run seed:demo-butembo       # jeu de données du pilote de Butembo (Nord-Kivu 2) — voir backend/README.md
 # ANTHROPIC_API_KEY dans .env pour activer les 3 fonctionnalités IA (sinon désactivées proprement, voir plus bas)
 npm run start:dev               # http://localhost:3000
 
@@ -187,6 +188,24 @@ l'inspecteur en encart distinct) — aussi bien côté serveur
 mobile en mode hors-ligne (package Dart `pdf`, bouton "Générer le PDF" de
 l'écran de synthèse). Voir `backend/README.md` et `mobile/README.md`
 (sections "Génération PDF").
+
+## Tests, déploiement et pilote de Butembo (PROMPT 9)
+
+- **Tests automatisés** : scores/mentions des 5 formulaires, synchronisation
+  + conflits, génération PDF (golden-file), passage essai -> bloqué ->
+  abonné actif — voir `backend/README.md` (section "Tests") et
+  `mobile/README.md` (section "Tests").
+- **Déploiement** : `docker-compose.yml` (services `db` + `api` + `web`,
+  voir `backend/Dockerfile` / `web/Dockerfile`) pour un auto-hébergement
+  complet ; `web/netlify.toml` / `web/vercel.json` en alternative cloud
+  managée pour le web ; `mobile/scripts/` pour générer un **APK Android
+  signé** distribué hors Play Store pendant le pilote.
+- **Jeu de données pilote** : `npm run seed:demo-butembo` — établissements,
+  inspecteurs et formulaires d'exemple fictifs pour le déploiement pilote
+  de **Butembo (Nord-Kivu 2)** — voir `backend/README.md`.
+- **Guide de démarrage rapide** (1 page, français simple) pour un
+  inspecteur sur le terrain : `docs/guide-demarrage-inspecteur.md`
+  (version imprimable : `docs/guide-demarrage-inspecteur.html`).
 
 ## Prochaines étapes
 

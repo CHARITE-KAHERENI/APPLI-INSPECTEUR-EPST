@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Guide de démarrage rapide — c3-digital</title>
+<meta name="description" content="Guide de démarrage rapide (1 page, imprimable) pour un inspecteur utilisant c3-digital pour la première fois sur le terrain — pilote de Butembo." />
+<style>
+  :root {
+    --brand: #1F4E78;
+    --brand-deep: #163a5a;
+    --accent: #2E74B5;
+    --positive: #1E8E5A;
+    --positive-tint: #E4F3EC;
+    --warning: #C77700;
+    --paper: #F4F6F8;
+    --surface: #FFFFFF;
+    --outline: #D3DAE1;
+    --ink: #16232F;
+    --ink-muted: #5B6B79;
+    --step-num-fg: #FFFFFF;
+    --shadow: 0 1px 2px rgba(22, 35, 47, 0.06), 0 8px 24px rgba(22, 35, 47, 0.07);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --brand: #4A8DC9;
+      --brand-deep: #2E74B5;
+      --accent: #6BA9DE;
+      --positive: #3FBE85;
+      --positive-tint: #12291f;
+      --warning: #E5A03D;
+      --paper: #0F1620;
+      --surface: #17212C;
+      --outline: #2A3745;
+      --ink: #E7EDF3;
+      --ink-muted: #93A3B3;
+      --step-num-fg: #0F1620;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --brand: #4A8DC9;
+    --brand-deep: #2E74B5;
+    --accent: #6BA9DE;
+    --positive: #3FBE85;
+    --positive-tint: #12291f;
+    --warning: #E5A03D;
+    --paper: #0F1620;
+    --surface: #17212C;
+    --outline: #2A3745;
+    --ink: #E7EDF3;
+    --ink-muted: #93A3B3;
+    --step-num-fg: #0F1620;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    justify-content: center;
+    padding: 28px 16px 48px;
+  }
+
+  .sheet {
+    width: 100%;
+    max-width: 780px;
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  header.band {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-deep) 100%);
+    color: #fff;
+    padding: 26px 30px 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .mark {
+    flex: none;
+    width: 46px;
+    height: 46px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1.5px solid rgba(255, 255, 255, 0.55);
+    display: grid;
+    place-items: center;
+  }
+  .mark svg { width: 24px; height: 24px; }
+
+  .band-text .eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.78);
+    margin: 0 0 3px;
+  }
+  .band-text h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  .band-text .sub {
+    margin: 3px 0 0;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .print-btn {
+    margin-left: auto;
+    flex: none;
+    align-self: flex-start;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: #fff;
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 7px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .print-btn:hover { background: rgba(255, 255, 255, 0.24); }
+  .print-btn:focus-visible, a:focus-visible, button:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+  }
+
+  main {
+    padding: 26px 30px 8px;
+    display: grid;
+    grid-template-columns: 1.55fr 1fr;
+    gap: 26px;
+  }
+
+  .lede {
+    grid-column: 1 / -1;
+    margin: 0 0 6px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--ink-muted);
+    max-width: 62ch;
+  }
+
+  h2.section-title {
+    margin: 0 0 12px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--brand);
+  }
+
+  ol.steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  ol.steps li {
+    display: grid;
+    grid-template-columns: 30px 1fr;
+    gap: 12px;
+  }
+
+  .num {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--brand);
+    color: var(--step-num-fg);
+    font-weight: 800;
+    font-size: 13px;
+    display: grid;
+    place-items: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .step-body h3 {
+    margin: 2px 0 3px;
+    font-size: 14.5px;
+    font-weight: 700;
+  }
+  .step-body p {
+    margin: 0;
+    font-size: 12.8px;
+    line-height: 1.48;
+    color: var(--ink-muted);
+  }
+  .step-body p b { color: var(--ink); font-weight: 600; }
+
+  aside {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .card {
+    border: 1px solid var(--outline);
+    border-radius: 10px;
+    padding: 14px 15px;
+    background: var(--paper);
+  }
+  .card.positive {
+    background: var(--positive-tint);
+    border-color: color-mix(in srgb, var(--positive) 35%, var(--outline));
+  }
+
+  .card h3 {
+    margin: 0 0 6px;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .card h3 svg { flex: none; width: 15px; height: 15px; }
+  .card.positive h3 { color: var(--positive); }
+  .card p {
+    margin: 0;
+    font-size: 12.3px;
+    line-height: 1.5;
+    color: var(--ink-muted);
+  }
+  .card p + p { margin-top: 6px; }
+  .card strong { color: var(--ink); }
+
+  .status-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 9px;
+  }
+  .pill {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    padding: 3px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--outline);
+    color: var(--ink-muted);
+    background: var(--surface);
+  }
+  .pill.on { color: var(--positive); border-color: color-mix(in srgb, var(--positive) 45%, var(--outline)); }
+
+  footer {
+    margin-top: 8px;
+    padding: 16px 30px 22px;
+    border-top: 1px solid var(--outline);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  footer .org {
+    font-size: 11.5px;
+    color: var(--ink-muted);
+  }
+  footer .org b { color: var(--ink); }
+  footer .help {
+    font-size: 11.5px;
+    color: var(--ink-muted);
+  }
+
+  @media (max-width: 620px) {
+    main { grid-template-columns: 1fr; }
+    .print-btn { display: none; }
+  }
+
+  @media print {
+    @page { size: A4; margin: 10mm; }
+    body { padding: 0; background: #fff; }
+    .sheet { max-width: none; border: none; box-shadow: none; border-radius: 0; }
+    .print-btn { display: none; }
+    header.band { background: var(--brand) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .card.positive { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .sheet { animation: rise 0.35s ease-out; }
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+  <header class="band">
+    <div class="mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6h-2" />
+        <path d="M14 3v5a1 1 0 0 0 1 1h5" />
+        <path d="m9 15 2 2 4-4" />
+      </svg>
+    </div>
+    <div class="band-text">
+      <p class="eyebrow">c3-digital · Inspection Générale de l'Enseignement</p>
+      <h1>Guide de démarrage rapide</h1>
+      <p class="sub">Pour l'inspecteur qui utilise l'application pour la première fois — Pilote de Butembo, Nord-Kivu 2</p>
+    </div>
+    <button class="print-btn" onclick="window.print()" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      Imprimer
+    </button>
+  </header>
+
+  <main>
+    <p class="lede">
+      Ce document tient sur une page : gardez-le sur votre téléphone ou imprimez-le. Aucune connexion internet
+      n'est nécessaire pour installer l'application ni pour remplir un formulaire sur le terrain.
+    </p>
+
+    <div>
+      <h2 class="section-title">Les 5 étapes</h2>
+      <ol class="steps">
+        <li>
+          <span class="num">1</span>
+          <div class="step-body">
+            <h3>Installer l'application</h3>
+            <p>Ouvrez le fichier <b>app-release.apk</b> reçu de l'IGE, acceptez <b>« Sources inconnues »</b> si demandé, puis appuyez sur <b>Installer</b>.</p>
+          </div>
+        </li>
+        <li>
+          <span class="num">2</span>
+          <div class="step-body">
+            <h3>Choisir un formulaire</h3>
+            <p>Sur l'écran d'accueil, touchez l'un des 5 formulaires : <b>C2, C3, C3B, C3M ou C3_DAS</b>. Aucun compte n'est requis.</p>
+          </div>
+        </li>
+        <li>
+          <span class="num">3</span>
+          <div class="step-body">
+            <h3>Remplir l'identification et les sections</h3>
+            <p>Complétez l'identification, puis notez chaque critère de <b>0 à 4</b> section après section, en appuyant sur <b>Suivant</b>.</p>
+          </div>
+        </li>
+        <li>
+          <span class="num">4</span>
+          <div class="step-body">
+            <h3>Signer et générer le PDF</h3>
+            <p>À la synthèse, vérifiez la mention, faites signer avec le doigt, puis appuyez sur <b>Générer le PDF</b>.</p>
+          </div>
+        </li>
+        <li>
+          <span class="num">5</span>
+          <div class="step-body">
+            <h3>Terminer</h3>
+            <p>Appuyez sur <b>Terminer</b> — le formulaire est enregistré sur le téléphone, envoyé au serveur dès que possible.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    <aside>
+      <div class="card positive">
+        <h3>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10Z"/><path d="m9 12 2 2 4-4"/></svg>
+          Hors-ligne ? Aucun souci
+        </h3>
+        <p>L'application fonctionne <strong>entièrement sans réseau</strong>, du début à la fin. Rien n'est perdu si vous fermez l'application ou éteignez le téléphone.</p>
+        <p>Un bandeau en haut de l'écran indique l'état — la synchronisation se fait <strong>toute seule</strong> dès qu'une connexion revient.</p>
+        <div class="status-row">
+          <span class="pill">Hors-ligne</span>
+          <span class="pill on">Synchronisé</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+          Compte &amp; abonnement
+        </h3>
+        <p>L'icône <strong>Profil</strong> (haut à droite de l'accueil) permet de se connecter, de voir son essai gratuit de 14 jours, et de choisir une formule (M-Pesa, Orange Money, Airtel Money, carte) — optionnel pour remplir un formulaire.</p>
+      </div>
+
+      <div class="card">
+        <h3>
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
+          Besoin d'aide ?
+        </h3>
+        <p>Écran figé : fermez et rouvrez l'application. Pas de réseau : continuez, l'envoi se fera plus tard.</p>
+        <p>Sinon, contactez l'équipe IGE du pilote de Butembo (Nord-Kivu 2).</p>
+      </div>
+    </aside>
+  </main>
+
+  <footer>
+    <span class="org"><b>c3-digital</b> — Inspection Générale de l'Enseignement, RDC</span>
+    <span class="help">Version pilote · Nord-Kivu 2 · Butembo</span>
+  </footer>
+</div>
+
+</body>
+</html>

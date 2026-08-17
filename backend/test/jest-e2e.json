@@ -5,5 +5,8 @@
   "testRegex": ".e2e-spec.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "^puppeteer-core$": "<rootDir>/mocks/puppeteer-core.mock.js"
   }
 }

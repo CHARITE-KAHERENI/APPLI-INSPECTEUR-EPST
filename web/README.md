@@ -151,3 +151,40 @@ npm run build --workspace=web    # tsc -b && vite build
 npm run lint --workspace=web     # oxlint
 npm run preview --workspace=web
 ```
+
+## Déploiement (PROMPT 9)
+
+`npm run build --workspace=web` produit un dossier `web/dist` 100%
+statique (HTML/CSS/JS) : aucun serveur Node n'est requis pour le
+servir. `VITE_API_BASE_URL` est intégrée au bundle **au moment du
+build**, pas lue au démarrage — toute modification de l'URL de l'API
+nécessite un nouveau build. Deux façons de déployer, au choix :
+
+**1. Conteneur nginx (auto-hébergement, ex. VPS du pilote de Butembo)**
+— `web/Dockerfile` compile le web puis le sert via nginx
+(`web/nginx.conf`, avec repli SPA sur `index.html` pour React Router).
+Intégré à `docker-compose.yml` à la racine (service `web`, avec `api`
+et `db`) :
+
+```bash
+# Depuis la racine du repo — VITE_API_BASE_URL doit pointer vers l'URL
+# publique de l'API (pas le nom du service Docker interne, injoignable
+# depuis le navigateur des utilisateurs).
+VITE_API_BASE_URL=https://api.exemple.cd docker compose build web
+docker compose up -d web   # http://<serveur>:8080
+```
+
+**2. Hébergement cloud statique managé (Netlify/Vercel)** — sans
+conteneur à gérer. Configs prêtes à l'emploi :
+
+- **Netlify** : `web/netlify.toml` (commande de build, dossier de
+  publication `web/dist`, repli SPA). Définir `VITE_API_BASE_URL` dans
+  les variables d'environnement du site avant le premier build.
+- **Vercel** : `web/vercel.json` — définir le "Root Directory" du
+  projet sur `web` (la commande de build remonte à la racine du
+  monorepo pour compiler `@c3-digital/shared` au préalable). Définir
+  `VITE_API_BASE_URL` dans les variables d'environnement du projet.
+
+Dans les deux cas, l'hébergeur détecte `web/package.json` mais la
+compilation a besoin du monorepo complet (workspace `@c3-digital/shared`)
+— d'où les commandes de build qui remontent explicitement à la racine.

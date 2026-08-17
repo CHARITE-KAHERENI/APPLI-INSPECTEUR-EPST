@@ -26,6 +26,7 @@
     "seed:auth-directory": "ts-node -P tsconfig.cli.json -r tsconfig-paths/register src/database/seeds/seed-auth-and-directory.ts",
     "seed:subscription-plans": "ts-node -P tsconfig.cli.json -r tsconfig-paths/register src/database/seeds/seed-subscription-plans.ts",
     "seed:subscriptions-demo": "ts-node -P tsconfig.cli.json -r tsconfig-paths/register src/database/seeds/seed-subscriptions-demo.ts",
+    "seed:demo-butembo": "ts-node -P tsconfig.cli.json -r tsconfig-paths/register src/database/seeds/seed-demo-butembo.ts",
     "generate:sample-pdf": "ts-node -P tsconfig.cli.json -r tsconfig-paths/register scripts/generate-sample-c3-pdf.ts"
   },
   "dependencies": {

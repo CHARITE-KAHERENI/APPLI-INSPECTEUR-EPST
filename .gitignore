@@ -32,6 +32,14 @@ mobile/**/ios/Flutter/Flutter.podspec
 mobile/**/*.g.dart
 mobile/**/*.freezed.dart
 
+# --- Signature Android (APK pilote, PROMPT 9 — voir mobile/scripts/README.md) ---
+# Le keystore d'upload et ses identifiants ne doivent JAMAIS être commités.
+*.jks
+*.keystore
+mobile/android/key.properties
+*.apk
+*.aab
+
 # --- IDE / OS ---
 .vscode/*
 !.vscode/extensions.json

@@ -17,5 +17,60 @@ services:
       timeout: 5s
       retries: 10
 
+  # API NestJS (voir backend/Dockerfile). Les secrets (JWT_SECRET,
+  # SUBSCRIPTIONS_WEBHOOK_SECRET, ANTHROPIC_API_KEY, identifiants CinetPay à
+  # venir) NE DOIVENT PAS rester aux valeurs `dev-only-*` ci-dessous en
+  # dehors du poste de développement : définissez-les dans un fichier
+  # `.env` à la racine (lu automatiquement par `docker compose`, jamais
+  # commité — voir .gitignore) pour un déploiement pilote/production. Voir
+  # backend/README.md, section "Déploiement (Docker)", pour les étapes de
+  # migration/seed après le premier démarrage.
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: c3-digital-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PORT: 3000
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+      DATABASE_USER: c3digital
+      DATABASE_PASSWORD: c3digital
+      DATABASE_NAME: c3_digital
+      DATABASE_SYNCHRONIZE: 'false'
+      DATABASE_SSL: 'false'
+      JWT_SECRET: ${JWT_SECRET:-dev-only-insecure-secret-change-me}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-12h}
+      SUBSCRIPTIONS_WEBHOOK_SECRET: ${SUBSCRIPTIONS_WEBHOOK_SECRET:-dev-only-insecure-webhook-secret-change-me}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-sonnet-5}
+    ports:
+      - '3000:3000'
+
+  # Web (React + Vite, servi en statique par nginx — voir web/Dockerfile).
+  # Option d'auto-hébergement pour le pilote de Butembo ; `web/netlify.toml`
+  # / `web/vercel.json` restent l'alternative "sans opération" pour un
+  # hébergement cloud managé — voir web/README.md, section "Déploiement".
+  # VITE_API_BASE_URL est intégrée au bundle JS au *build* (pas modifiable
+  # en changeant seulement la variable d'environnement du conteneur) :
+  # ajustez-la puis relancez `docker compose build web` si l'API n'est pas
+  # sur http://localhost:3000 depuis le navigateur des utilisateurs pilotes.
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:3000}
+    container_name: c3-digital-web
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - '8080:80'
+
 volumes:
   c3-digital-db-data:

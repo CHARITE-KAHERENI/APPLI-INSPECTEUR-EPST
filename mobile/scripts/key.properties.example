@@ -1,0 +1,12 @@
+# Copier ce fichier vers mobile/android/key.properties (après `flutter create .`,
+# voir mobile/scripts/README.md) et compléter les valeurs. JAMAIS commité
+# (voir .gitignore à la racine) : chaque signataire garde sa propre copie
+# locale, en dehors du dépôt Git.
+
+storePassword=CHANGEZ-MOI
+keyPassword=CHANGEZ-MOI
+keyAlias=c3digital
+# Chemin vers le .jks généré par generate-keystore.sh — relatif à
+# mobile/android/app/ (d'où Gradle lit ce fichier), donc généralement
+# ../../scripts/c3-digital-upload.jks si le fichier reste dans mobile/scripts/.
+storeFile=../../scripts/c3-digital-upload.jks
