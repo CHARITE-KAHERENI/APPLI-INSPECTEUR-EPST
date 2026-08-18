@@ -419,6 +419,39 @@ docker compose exec api npm run seed:subscription-plans
 L'API écoute alors sur `http://localhost:3000` (voir aussi
 `web/README.md` pour le service `web` du même `docker-compose.yml`).
 
+### Hébergement cloud gratuit — Render (Blueprint)
+
+Pour obtenir un vrai lien public sans gérer de serveur : `render.yaml` à
+la racine du repo est un [Blueprint Render](https://render.com/docs/blueprint-spec)
+qui déploie l'API (`backend/Dockerfile`) **et** une base PostgreSQL
+managée en un seul clic.
+
+1. Sur [render.com](https://render.com), **New +** → **Blueprint**, choisir
+   ce dépôt GitHub (`charite-kahereni/appli-inspecteur-epst`) et la
+   branche voulue. Render détecte `render.yaml` et propose de créer les
+   2 ressources (`c3-digital-api` + `c3-digital-db`) — valider.
+2. `JWT_SECRET`/`SUBSCRIPTIONS_WEBHOOK_SECRET` sont générés
+   automatiquement ; `ANTHROPIC_API_KEY` reste vide (fonctionnalités IA
+   désactivées proprement) jusqu'à être renseignée manuellement dans
+   l'onglet **Environment** du service, si souhaité.
+3. Une fois le déploiement terminé (`c3-digital-api` passe en vert),
+   onglet **Shell** du service → exécuter une fois :
+   ```bash
+   npm run migration:run
+   npm run seed:form-templates
+   npm run seed:auth-directory
+   npm run seed:subscription-plans
+   npm run seed:demo-butembo
+   ```
+4. L'URL publique (`https://c3-digital-api-xxxx.onrender.com`) est
+   affichée en haut du service — c'est la valeur à donner à
+   `VITE_API_BASE_URL` côté web (voir `web/README.md`).
+
+⚠️ Le plan **free** de Render met le service en veille après 15 minutes
+d'inactivité (premier appel plus lent le temps du réveil) et la base
+gratuite expire après 90 jours — largement suffisant pour une démo ou un
+pilote, à passer sur un plan payant avant une mise en production réelle.
+
 ## Scripts utiles
 
 ```bash

@@ -42,4 +42,8 @@ export default new DataSource({
   ],
   migrations: ['src/database/migrations/*.ts'],
   synchronize: false,
+  // Postgres managé (Render, Railway...) : certificat auto-signé côté
+  // fournisseur — voir app.module.ts pour la même logique côté API.
+  ssl:
+    process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : false,
 });

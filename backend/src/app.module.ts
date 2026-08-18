@@ -47,7 +47,11 @@ import { UsersModule } from './modules/users/users.module';
           username: db.username,
           password: db.password,
           database: db.name,
-          ssl: db.ssl,
+          // Postgres managé (Render, Railway...) : certificat auto-signé
+          // côté fournisseur — `rejectUnauthorized: true` (comportement
+          // par défaut de `ssl: true`) ferait échouer la connexion. Voir
+          // aussi database/data-source.ts (même logique pour la CLI).
+          ssl: db.ssl ? { rejectUnauthorized: false } : false,
           entities: [
             FormTemplateEntity,
             FormSubmissionEntity,

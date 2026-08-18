@@ -188,3 +188,9 @@ conteneur à gérer. Configs prêtes à l'emploi :
 Dans les deux cas, l'hébergeur détecte `web/package.json` mais la
 compilation a besoin du monorepo complet (workspace `@c3-digital/shared`)
 — d'où les commandes de build qui remontent explicitement à la racine.
+
+**Chemin complet recommandé pour un lien public rapide** : déployer
+d'abord l'API sur Render via `render.yaml` (voir `backend/README.md`,
+section "Hébergement cloud gratuit — Render"), récupérer son URL
+(`https://c3-digital-api-xxxx.onrender.com`), puis l'utiliser comme
+`VITE_API_BASE_URL` sur Netlify/Vercel pour le web.
