@@ -1,0 +1,39 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "c3-digital",
+  "version": "0.1.0",
+  "identifier": "cd.gouv.ige.c3digital.desktop",
+  "build": {
+    "frontendDist": "../../web/dist",
+    "devUrl": "http://localhost:5173"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "c3-digital",
+        "width": 1280,
+        "height": 800,
+        "minWidth": 960,
+        "minHeight": 600
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "publisher": "Inspection Générale de l'Enseignement (RDC)",
+    "category": "Productivity",
+    "shortDescription": "c3-digital — tableau de bord IGE",
+    "longDescription": "Tableau de bord de l'IGE (inspections, établissements, abonnements, assistant IA) en application de bureau, sans navigateur.",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}
