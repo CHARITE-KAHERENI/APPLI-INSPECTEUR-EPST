@@ -33,7 +33,7 @@ class AppTheme {
         centerTitle: false,
         titleTextStyle: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: AppColors.surface,
         elevation: 0,
         margin: const EdgeInsets.symmetric(vertical: 8),

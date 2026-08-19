@@ -244,12 +244,14 @@ class InspectionPdfGenerator {
     Map<String, SectionScoreResult> sectionScores,
   ) {
     final blocks = <_CodedBlock>[
-      for (final group in template.fieldGroups) _CodedBlock(group.code, _buildFieldGroup(group, draft)),
+      for (final group in template.fieldGroups) _CodedBlock(group.code, [_buildFieldGroup(group, draft)]),
       for (final section in template.sections)
         _CodedBlock(section.code, _buildSection(section, draft, sectionScores[section.id])),
     ];
     blocks.sort((a, b) => _compareCodes(a.code, b.code));
-    return [for (final block in blocks) ...[block.widget, pw.SizedBox(height: 6)]];
+    return [
+      for (final block in blocks) ...[...block.widgets, pw.SizedBox(height: 6)],
+    ];
   }
 
   int _compareCodes(String? a, String? b) {
@@ -329,7 +331,7 @@ class InspectionPdfGenerator {
   // Sections notées (grille d'évaluation)
   // ---------------------------------------------------------------------
 
-  pw.Widget _buildSection(FormSectionTemplate section, FormDraft draft, SectionScoreResult? score) {
+  List<pw.Widget> _buildSection(FormSectionTemplate section, FormDraft draft, SectionScoreResult? score) {
     final sectionDraft = draft.sectionFor(section.id);
 
     final headerRow = pw.TableRow(
@@ -375,40 +377,42 @@ class InspectionPdfGenerator {
         '${score != null ? ' (${score.percentage.toStringAsFixed(0)}%)' : ''}'
         '   —   Total → ${score?.totalScore ?? 0} / ${score?.maxScore ?? 0}';
 
-    return pw.Container(
-      width: double.infinity,
-      padding: const pw.EdgeInsets.all(5),
-      decoration: pw.BoxDecoration(border: pw.Border.all(width: 1)),
-      child: pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
-        children: [
-          pw.Text('${section.code}. ${section.title}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
-          if (section.description != null)
-            pw.Text(section.description!, style: pw.TextStyle(fontSize: 8, fontStyle: pw.FontStyle.italic)),
-          pw.SizedBox(height: 3),
-          table,
-          pw.SizedBox(height: 3),
-          pw.Align(
-            alignment: pw.Alignment.centerRight,
-            child: pw.Text(totalLabel, style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold)),
-          ),
-          if (section.adviceZone.enabled) ...[
-            pw.SizedBox(height: 3),
-            pw.Text(section.adviceZone.label, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 8)),
-            pw.Container(
-              width: double.infinity,
-              margin: const pw.EdgeInsets.only(top: 1),
-              padding: const pw.EdgeInsets.all(4),
-              decoration: pw.BoxDecoration(border: pw.Border.all(width: 0.6, color: AppPdfColors.outline)),
-              child: pw.Text(
-                sectionDraft.advice.isEmpty ? '—' : sectionDraft.advice,
-                style: const pw.TextStyle(fontSize: 8),
-              ),
-            ),
-          ],
-        ],
+    // Widgets retournés à PLAT (liste), pas regroupés dans un `pw.Column`
+    // ni un `pw.Container` : une section peut dépasser une page (ex: C2,
+    // jusqu'à ~40 critères sur une seule section), et seul `table` (un
+    // vrai `pw.Table`, seul widget ici capable de scinder ses LIGNES
+    // entre plusieurs pages) doit porter cette pagination. L'imbriquer
+    // dans un `Column`/`Container` qui doit lui-même tenir en entier sur
+    // une page revient à demander au moteur de mise en page de faire
+    // tenir un bloc plus grand qu'une page sur une page : il retente
+    // indéfiniment sur de nouvelles pages sans jamais y parvenir
+    // (`PdfTooBigPageException`, même en relevant largement `maxPages`).
+    return [
+      pw.Text('${section.code}. ${section.title}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+      if (section.description != null)
+        pw.Text(section.description!, style: pw.TextStyle(fontSize: 8, fontStyle: pw.FontStyle.italic)),
+      pw.SizedBox(height: 3),
+      table,
+      pw.SizedBox(height: 3),
+      pw.Align(
+        alignment: pw.Alignment.centerRight,
+        child: pw.Text(totalLabel, style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold)),
       ),
-    );
+      if (section.adviceZone.enabled) ...[
+        pw.SizedBox(height: 3),
+        pw.Text(section.adviceZone.label, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 8)),
+        pw.Container(
+          width: double.infinity,
+          margin: const pw.EdgeInsets.only(top: 1),
+          padding: const pw.EdgeInsets.all(4),
+          decoration: pw.BoxDecoration(border: pw.Border.all(width: 0.6, color: AppPdfColors.outline)),
+          child: pw.Text(
+            sectionDraft.advice.isEmpty ? '—' : sectionDraft.advice,
+            style: const pw.TextStyle(fontSize: 8),
+          ),
+        ),
+      ],
+    ];
   }
 
   pw.Widget _gridHeaderCell(String text) {
@@ -744,8 +748,8 @@ class InspectionPdfGenerator {
 }
 
 class _CodedBlock {
-  const _CodedBlock(this.code, this.widget);
+  const _CodedBlock(this.code, this.widgets);
 
   final String? code;
-  final pw.Widget widget;
+  final List<pw.Widget> widgets;
 }

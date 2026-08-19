@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 
@@ -17,13 +19,28 @@ class AppDatabase {
 
   static Database? _instance;
 
+  // En production, toujours le même fichier (persistance entre les
+  // lancements de l'app). `reset()` — utilisé uniquement par les tests —
+  // le fait pointer vers un nouveau nom à chaque appel : `flutter test`
+  // exécute les fichiers de test en parallèle par défaut, et sans ce
+  // renommage, deux suites (ex: sync_queue_repository_test.dart et
+  // dynamic_form_controller_test.dart) partageraient le même fichier
+  // SQLite sur disque (chemin fixe via getDatabasesPath()), avec des
+  // écritures concurrentes provoquant des erreurs I/O aléatoires ou des
+  // données d'un test qui fuitent dans un autre.
+  static String _fileName = 'c3_digital.db';
+
+  static Future<String> _path() async {
+    final dbPath = await getDatabasesPath();
+    return p.join(dbPath, _fileName);
+  }
+
   static Future<Database> instance() async {
     final existing = _instance;
     if (existing != null) {
       return existing;
     }
-    final dbPath = await getDatabasesPath();
-    final path = p.join(dbPath, 'c3_digital.db');
+    final path = await _path();
     final db = await openDatabase(
       path,
       version: schemaVersion,
@@ -138,12 +155,18 @@ class AppDatabase {
     await db.execute('CREATE INDEX idx_sync_queue_draft_id ON sync_queue (draft_id)');
   }
 
-  /// Utile pour les tests : ferme et oublie l'instance ouverte.
+  /// Utile pour les tests : ferme l'instance ouverte, supprime le
+  /// fichier SQLite sous-jacent, puis fait pointer les prochains appels
+  /// à [instance] vers un nom de fichier tout neuf — voir le
+  /// commentaire de [_fileName] pour l'isolation entre suites de tests
+  /// exécutées en parallèle.
   static Future<void> reset() async {
     final db = _instance;
     _instance = null;
     if (db != null) {
       await db.close();
     }
+    await deleteDatabase(await _path());
+    _fileName = 'c3_digital_test_${Random().nextInt(1 << 32)}.db';
   }
 }

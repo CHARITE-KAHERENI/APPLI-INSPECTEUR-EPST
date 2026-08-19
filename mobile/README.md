@@ -306,9 +306,32 @@ de synchronisation locale — voir `test/scoring_all_forms_test.dart`,
 `test/pdf_generator_test.dart`, `test/sync_queue_repository_test.dart`,
 `test/dynamic_form_controller_test.dart`. Les tests SQLite utilisent
 `sqflite_common_ffi` (voir `test/support/sqflite_ffi_setup.dart`) — pas
-besoin d'un appareil/émulateur réel pour `flutter test`. Ces tests
-n'ont pas pu être exécutés dans cet environnement (SDK Flutter absent) ;
-à valider avec `flutter test` avant le déploiement pilote.
+besoin d'un appareil/émulateur réel pour `flutter test`.
+
+**Exécutés avec succès** (36/36) avec le SDK Flutter stable installé a
+posteriori — cette exécution a révélé et corrigé plusieurs bugs réels,
+jamais détectés faute d'environnement d'exécution jusqu'ici :
+
+- `AppDatabase.reset()` ne supprimait pas le fichier SQLite sous-jacent
+  (seulement la connexion) : les fichiers de test s'exécutant en
+  parallèle par défaut avec `flutter test`, plusieurs suites
+  partageaient le même fichier sur disque, causant des données qui
+  fuitaient d'un test à l'autre et des erreurs I/O aléatoires — corrigé
+  en supprimant le fichier et en le renommant de façon unique à chaque
+  `reset()`.
+- Génération PDF du formulaire **C2** : `PdfTooBigPageException` (plus
+  de 80 pages). C2 a jusqu'à ~40 critères sur une seule section (contre
+  ~5-9 pour les autres formulaires) ; le tableau des critères était
+  imbriqué dans un `pw.Container`/`pw.Column`, qui doivent tenir en
+  entier sur une page — corrigé en renvoyant les widgets de section à
+  plat, pour que seul le `pw.Table` (le seul à savoir scinder ses
+  lignes) porte la pagination.
+- `PaymentMethod.mpesa` (enum) et `CardTheme` (renommé `CardThemeData`
+  dans les versions récentes de Flutter) : deux erreurs de compilation
+  qui empêchaient tout `flutter test` de démarrer.
+
+Ces corrections seront validées une nouvelle fois lors du premier build
+réel (`flutter build apk`, voir "Déploiement" ci-dessous).
 
 ## Guide de démarrage rapide pour l'inspecteur (PROMPT 9)
 

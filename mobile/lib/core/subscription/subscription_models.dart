@@ -23,7 +23,7 @@ enum SubscriberStatus {
 }
 
 enum PaymentMethod {
-  mpesa,
+  mpesa('mpesa'),
   orangeMoney('orange_money'),
   airtelMoney('airtel_money'),
   carteBancaire('carte_bancaire');
