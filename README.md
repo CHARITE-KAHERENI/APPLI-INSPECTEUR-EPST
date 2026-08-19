@@ -245,6 +245,9 @@ seul poste (chaque OS a besoin de son propre toolchain natif) — voir
 `.github/workflows/desktop-build.yml` et
 `.github/workflows/desktop-dashboard-build.yml`, qui les construisent en
 parallèle sur les runners GitHub correspondants (déclenchement manuel).
+**Pour récupérer l'installateur Windows/macOS sans SDK ni toolchain
+local**, suivre `docs/guide-telecharger-app-desktop.md` (version
+imprimable : `docs/guide-telecharger-app-desktop.html`).
 
 ## Prochaines étapes
 

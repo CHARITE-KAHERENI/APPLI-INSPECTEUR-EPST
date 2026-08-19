@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Récupérer l'app Desktop — c3-digital</title>
+<meta name="description" content="Guide en 4 étapes pour construire et télécharger l'installateur Windows des applications desktop c3-digital via GitHub Actions." />
+<style>
+  :root {
+    --brand: #1F4E78;
+    --brand-deep: #163a5a;
+    --accent: #2E74B5;
+    --positive: #1E8E5A;
+    --positive-tint: #E4F3EC;
+    --warning: #C77700;
+    --warning-tint: #FBF0E0;
+    --paper: #F4F6F8;
+    --surface: #FFFFFF;
+    --outline: #D3DAE1;
+    --ink: #16232F;
+    --ink-muted: #5B6B79;
+    --chip-bg: #EDF2F7;
+    --chip-fg: #1F4E78;
+    --code-bg: #16232F;
+    --code-fg: #E7EDF3;
+    --shadow: 0 1px 2px rgba(22, 35, 47, 0.06), 0 8px 24px rgba(22, 35, 47, 0.07);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --brand: #4A8DC9;
+      --brand-deep: #2E74B5;
+      --accent: #6BA9DE;
+      --positive: #3FBE85;
+      --positive-tint: #12291f;
+      --warning: #E5A03D;
+      --warning-tint: #2b2013;
+      --paper: #0F1620;
+      --surface: #17212C;
+      --outline: #2A3745;
+      --ink: #E7EDF3;
+      --ink-muted: #93A3B3;
+      --chip-bg: #1E2A38;
+      --chip-fg: #9CC4EA;
+      --code-bg: #0B1119;
+      --code-fg: #D6E4EF;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --brand: #4A8DC9;
+    --brand-deep: #2E74B5;
+    --accent: #6BA9DE;
+    --positive: #3FBE85;
+    --positive-tint: #12291f;
+    --warning: #E5A03D;
+    --warning-tint: #2b2013;
+    --paper: #0F1620;
+    --surface: #17212C;
+    --outline: #2A3745;
+    --ink: #E7EDF3;
+    --ink-muted: #93A3B3;
+    --chip-bg: #1E2A38;
+    --chip-fg: #9CC4EA;
+    --code-bg: #0B1119;
+    --code-fg: #D6E4EF;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    justify-content: center;
+    padding: 32px 16px 64px;
+  }
+
+  .page {
+    width: 100%;
+    max-width: 720px;
+  }
+
+  header.band {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-deep) 100%);
+    color: #fff;
+    border-radius: 14px;
+    padding: 26px 28px;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 22px;
+  }
+  .mark {
+    flex: none;
+    width: 46px;
+    height: 46px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1.5px solid rgba(255, 255, 255, 0.55);
+    display: grid;
+    place-items: center;
+  }
+  .mark svg { width: 24px; height: 24px; }
+  .band-text .eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.78);
+    margin: 0 0 3px;
+  }
+  .band-text h1 {
+    margin: 0;
+    font-size: 23px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  .band-text .sub {
+    margin: 3px 0 0;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .lede {
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: 12px;
+    padding: 16px 18px;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--ink-muted);
+    box-shadow: var(--shadow);
+    margin-bottom: 22px;
+  }
+  .lede b { color: var(--ink); }
+
+  .choice {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 26px;
+  }
+  @media (max-width: 560px) {
+    .choice { grid-template-columns: 1fr; }
+  }
+  .choice-card {
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: 12px;
+    padding: 14px 16px;
+    box-shadow: var(--shadow);
+  }
+  .choice-card h3 {
+    margin: 0 0 4px;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--brand);
+  }
+  .choice-card p {
+    margin: 0;
+    font-size: 12.3px;
+    line-height: 1.5;
+    color: var(--ink-muted);
+  }
+  .choice-card .wf {
+    display: inline-block;
+    margin-top: 8px;
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+    font-size: 11px;
+    background: var(--chip-bg);
+    color: var(--chip-fg);
+    padding: 3px 7px;
+    border-radius: 6px;
+  }
+
+  ol.steps {
+    list-style: none;
+    margin: 0 0 24px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .step {
+    display: grid;
+    grid-template-columns: 34px 1fr;
+    gap: 14px;
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: 12px;
+    padding: 16px 18px;
+    box-shadow: var(--shadow);
+  }
+  .num {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--brand);
+    color: #fff;
+    font-weight: 800;
+    font-size: 14px;
+    display: grid;
+    place-items: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .step h3 {
+    margin: 2px 0 6px;
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .step p {
+    margin: 0 0 6px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--ink-muted);
+  }
+  .step p:last-child { margin-bottom: 0; }
+  .step a.link {
+    display: inline-block;
+    margin-top: 4px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--accent);
+    text-decoration: none;
+    word-break: break-all;
+  }
+  .step a.link:hover { text-decoration: underline; }
+
+  .click {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    background: var(--chip-bg);
+    color: var(--chip-fg);
+    border: 1px solid var(--outline);
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin: 0 1px;
+  }
+
+  .callout {
+    border-radius: 10px;
+    padding: 12px 15px;
+    font-size: 12.5px;
+    line-height: 1.55;
+    margin-top: 8px;
+  }
+  .callout.warn {
+    background: var(--warning-tint);
+    border: 1px solid color-mix(in srgb, var(--warning) 40%, var(--outline));
+    color: var(--ink);
+  }
+  .callout.warn b { color: var(--warning); }
+  .callout.ok {
+    background: var(--positive-tint);
+    border: 1px solid color-mix(in srgb, var(--positive) 35%, var(--outline));
+    color: var(--ink);
+  }
+  .callout.ok b { color: var(--positive); }
+
+  footer {
+    text-align: center;
+    font-size: 11.5px;
+    color: var(--ink-muted);
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <header class="band">
+    <div class="mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="12" rx="2" />
+        <path d="M8 20h8" />
+        <path d="M12 16v4" />
+      </svg>
+    </div>
+    <div class="band-text">
+      <p class="eyebrow">c3-digital · Applications desktop</p>
+      <h1>Récupérer l'installateur Windows</h1>
+      <p class="sub">GitHub construit le fichier pour vous — 4 étapes, une seule fois pour l'activation</p>
+    </div>
+  </header>
+
+  <div class="lede">
+    Je ne peux pas déposer de fichier ici même : l'installateur Windows doit être
+    <b>construit sur un ordinateur Windows</b>, et je n'en ai pas dans mon environnement.
+    GitHub, lui, en a — la suite explique comment lui demander de le construire à votre
+    place, gratuitement, puis comment récupérer le résultat.
+  </div>
+
+  <div class="choice">
+    <div class="choice-card">
+      <h3>Saisie de terrain</h3>
+      <p>L'application de saisie hors-ligne des formulaires (comme le mobile), en version ordinateur portable.</p>
+      <span class="wf">desktop-build.yml</span>
+    </div>
+    <div class="choice-card">
+      <h3>Tableau de bord IGE</h3>
+      <p>Le tableau de bord (inspections, établissements, abonnements, IA) dans une fenêtre, sans navigateur.</p>
+      <span class="wf">desktop-dashboard-build.yml</span>
+    </div>
+  </div>
+
+  <ol class="steps">
+    <li class="step">
+      <span class="num">1</span>
+      <div>
+        <h3>Activer la construction automatique (une seule fois)</h3>
+        <p>Ouvrez les réglages Actions du dépôt, choisissez <span class="click">Allow all actions and reusable workflows</span>, puis <span class="click">Save</span> en bas de page.</p>
+        <a class="link" href="https://github.com/CHARITE-KAHERENI/APPLI-INSPECTEUR-EPST/settings/actions" target="_blank" rel="noopener">github.com/.../settings/actions</a>
+      </div>
+    </li>
+    <li class="step">
+      <span class="num">2</span>
+      <div>
+        <h3>Lancer la construction</h3>
+        <p>Sur l'onglet <span class="click">Actions</span>, cliquez le nom du workflow voulu dans la liste à gauche (voir les deux choix ci-dessus), puis le bouton <span class="click">Run workflow</span> (menu déroulant en haut à droite de la liste des exécutions) → <span class="click">Run workflow</span> à nouveau pour confirmer.</p>
+        <a class="link" href="https://github.com/CHARITE-KAHERENI/APPLI-INSPECTEUR-EPST/actions" target="_blank" rel="noopener">github.com/.../actions</a>
+        <div class="callout warn"><b>Patience</b> — la construction prend 5 à 15 minutes (elle recompile l'application pour Windows, macOS et Linux en même temps). Un rond orange tourne pendant ce temps ; il devient une coche verte ✓ une fois terminé.</div>
+      </div>
+    </li>
+    <li class="step">
+      <span class="num">3</span>
+      <div>
+        <h3>Télécharger le résultat</h3>
+        <p>Une fois la coche verte affichée, cliquez sur cette exécution pour l'ouvrir, puis descendez tout en bas de la page jusqu'à la section <span class="click">Artifacts</span>. Cliquez sur celui qui contient <b>windows</b> dans son nom pour télécharger un fichier <code>.zip</code>.</p>
+      </div>
+    </li>
+    <li class="step">
+      <span class="num">4</span>
+      <div>
+        <h3>Installer sur Windows</h3>
+        <p>Décompressez le <code>.zip</code> téléchargé, puis ouvrez le fichier <code>.msi</code> ou <code>.exe</code> qu'il contient.</p>
+        <div class="callout ok"><b>Normal</b> — Windows affichera probablement "Windows a protégé votre ordinateur" (l'installateur n'est pas encore signé numériquement, comme pour l'APK Android pendant le pilote). Cliquez <span class="click">Informations complémentaires</span> puis <span class="click">Exécuter quand même</span> pour continuer l'installation.</div>
+      </div>
+    </li>
+  </ol>
+
+  <footer>c3-digital — Inspection Générale de l'Enseignement, RDC</footer>
+</div>
+
+</body>
+</html>
