@@ -1,3 +1,11 @@
+> **Pas de SDK Flutter/Android sous la main ?** `.github/workflows/mobile-apk.yml`
+> construit un APK (signature de debug, suffisant pour tester sur un
+> appareil) sur les runners GitHub, qui l'ont déjà — onglet **Actions**
+> du dépôt → "Mobile — build APK pilote" → **Run workflow**, puis
+> télécharger `c3-digital-app-release-apk` dans les "Artifacts" du run.
+> Les étapes ci-dessous restent nécessaires pour un vrai APK **signé
+> pour la production** (identité de signature propre à l'équipe).
+
 # APK Android signé — distribution pilote (PROMPT 9)
 
 Pipeline pour générer un **APK signé**, distribué directement aux
