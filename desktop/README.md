@@ -61,10 +61,22 @@ onglet "Actions" du dépôt).
 
 ## Icône
 
-`icons/` est généré depuis le logo IGE (`shared/assets/branding/`) via
-`cargo tauri icon <chemin-vers-un-logo-carré>` — à régénérer si le logo
-change (voir la commande dans l'historique de ce fichier ou la
-documentation Tauri sur `tauri icon`).
+`icons/` est généré depuis le logo IGE (`shared/assets/branding/`,
+recadré sur fond bleu marine de la charte pour obtenir un carré) via
+`cargo tauri icon <chemin-vers-un-logo-carré>` — à régénérer de la même
+façon si le logo change.
+
+## Validation (PROMPT 9)
+
+`cargo tauri build` a été réellement exécuté dans cet environnement
+(Linux, seule plateforme disponible ici) : compile sans erreur, produit
+3 formats de paquet (`.deb`, `.rpm`, `.AppImage`), et l'exécutable
+lancé affiche bien l'écran de connexion du tableau de bord IGE — la
+même interface que `npm run dev --workspace=web`, dans une fenêtre
+native. Windows/macOS n'ont pas pu être testés dans cet environnement
+(pas de toolchain natif disponible) ; à valider via
+`.github/workflows/desktop-dashboard-build.yml` dès que GitHub Actions
+est activé sur le dépôt.
 
 ## Sécurité — CSP désactivée
 

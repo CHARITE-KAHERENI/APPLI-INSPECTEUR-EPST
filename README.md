@@ -235,7 +235,10 @@ existant plutôt qu'une réécriture :
   itération) pour valider que ça fonctionne, pas seulement écrits.
 - **Tableau de bord IGE en fenêtre native** — `desktop/` (Tauri) enveloppe
   le `web/` existant (React) dans une fenêtre native légère, sans
-  réécriture ni duplication de code : voir `desktop/README.md`.
+  réécriture ni duplication de code — voir `desktop/README.md` :
+  également réellement compilé (`cargo tauri build`) et exécuté dans
+  cette itération, écran de connexion affiché avec succès dans une
+  fenêtre native.
 
 Aucune des deux ne peut être construite pour les 3 plateformes depuis un
 seul poste (chaque OS a besoin de son propre toolchain natif) — voir
