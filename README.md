@@ -17,8 +17,9 @@ La plateforme couvre les **5 formulaires officiels** de l'IGE :
 
 ```
 c3-digital/
-├── mobile/     # Application Flutter (Android + iOS) — saisie hors-ligne des inspecteurs
+├── mobile/     # Application Flutter (Android, iOS, Windows, macOS, Linux) — saisie hors-ligne des inspecteurs
 ├── web/        # Application React (Vite) — consultation / gestion en ligne
+├── desktop/    # Tauri — enveloppe native (Windows/macOS/Linux) du tableau de bord IGE (web/)
 ├── backend/    # API REST Node.js + NestJS — persistance PostgreSQL
 ├── shared/     # Modèle de données partagé : types TypeScript + JSON Schema
 ├── database/   # Schéma SQL de référence (miroir des migrations backend)
@@ -28,6 +29,17 @@ c3-digital/
 Le monorepo `shared` / `backend` / `web` est géré via les **npm
 workspaces** (racine `package.json`). `mobile` est un projet Flutter/Dart
 indépendant (géré par `pubspec.yaml`), non inclus dans les workspaces npm.
+
+**Trois interfaces, deux usages** — voir aussi "Application desktop"
+ci-dessous :
+- **Mobile** (Flutter) : saisie de terrain hors-ligne, sur téléphone —
+  et, depuis peu, sur ordinateur portable (mêmes écrans, même code Dart,
+  cibles desktop Windows/macOS/Linux ajoutées à `mobile/`).
+- **Web** (React) : tableau de bord IGE (dashboard, inspections,
+  établissements, abonnements, IA) dans un navigateur.
+- **Desktop** (Tauri, dans `desktop/`) : le **même** tableau de bord IGE
+  que le web, dans une fenêtre native — pas une réécriture, une coquille
+  légère autour de `web/dist`.
 
 ### Le modèle de "formulaire dynamique" (`/shared`)
 
@@ -206,6 +218,30 @@ l'écran de synthèse). Voir `backend/README.md` et `mobile/README.md`
 - **Guide de démarrage rapide** (1 page, français simple) pour un
   inspecteur sur le terrain : `docs/guide-demarrage-inspecteur.md`
   (version imprimable : `docs/guide-demarrage-inspecteur.html`).
+
+## Application desktop (Windows / macOS / Linux)
+
+Deux applications de bureau distinctes, chacune réutilisant un code déjà
+existant plutôt qu'une réécriture :
+
+- **Saisie de terrain sur ordinateur** — `mobile/` porte désormais aussi
+  les cibles desktop (`windows/`, `macos/`, `linux/`, ajoutées au même
+  projet Flutter que le mobile) : mêmes formulaires hors-ligne, même
+  moteur de score, même génération PDF, pour un inspecteur qui utilise un
+  ordinateur portable plutôt qu'un téléphone. Voir `mobile/README.md`,
+  section "Application desktop", pour les deux ajustements nécessaires
+  (SQLite sur desktop, largeur de fenêtre) — réellement construits et
+  exécutés (captures d'écran incluses dans l'historique de cette
+  itération) pour valider que ça fonctionne, pas seulement écrits.
+- **Tableau de bord IGE en fenêtre native** — `desktop/` (Tauri) enveloppe
+  le `web/` existant (React) dans une fenêtre native légère, sans
+  réécriture ni duplication de code : voir `desktop/README.md`.
+
+Aucune des deux ne peut être construite pour les 3 plateformes depuis un
+seul poste (chaque OS a besoin de son propre toolchain natif) — voir
+`.github/workflows/desktop-build.yml` et
+`.github/workflows/desktop-dashboard-build.yml`, qui les construisent en
+parallèle sur les runners GitHub correspondants (déclenchement manuel).
 
 ## Prochaines étapes
 

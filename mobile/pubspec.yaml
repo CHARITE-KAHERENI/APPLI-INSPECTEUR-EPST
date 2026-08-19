@@ -1,8 +1,8 @@
 name: c3_digital
 description: >
-  Application mobile Flutter (Android + iOS) du projet c3-digital —
-  saisie hors-ligne des formulaires d'inspection de l'IGE (RDC) :
-  C2, C3, C3B, C3M, C3_DAS.
+  Application Flutter (Android, iOS, Windows, macOS, Linux) du projet
+  c3-digital — saisie hors-ligne des formulaires d'inspection de l'IGE
+  (RDC) : C2, C3, C3B, C3M, C3_DAS.
 publish_to: 'none'
 version: 0.1.0+1
 
@@ -23,12 +23,26 @@ dependencies:
   pdf: ^3.11.1                  # génération PDF locale (hors-ligne), même moteur de mise en page que le backend
   printing: ^5.13.3             # aperçu / partage / impression du PDF généré, sans connexion requise
   shared_preferences: ^2.3.2    # persistance locale du jeton JWT + profil utilisateur (voir core/auth)
+  sqflite_common_ffi: ^2.3.4+4  # SQLite sur desktop (Windows/macOS/Linux) — pas de plugin sqflite natif
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
-  sqflite_common_ffi: ^2.3.4+4  # implémentation SQLite pure Dart pour `flutter test` (pas de plugin natif requis)
+
+# `sqlite3` v3+ (dépendance transitive de sqflite_common_ffi) résout sa
+# bibliothèque native via les "native assets" de Dart : fiable avec
+# `flutter test`/`flutter run`, mais l'actif construit par le hook n'est
+# pas encore copié dans le bundle final par `flutter build
+# linux/windows/macos --release` au moment de l'écriture (limite connue
+# de cette fonctionnalité encore récente de l'outillage Flutter/Dart —
+# voir le commentaire de AppDatabase._preloadSystemSqlite3(), qui
+# documentait une tentative de contournement côté application qui s'est
+# révélée insuffisante). Fixer `sqlite3` sur sa dernière version 2.x
+# restaure la résolution classique par `dlopen()`, éprouvée depuis des
+# années sur desktop.
+dependency_overrides:
+  sqlite3: ^2.4.7
 
 flutter:
   uses-material-design: true

@@ -1,0 +1,62 @@
+name: Desktop — build Windows / macOS / Linux
+
+# Construit l'application desktop c3-digital (même code Dart que le
+# mobile — voir mobile/README.md, section "Application desktop") pour
+# les 3 plateformes, chacune sur le runner GitHub qui lui correspond
+# (impossible à construire depuis un seul poste : Windows a besoin d'un
+# vrai toolchain Windows, macOS d'un vrai toolchain macOS avec Xcode).
+#
+# Déclenchement manuel : onglet "Actions" du dépôt -> "Desktop — build
+# Windows / macOS / Linux" -> "Run workflow". Les 3 builds sont ensuite
+# disponibles en pièces jointes ("Artifacts") du run, pendant 90 jours.
+on:
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+            build-cmd: flutter build linux --release
+            artifact-path: mobile/build/linux/x64/release/bundle
+          - os: windows-latest
+            platform: windows
+            build-cmd: flutter build windows --release
+            artifact-path: mobile/build/windows/x64/runner/Release
+          - os: macos-latest
+            platform: macos
+            build-cmd: flutter build macos --release
+            artifact-path: mobile/build/macos/Build/Products/Release/c3_digital.app
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      # Bibliothèques GTK/WebKit nécessaires à `flutter build linux` —
+      # déjà présentes sur les runners windows-latest/macos-latest.
+      - if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libgtk-3-dev libwebkit2gtk-4.1-dev libayatana-appindicator3-dev
+
+      - run: flutter pub get
+
+      - run: flutter test
+
+      - run: ${{ matrix.build-cmd }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: c3-digital-desktop-${{ matrix.platform }}
+          path: ${{ matrix.artifact-path }}
+          retention-days: 90

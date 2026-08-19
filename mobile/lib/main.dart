@@ -52,10 +52,39 @@ class C3DigitalApp extends StatelessWidget {
         return Column(
           children: [
             const SafeArea(bottom: false, child: SyncStatusBanner()),
-            Expanded(child: child ?? const SizedBox.shrink()),
+            Expanded(child: _DesktopWidthConstraint(child: child ?? const SizedBox.shrink())),
           ],
         );
       },
+    );
+  }
+}
+
+/// Sur Windows/macOS/Linux, la fenêtre peut être bien plus large qu'un
+/// téléphone : centre le contenu (écrans conçus pour un mobile) dans une
+/// colonne de largeur raisonnable plutôt que de l'étirer sur toute la
+/// largeur — un formulaire ou une liste étiré sur un écran de bureau
+/// large serait moins lisible, pas plus utile. Ne change rien en dessous
+/// du seuil (mobile/tablette étroite).
+class _DesktopWidthConstraint extends StatelessWidget {
+  const _DesktopWidthConstraint({required this.child});
+
+  final Widget child;
+
+  static const double _maxWidth = 560;
+
+  @override
+  Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    if (width <= _maxWidth) {
+      return child;
+    }
+    return ColoredBox(
+      color: AppTheme.light.scaffoldBackgroundColor,
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: SizedBox(width: _maxWidth, child: child),
+      ),
     );
   }
 }

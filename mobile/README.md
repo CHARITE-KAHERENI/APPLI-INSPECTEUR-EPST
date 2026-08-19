@@ -1,15 +1,19 @@
-# c3_digital (mobile)
+# c3_digital (mobile + desktop)
 
-Application mobile **Flutter** (Android + iOS) du projet c3-digital,
-destinée aux inspecteurs pour la saisie **hors-ligne** des formulaires
-IGE (C2, C3, C3B, C3M, C3_DAS) sur le terrain, avec synchronisation vers
-le backend une fois la connexion rétablie.
+Application **Flutter** (Android, iOS, Windows, macOS, Linux) du projet
+c3-digital, destinée aux inspecteurs pour la saisie **hors-ligne** des
+formulaires IGE (C2, C3, C3B, C3M, C3_DAS) sur le terrain (téléphone) ou
+au bureau (ordinateur portable), avec synchronisation vers le backend
+une fois la connexion rétablie. Un seul code Dart pour toutes les
+plateformes — voir "Application desktop" plus bas pour ce que ça change
+concrètement.
 
-## ⚠️ Étape requise avant le premier build
+## ⚠️ Android/iOS : étape requise avant le premier build
 
-Ce dossier a été initialisé à la main (`pubspec.yaml` + `lib/`) sans le SDK
-Flutter disponible dans cet environnement. **Avant de lancer l'app**,
-générer les projets natifs Android/iOS avec le SDK Flutter installé :
+`windows/`, `macos/` et `linux/` (projets natifs desktop) sont déjà
+générés et commités. **`android/` et `ios/` ne le sont pas** — ce dossier
+ayant été initialisé sans SDK mobile complet au départ. Avant de lancer
+l'app sur téléphone, les générer avec le SDK Flutter installé :
 
 ```bash
 cd mobile
@@ -18,7 +22,9 @@ flutter pub get
 ```
 
 Cela ajoute les dossiers `android/` et `ios/` (projets Gradle/Xcode) sans
-toucher à `lib/`, `pubspec.yaml` ni `assets/` déjà en place.
+toucher à `lib/`, `pubspec.yaml` ni `assets/` déjà en place — la même
+commande est déjà automatisée dans `.github/workflows/mobile-apk.yml`
+(voir "Déploiement" plus bas), donc rien à faire pour obtenir un APK.
 
 ## Structure
 
@@ -297,6 +303,48 @@ flutter pub get
 flutter run
 flutter test
 ```
+
+## Application desktop (Windows / macOS / Linux)
+
+Même code Dart que le mobile (`lib/` n'est pas dupliqué) : `windows/`,
+`macos/` et `linux/` sont les projets natifs générés par `flutter create
+. --platforms=windows,macos,linux` et déjà commités. `flutter run -d
+linux` (ou `windows`/`macos`) lance l'app en fenêtre plutôt que sur un
+appareil ; `flutter build linux/windows/macos --release` produit un
+exécutable installable — voir `.github/workflows/desktop-build.yml` pour
+construire les 3 (impossible depuis un seul poste : chaque plateforme a
+besoin de son propre toolchain natif).
+
+Deux ajustements ont été nécessaires pour que le mobile "juste marche"
+aussi sur desktop, tous deux réellement construits et exécutés pour
+valider ce README (voir aussi "Tests" ci-dessous) :
+
+- **SQLite sur desktop** — `sqflite` n'a de plugin natif que sur
+  Android/iOS. `AppDatabase._ensureDesktopSqliteFactory()` bascule sur
+  `sqflite_common_ffi` (déjà utilisé côté tests) au démarrage sur
+  Windows/macOS/Linux. `pubspec.yaml` fixe volontairement `sqlite3` sur
+  sa dernière version **2.x** (`dependency_overrides`) : les versions 3.x
+  (dépendance transitive de `sqflite_common_ffi`) résolvent leur
+  bibliothèque native via les "native assets" de Dart, une
+  fonctionnalité encore trop récente de l'outillage Flutter — l'actif
+  construit par le hook n'est pas encore copié dans le bundle final par
+  `flutter build linux/windows/macos --release` au moment de l'écriture,
+  ce qui provoque un plantage immédiat au premier accès à la base
+  (`Couldn't resolve native function 'sqlite3_initialize'`). La lignée
+  2.x utilise la résolution classique par `dlopen()`, fiable depuis des
+  années sur desktop. Linux et macOS fournissent déjà `libsqlite3` avec
+  le système ; **Windows non** — `sqlite3.dll` doit être placé à côté de
+  l'exécutable pour la distribution (non automatisé pour l'instant, voir
+  ce commentaire dans `AppDatabase._preloadSystemSqlite3()`).
+- **Largeur de fenêtre** — les écrans sont conçus pour un mobile ;
+  `main.dart` (`_DesktopWidthConstraint`) centre le contenu dans une
+  colonne de 560px sur une fenêtre plus large plutôt que de l'étirer sur
+  toute sa largeur, pour rester lisible sans redesign complet de chaque
+  écran.
+
+Aucun compte Play Store/App Store/Microsoft Store requis pour cette
+itération : distribution de l'exécutable produit directement (comme
+l'APK — voir "Déploiement" ci-dessous), pas de publication sur un store.
 
 ## Tests (PROMPT 9)
 

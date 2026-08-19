@@ -1,7 +1,9 @@
+import 'dart:ffi';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:path/path.dart' as p;
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 /// Ouvre (et migre) la base SQLite locale de l'application — le socle du
 /// fonctionnement hors-ligne complet : formulaires en cours et terminés,
@@ -30,7 +32,63 @@ class AppDatabase {
   // données d'un test qui fuitent dans un autre.
   static String _fileName = 'c3_digital.db';
 
+  static bool _desktopSqliteFactoryInitialized = false;
+
+  /// Sur Windows/macOS/Linux, `sqflite` n'a pas de plugin natif (celui-ci
+  /// n'existe que sur Android/iOS, via un canal de plateforme) : sans
+  /// ceci, `getDatabasesPath()`/`openDatabase()` lèvent `Bad state:
+  /// databaseFactory not initialized` au tout premier accès à la base.
+  /// `sqflite_common_ffi` (déjà utilisé par les tests, voir
+  /// `test/support/sqflite_ffi_setup.dart`) fournit l'implémentation
+  /// SQLite pure Dart nécessaire sur ces plateformes.
+  static void _ensureDesktopSqliteFactory() {
+    if (_desktopSqliteFactoryInitialized) return;
+    if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+      _preloadSystemSqlite3();
+      sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
+    }
+    _desktopSqliteFactoryInitialized = true;
+  }
+
+  /// Charge explicitement la bibliothèque SQLite du système dans le
+  /// processus avant d'initialiser `sqflite_common_ffi`.
+  ///
+  /// `package:sqlite3` (>=3.x, dont dépend `sqflite_common_ffi`) résout
+  /// sa bibliothèque native via le système "native assets" de Dart —
+  /// fiable avec `flutter test`/`flutter run`, mais pas encore avec
+  /// `flutter build linux/windows/macos --release` au moment de l'écriture
+  /// (l'actif construit par le hook n'est pas copié dans le bundle final ;
+  /// suivre https://github.com/dart-lang/native/issues pour l'évolution
+  /// de ce comportement). Ouvrir la bibliothèque nous-mêmes au démarrage
+  /// la rend visible à la recherche de symboles "process-wide" que
+  /// `package:sqlite3` tente déjà en repli — ce qui suffit à la faire
+  /// fonctionner sans dépendre du bundling natif.
+  ///
+  /// Linux et macOS fournissent SQLite avec le système d'exploitation
+  /// (aucune installation supplémentaire requise) ; **Windows ne le
+  /// fournit pas** — `sqlite3.dll` doit être placé à côté de l'exécutable
+  /// (voir `.github/workflows/desktop-build.yml`, étape de téléchargement
+  /// pour la cible Windows).
+  static void _preloadSystemSqlite3() {
+    final candidates = switch (true) {
+      _ when Platform.isLinux => const ['libsqlite3.so.0', 'libsqlite3.so'],
+      _ when Platform.isMacOS => const ['libsqlite3.dylib', '/usr/lib/libsqlite3.dylib'],
+      _ when Platform.isWindows => const ['sqlite3.dll'],
+      _ => const <String>[],
+    };
+    for (final name in candidates) {
+      try {
+        DynamicLibrary.open(name);
+        return;
+      } on ArgumentError {
+        // Essaie le nom candidat suivant.
+      }
+    }
+  }
+
   static Future<String> _path() async {
+    _ensureDesktopSqliteFactory();
     final dbPath = await getDatabasesPath();
     return p.join(dbPath, _fileName);
   }
