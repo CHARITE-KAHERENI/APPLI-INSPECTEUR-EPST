@@ -60,6 +60,8 @@ src/
 | ------- | -------------------------------------- | ---- | ---------------------------------------------- |
 | POST    | `/auth/login`                          | —    | `{ email, password }` -> `{ accessToken, user }` |
 | GET     | `/auth/me`                             | JWT  | Profil de l'utilisateur authentifié             |
+| POST    | `/auth/register-etablissement`         | —    | Inscription libre-service : crée l'établissement + le compte chef d'établissement, connexion immédiate (voir ci-dessous) |
+| POST    | `/auth/register-inspecteur`            | —    | Inscription libre-service : crée le profil inspecteur + le compte, connexion immédiate |
 | GET     | `/form-templates`                      | —    | Liste les templates actifs                      |
 | GET     | `/form-templates/:code`                | —    | Template actif le plus récent pour un code      |
 | POST    | `/form-submissions`                    | JWT  | Crée un formulaire en statut `brouillon`        |
@@ -105,6 +107,22 @@ JWT (`@nestjs/jwt` + `passport-jwt`), mots de passe hashés avec
   route à des rôles précis (utilisé pour les écritures sur l'annuaire).
 - `@CurrentUser()` (décorateur de paramètre) injecte l'utilisateur
   authentifié dans un handler de contrôleur.
+
+### Inscription en libre-service (PROMPT 10)
+
+`POST /auth/register-etablissement` et `POST /auth/register-inspecteur`
+(publiques, sans guard, montées sous `/auth` mais servies par
+`RegistrationModule` — voir sa doc en tête de fichier pour le
+raisonnement anti-cycle) permettent à un chef d'établissement ou un
+inspecteur de créer son compte sans passer par un `ige_admin`/
+`super_admin`. Chaque route crée l'établissement (ou le profil
+inspecteur) via `EtablissementsService.create`/`InspecteursService.create`
+— les mêmes méthodes que les routes admin `POST /etablissements`/
+`POST /inspecteurs` — pour réutiliser telle quelle leur activation
+automatique de l'essai gratuit de 14 jours (voir "Abonnements &
+paiement" plus bas), puis renvoie un jeton JWT (`LoginResponse`), comme
+`POST /auth/login` : connexion immédiate, aucune validation manuelle par
+l'IGE. Un e-mail déjà utilisé renvoie `409 Conflict`.
 
 **Règles de visibilité des formulaires** (`FormSubmissionsService`,
 méthode privée `applyScope`) :

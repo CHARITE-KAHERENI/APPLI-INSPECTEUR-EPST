@@ -47,16 +47,20 @@ src/
 ├── App.tsx                  # Déclaration des routes
 ├── auth/
 │   ├── authContextObject.ts # Contexte React (valeur + type), séparé pour le fast refresh
-│   ├── AuthContext.tsx      # <AuthProvider> — session (login/logout, restauration via /auth/me)
+│   ├── AuthContext.tsx      # <AuthProvider> — session (login/logout/inscription, restauration via /auth/me)
 │   ├── useAuth.ts           # Hook de consommation du contexte
 │   ├── ProtectedRoute.tsx   # Redirige vers /connexion si non authentifié
-│   └── LoginPage.tsx
+│   ├── LoginPage.tsx
+│   └── RegisterPage.tsx     # /inscription — libre-service, sans compte créé par l'IGE (PROMPT 10)
 ├── layout/
 │   ├── AppShell.tsx         # Sidebar + zone de contenu (<Outlet />)
 │   └── Sidebar.tsx          # Navigation, identité visuelle bleu marine #1F4E78
+├── features/
+│   └── dynamic-form/         # Assistant de saisie (/inspections/nouvelle, PROMPT 10) — voir plus bas
 ├── pages/
 │   ├── DashboardPage.tsx        # Cartes de synthèse + répartition par formulaire + dernières inspections
 │   ├── InspectionsPage.tsx      # Tableau filtrable + export PDF/CSV
+│   ├── NewInspectionPage.tsx    # Choix du formulaire puis assistant de saisie (PROMPT 10)
 │   ├── EtablissementsPage.tsx / EtablissementDetailPage.tsx
 │   ├── InspecteursPage.tsx / InspecteurDetailPage.tsx
 │   ├── AbonnementsPage.tsx      # IGE uniquement — essai, revenus, paiements, relances (PROMPT 7)
@@ -86,6 +90,45 @@ logique — la sidebar affiche simplement le rôle et, le cas échéant, la
 zone de l'utilisateur connecté, et chaque écran reçoit déjà des données
 correctement filtrées par l'API.
 
+## Inscription en libre-service et saisie de formulaire (PROMPT 10)
+
+- **`/inscription`** (`RegisterPage.tsx`) : un chef d'établissement ou un
+  inspecteur crée son compte sans passer par l'IGE — bascule
+  établissement/inspecteur, appelle `POST /auth/register-etablissement`
+  ou `POST /auth/register-inspecteur` (backend) via
+  `AuthContext.registerEtablissement`/`registerInspecteur`, connecté
+  immédiatement (essai gratuit de 14 jours) comme après un login.
+- **`/inspections/nouvelle`** (`NewInspectionPage.tsx` +
+  `features/dynamic-form/`) : assistant de saisie en 3 phases, miroir web
+  de `mobile/lib/features/dynamic_form/` —
+  1. **Identification** (`IdentificationStep.tsx`) : champs d'en-tête
+     communs + groupes de champs non notés (`FormTemplate.fieldGroups`),
+     tous stockés dans un seul `header` (comme côté mobile).
+  2. **Sections notées** (`SectionStep.tsx`) : un écran par section, notes
+     0-4 par critère + zone "Conseils", score de la section calculé en
+     direct.
+  3. **Synthèse** (`SynthesisStep.tsx`) : tableau récapitulatif + note
+     finale, puis signatures (`SignaturePad.tsx` — capture au doigt/souris
+     sur `<canvas>`, encodée en PNG base64 sans préfixe `data:`, même
+     convention que `signature_pad_field.dart` côté mobile).
+
+  `useDynamicForm.ts` centralise l'état du brouillon et délègue tout le
+  calcul de score à `computeSectionScore`/`computeSynthesisScore`
+  (`@c3-digital/shared`) — aucune logique de notation dupliquée entre
+  web, mobile et backend. Il aplatit aussi la réponse de
+  `GET /form-templates/:code` (le contenu détaillé y est stocké dans une
+  colonne `definition`, voir `ApiFormTemplate` dans `types/api.ts`) en
+  `FormTemplate` (shared), comme le fait déjà `PdfController` côté
+  backend.
+
+  À la soumission : `POST /form-submissions` (déjà utilisé par le mobile,
+  aucune route backend supplémentaire) puis
+  `PATCH /form-submissions/:id/status` (`soumis`) — la
+  `SubscriptionGuard` backend bloque la création si l'essai/l'abonnement
+  du compte est expiré, avec un message affiché sous le formulaire.
+  Entrée de navigation "Nouvelle inspection" réservée aux rôles
+  `chef_etablissement`/`inspecteur`.
+
 ## Page "Abonnements" (PROMPT 7)
 
 Visible uniquement pour `ige_admin`/`super_admin` (entrée sidebar
@@ -101,13 +144,14 @@ l'application.
 
 ## Intelligence artificielle (PROMPT 8)
 
-- **Assistant IA** (`/assistant-ia`, tous rôles) : le web n'a pas encore
-  d'écran de saisie de formulaire (voir "Prochaines étapes", README
-  racine) — cette page expose donc l'assistant de rédaction comme un
-  outil autonome (formulaire, section, notes brutes -> suggestion
-  copiable), plutôt que de l'intégrer dans un formulaire qui n'existe
-  pas côté web. Un état d'erreur explicite ("Fonction IA indisponible")
-  s'affiche si l'appel échoue, sans bloquer l'utilisateur.
+- **Assistant IA** (`/assistant-ia`, tous rôles) : expose l'assistant de
+  rédaction comme un outil autonome (formulaire, section, notes brutes ->
+  suggestion copiable) plutôt que d'être intégré dans l'assistant de
+  saisie (`/inspections/nouvelle`, PROMPT 10) — reste indépendant de la
+  section en cours de remplissage, utilisable aussi pour préparer un
+  texte avant de le coller dans la zone "Conseils" d'une section. Un état
+  d'erreur explicite ("Fonction IA indisponible") s'affiche si l'appel
+  échoue, sans bloquer l'utilisateur.
 - **Analyse IA** (`/analyse-ia`, IGE uniquement) : dernière synthèse
   quotidienne (`GET /ai/trend-analyses/latest`), organisée en 3 sections
   visuellement distinctes — Alertes (rouge), Tendances (bleu), Points
