@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { AUTH_UNAUTHORIZED_EVENT, api, TOKEN_STORAGE_KEY } from '../lib/api';
 import { AuthContext } from './authContextObject';
+import type { RegisterEtablissementPayload, RegisterInspecteurPayload } from './authContextObject';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -39,5 +40,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(data.user);
   }, []);
 
-  return <AuthContext.Provider value={{ user, isLoading, login, logout }}>{children}</AuthContext.Provider>;
+  // Inscription en libre-service : le backend crée le compte + l'établissement (ou l'inspecteur)
+  // et renvoie directement un jeton, comme une connexion.
+  const registerEtablissement = useCallback(async (payload: RegisterEtablissementPayload) => {
+    const { data } = await api.post<LoginResponse>('/auth/register-etablissement', payload);
+    localStorage.setItem(TOKEN_STORAGE_KEY, data.accessToken);
+    setUser(data.user);
+  }, []);
+
+  const registerInspecteur = useCallback(async (payload: RegisterInspecteurPayload) => {
+    const { data } = await api.post<LoginResponse>('/auth/register-inspecteur', payload);
+    localStorage.setItem(TOKEN_STORAGE_KEY, data.accessToken);
+    setUser(data.user);
+  }, []);
+
+  return (
+    <AuthContext.Provider
+      value={{ user, isLoading, login, registerEtablissement, registerInspecteur, logout }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 }

@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { LoginPage } from './auth/LoginPage';
 import { ProtectedRoute } from './auth/ProtectedRoute';
+import { RegisterPage } from './auth/RegisterPage';
 import { AppShell } from './layout/AppShell';
 import { AbonnementsPage } from './pages/AbonnementsPage';
 import { AnalyseIaPage } from './pages/AnalyseIaPage';
@@ -16,6 +17,7 @@ export function App() {
   return (
     <Routes>
       <Route path="/connexion" element={<LoginPage />} />
+      <Route path="/inscription" element={<RegisterPage />} />
       <Route
         element={
           <ProtectedRoute>

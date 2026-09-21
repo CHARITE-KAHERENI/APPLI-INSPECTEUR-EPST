@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from './useAuth';
 
 const DEMO_ACCOUNTS = [
@@ -95,6 +95,13 @@ export function LoginPage() {
           >
             {isSubmitting ? 'Connexion…' : 'Se connecter'}
           </button>
+
+          <p className="mt-4 text-center text-sm text-brand-muted">
+            Pas encore de compte ?{' '}
+            <Link to="/inscription" className="font-medium text-brand-primary hover:underline">
+              Créer un compte
+            </Link>
+          </p>
         </form>
 
         <details className="mt-6 rounded-xl border border-brand-outline bg-brand-surface p-4 text-xs text-brand-muted">
