@@ -48,7 +48,7 @@ WORKDIR /app
 
 # On conserve l'arborescence complète backend/ + shared/ (sources
 # TypeScript comprises, pas seulement `dist/`), plutôt qu'un node_modules
-# "élagué" : les scripts `npm run seed:*` et `npm run migration:*'
+# "élagué" : les scripts `npm run seed:*` et `npm run migration:*`
 # s'exécutent via ts-node contre `backend/src` (voir backend/package.json),
 # et lisent directement `shared/forms/*.json` sur disque (voir
 # backend/src/database/seeds/seed-form-templates.ts). Ce choix privilégie
@@ -62,4 +62,4 @@ COPY --from=build /app/backend backend
 EXPOSE 3000
 WORKDIR /app/backend
 
-CMD ["node", "dist/main.js"]
+CMD ["sh", "-c", "npm run migration:run && npm run seed:form-templates && npm run seed:auth-directory && npm run seed:subscription-plans && node dist/main.js"]
