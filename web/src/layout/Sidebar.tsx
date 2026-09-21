@@ -6,6 +6,7 @@ import {
   ListIcon,
   LogoutIcon,
   PeopleIcon,
+  PlusCircleIcon,
   SparkleIcon,
   TrendIcon,
   WalletIcon,
@@ -27,6 +28,14 @@ const NAV_ITEMS = [
   { to: '/assistant-ia', label: 'Assistant IA', icon: SparkleIcon, end: false },
 ];
 
+/** Saisie d'une inspection (PROMPT 10) — réservée aux rôles pouvant créer un formulaire côté web, comme sur mobile. */
+const NEW_INSPECTION_NAV_ITEM = {
+  to: '/inspections/nouvelle',
+  label: 'Nouvelle inspection',
+  icon: PlusCircleIcon,
+  end: false,
+};
+
 /** Pages IGE — voir PROMPT 7 (Abonnements) et PROMPT 8, point 2 (Analyse IA). */
 const ADMIN_NAV_ITEMS = [
   { to: '/abonnements', label: 'Abonnements', icon: WalletIcon, end: false },
@@ -35,8 +44,14 @@ const ADMIN_NAV_ITEMS = [
 
 export function Sidebar() {
   const { user, logout } = useAuth();
-  const navItems =
-    user?.role === 'ige_admin' || user?.role === 'super_admin' ? [...NAV_ITEMS, ...ADMIN_NAV_ITEMS] : NAV_ITEMS;
+  const canCreateInspection = user?.role === 'chef_etablissement' || user?.role === 'inspecteur';
+  const navItems = [
+    NAV_ITEMS[0],
+    NAV_ITEMS[1],
+    ...(canCreateInspection ? [NEW_INSPECTION_NAV_ITEM] : []),
+    ...NAV_ITEMS.slice(2),
+    ...(user?.role === 'ige_admin' || user?.role === 'super_admin' ? ADMIN_NAV_ITEMS : []),
+  ];
 
   return (
     <aside className="flex h-screen w-64 shrink-0 flex-col bg-brand-primary text-white">
