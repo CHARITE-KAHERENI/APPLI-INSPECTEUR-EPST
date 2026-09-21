@@ -19,6 +19,7 @@ import { FormTemplatesModule } from './modules/form-templates/form-templates.mod
 import { InspecteurEntity } from './modules/inspecteurs/entities/inspecteur.entity';
 import { InspecteursModule } from './modules/inspecteurs/inspecteurs.module';
 import { PdfModule } from './modules/pdf/pdf.module';
+import { RegistrationModule } from './modules/registration/registration.module';
 import { PaymentEntity } from './modules/subscriptions/entities/payment.entity';
 import { SubscriberEntity } from './modules/subscriptions/entities/subscriber.entity';
 import { SubscriptionNotificationEntity } from './modules/subscriptions/entities/subscription-notification.entity';
@@ -81,6 +82,7 @@ import { UsersModule } from './modules/users/users.module';
     InspecteursModule,
     SubscriptionsModule,
     AiModule,
+    RegistrationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
