@@ -62,4 +62,4 @@ COPY --from=build /app/backend backend
 EXPOSE 3000
 WORKDIR /app/backend
 
-CMD ["node", "dist/main.js"]
+CMD ["sh", "-c", "npm run migration:run && npm run seed:form-templates && npm run seed:subscription-plans && node dist/main.js"]
