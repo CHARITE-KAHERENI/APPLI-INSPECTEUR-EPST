@@ -110,6 +110,14 @@ formulaire), page "Inspections" filtrable avec export PDF/CSV, fiches
 connexion (JWT), sidebar reprenant l'identité visuelle bleu marine
 `#1F4E78`. Voir `web/README.md`.
 
+Un chef d'établissement ou un inspecteur peut aussi créer son compte
+directement depuis le web (`/inscription`, sans intervention de l'IGE)
+et remplir une inspection (C2/C3/C3B/C3M/C3_DAS) depuis
+`/inspections/nouvelle` — même assistant en 3 phases
+(identification → sections notées → synthèse + signatures) que sur
+mobile, avec calcul de score en temps réel via le même moteur partagé
+(`@c3-digital/shared`).
+
 ## Démarrage rapide
 
 ```bash
@@ -154,6 +162,13 @@ inspections, sa zone IGE pour l'IGE, tout pour un super administrateur)
 — voir `backend/README.md` (section "Authentification & autorisation")
 pour le détail des règles et `web/README.md` pour les comptes de
 démonstration.
+
+Un chef d'établissement ou un inspecteur n'a pas besoin d'un compte créé
+par l'IGE au préalable : `POST /auth/register-etablissement` /
+`POST /auth/register-inspecteur` (web : `/inscription`) créent le
+compte et l'établissement (ou le profil inspecteur) en une seule étape,
+avec connexion immédiate — l'essai gratuit de 14 jours démarre aussitôt,
+comme pour un compte créé par l'IGE.
 
 ## Essai gratuit et abonnement
 

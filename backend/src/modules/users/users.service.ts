@@ -4,10 +4,11 @@ import { Repository } from 'typeorm';
 import { UserEntity } from './entities/user.entity';
 
 /**
- * Accès aux comptes utilisateurs — utilisé par `AuthModule` (login) et
- * les scripts de seed. Pas de contrôleur public : la création/gestion
- * des comptes n'est pas demandée par PROMPT 6, seule l'authentification
- * l'est ; `findByEmail` sert le login, le reste sert le seed.
+ * Accès aux comptes utilisateurs — utilisé par `AuthModule` (login),
+ * `RegistrationModule` (inscription en libre-service, PROMPT 10) et les
+ * scripts de seed. Pas de contrôleur CRUD public dédié : la gestion
+ * d'annuaire passe par les modules métier (`EtablissementsModule` /
+ * `InspecteursModule`), qui créent l'utilisateur associé.
  */
 @Injectable()
 export class UsersService {

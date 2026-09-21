@@ -1,10 +1,43 @@
 import type {
+  ConversionTable,
   FormCode,
+  FormFieldGroup,
+  FormHeaderTemplate,
   FormHeaderValues,
+  FormSectionTemplate,
   FormSubmissionStatus,
   SectionResponse,
   SignatureResponse,
+  SignatureZoneTemplate,
+  SynthesisTemplate,
 } from '@c3-digital/shared';
+
+/**
+ * Ce que renvoie vraiment `GET /form-templates/:code` : la table
+ * `form_templates` (backend) stocke le contenu détaillé (en-tête,
+ * sections, barème...) dans une seule colonne JSONB `definition` — voir
+ * `backend/src/modules/form-templates/entities/form-template.entity.ts`.
+ * `useDynamicForm` aplatit cette réponse en `FormTemplate` (shared), de la
+ * même façon que `PdfController` le fait déjà côté backend.
+ */
+export interface ApiFormTemplate {
+  id: string;
+  code: FormCode;
+  name: string;
+  version: string;
+  description: string | null;
+  definition: {
+    header: FormHeaderTemplate;
+    fieldGroups: FormFieldGroup[];
+    sections: FormSectionTemplate[];
+    conversionTable: ConversionTable;
+    synthesis: SynthesisTemplate;
+    signatures: SignatureZoneTemplate;
+  };
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
 /**
  * Formulaire rempli tel que renvoyé par l'API (`GET /form-submissions*`) —

@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { LoginPage } from './auth/LoginPage';
 import { ProtectedRoute } from './auth/ProtectedRoute';
+import { RegisterPage } from './auth/RegisterPage';
 import { AppShell } from './layout/AppShell';
 import { AbonnementsPage } from './pages/AbonnementsPage';
 import { AnalyseIaPage } from './pages/AnalyseIaPage';
@@ -11,11 +12,13 @@ import { EtablissementsPage } from './pages/EtablissementsPage';
 import { InspecteurDetailPage } from './pages/InspecteurDetailPage';
 import { InspecteursPage } from './pages/InspecteursPage';
 import { InspectionsPage } from './pages/InspectionsPage';
+import { NewInspectionPage } from './pages/NewInspectionPage';
 
 export function App() {
   return (
     <Routes>
       <Route path="/connexion" element={<LoginPage />} />
+      <Route path="/inscription" element={<RegisterPage />} />
       <Route
         element={
           <ProtectedRoute>
@@ -25,6 +28,7 @@ export function App() {
       >
         <Route path="/" element={<DashboardPage />} />
         <Route path="/inspections" element={<InspectionsPage />} />
+        <Route path="/inspections/nouvelle" element={<NewInspectionPage />} />
         <Route path="/etablissements" element={<EtablissementsPage />} />
         <Route path="/etablissements/:id" element={<EtablissementDetailPage />} />
         <Route path="/inspecteurs" element={<InspecteursPage />} />
