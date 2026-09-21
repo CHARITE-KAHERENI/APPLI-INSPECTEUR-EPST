@@ -1,0 +1,21 @@
+[package]
+name = "c3-digital-desktop"
+version = "0.1.0"
+description = "c3-digital — application desktop (tableau de bord IGE) enveloppant le web React existant."
+edition = "2021"
+rust-version = "1.77.2"
+
+[lib]
+# Nécessaire pour que `cargo tauri android`/`ios` puissent réutiliser ce
+# code plus tard si besoin — inutilisé pour l'instant (voir "Ce qui n'est
+# pas couvert" dans le README racine : desktop uniquement pour ce prompt).
+name = "c3_digital_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

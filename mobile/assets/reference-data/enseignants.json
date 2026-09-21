@@ -1,0 +1,7 @@
+[
+  { "id": "ens-0001", "nom": "Enseignant Exemple 1", "etablissementId": "etab-0001", "matiere": "Français", "sexe": "M" },
+  { "id": "ens-0002", "nom": "Enseignant Exemple 2", "etablissementId": "etab-0001", "matiere": "Mathématiques", "sexe": "F" },
+  { "id": "ens-0003", "nom": "Enseignant Exemple 3", "etablissementId": "etab-0002", "matiere": "Sciences naturelles", "sexe": "M" },
+  { "id": "ens-0004", "nom": "Enseignant Exemple 4", "etablissementId": "etab-0003", "matiere": "Histoire-Géographie", "sexe": "F" },
+  { "id": "ens-0005", "nom": "Enseignant Exemple 5", "etablissementId": "etab-0004", "matiere": "Éducation physique", "sexe": "M" }
+]

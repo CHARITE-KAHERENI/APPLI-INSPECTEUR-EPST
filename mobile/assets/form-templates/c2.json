@@ -1,0 +1,1228 @@
+{
+  "id": "template-c2-v1.0.0",
+  "code": "C2",
+  "name": "C2 - Inspection administrative",
+  "version": "1.0.0",
+  "description": "Transcription du formulaire officiel IGE C2 (document C2_REVUE). Ministère de l'Education Nationale et Nouvelle Citoyenneté.",
+  "isActive": true,
+  "header": {
+    "fields": [
+      {
+        "key": "inspecteur",
+        "code": "01",
+        "label": "Inspecteur",
+        "type": "text",
+        "required": true,
+        "common": true,
+        "order": 1
+      },
+      {
+        "key": "sexe_inspecteur",
+        "label": "Sexe",
+        "type": "select",
+        "required": false,
+        "common": false,
+        "order": 2,
+        "options": [
+          {
+            "value": "M",
+            "label": "M"
+          },
+          {
+            "value": "F",
+            "label": "F"
+          }
+        ]
+      },
+      {
+        "key": "niveau_discipline",
+        "code": "02",
+        "label": "Niveau/Discipline (s)",
+        "type": "text",
+        "required": false,
+        "common": false,
+        "order": 3
+      },
+      {
+        "key": "poste_attache",
+        "code": "03",
+        "label": "Poste d'attache",
+        "type": "text",
+        "required": false,
+        "common": false,
+        "order": 4
+      },
+      {
+        "key": "bp",
+        "code": "04",
+        "label": "B.P.               à",
+        "type": "text",
+        "required": false,
+        "common": false,
+        "order": 5
+      },
+      {
+        "key": "telephone_email",
+        "code": "05",
+        "label": "Téléphone :                          e-mail :",
+        "type": "text",
+        "required": false,
+        "common": false,
+        "order": 6
+      },
+      {
+        "key": "etablissement",
+        "code": "06",
+        "label": "Etablissement",
+        "type": "text",
+        "required": true,
+        "common": true,
+        "order": 7
+      },
+      {
+        "key": "chef_etablissement",
+        "code": "07",
+        "label": "Nom du chef d'Etablissement",
+        "type": "text",
+        "required": true,
+        "common": true,
+        "order": 8,
+        "helpText": "Enseignant / entité inspectée — le C2 inspecte l’établissement, représenté par son chef."
+      },
+      {
+        "key": "annee_scolaire",
+        "code": "08",
+        "label": "Année scolaire",
+        "type": "text",
+        "required": true,
+        "common": true,
+        "order": 9,
+        "helpText": "Format : 20.. - 20.."
+      },
+      {
+        "key": "numero_rapport",
+        "code": "09",
+        "label": "Rapport n°",
+        "type": "text",
+        "required": true,
+        "common": true,
+        "order": 10
+      },
+      {
+        "key": "interesse",
+        "label": "Intéressé",
+        "type": "select",
+        "required": false,
+        "common": false,
+        "order": 11,
+        "options": [
+          {
+            "value": "Etablissement",
+            "label": "Etablissement"
+          },
+          {
+            "value": "IGE",
+            "label": "IGE"
+          },
+          {
+            "value": "IPP",
+            "label": "IPP"
+          },
+          {
+            "value": "Pool",
+            "label": "Pool"
+          },
+          {
+            "value": "Proved",
+            "label": "Proved"
+          },
+          {
+            "value": "Gestionnaire",
+            "label": "Gestionnaire"
+          },
+          {
+            "value": "A.T./Bourgm.",
+            "label": "A.T./Bourgm."
+          },
+          {
+            "value": "Secteur",
+            "label": "Secteur"
+          },
+          {
+            "value": "Classement",
+            "label": "Classement"
+          }
+        ],
+        "helpText": "Colonne de classement imprimée sur le document officiel."
+      },
+      {
+        "key": "classification",
+        "label": "Classement",
+        "type": "select",
+        "required": false,
+        "common": false,
+        "order": 12,
+        "options": [
+          {
+            "value": "M",
+            "label": "M"
+          },
+          {
+            "value": "P",
+            "label": "P"
+          },
+          {
+            "value": "S",
+            "label": "S"
+          }
+        ],
+        "helpText": "Codes M/P/S imprimés tels quels sur le document officiel (signification non légendée sur le formulaire source)."
+      }
+    ]
+  },
+  "fieldGroups": [
+    {
+      "id": "c2-description-entite",
+      "code": "1",
+      "title": "1. Description de l'entité et appréciation",
+      "fields": [
+        {
+          "key": "implantation",
+          "code": "1.1",
+          "label": "Implantation",
+          "type": "select",
+          "required": false,
+          "common": false,
+          "order": 1,
+          "helpText": "environnement physique, social et pédagogique",
+          "options": [
+            {
+              "value": "E",
+              "label": "E"
+            },
+            {
+              "value": "TB",
+              "label": "TB"
+            },
+            {
+              "value": "B",
+              "label": "B"
+            },
+            {
+              "value": "AB",
+              "label": "AB"
+            },
+            {
+              "value": "M",
+              "label": "M"
+            }
+          ]
+        },
+        {
+          "key": "structure",
+          "code": "1.2",
+          "label": "Structure",
+          "type": "select",
+          "required": false,
+          "common": false,
+          "order": 2,
+          "helpText": "Conformité à l'arrêté ; Viabilité de l'école",
+          "options": [
+            {
+              "value": "E",
+              "label": "E"
+            },
+            {
+              "value": "TB",
+              "label": "TB"
+            },
+            {
+              "value": "B",
+              "label": "B"
+            },
+            {
+              "value": "AB",
+              "label": "AB"
+            },
+            {
+              "value": "M",
+              "label": "M"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "c2-description-patrimoine",
+      "code": "2.1",
+      "title": "2.1. Description du patrimoine",
+      "description": "Cf. annexe",
+      "fields": [
+        {
+          "key": "description_patrimoine",
+          "label": "Description du patrimoine (Cf. annexe)",
+          "type": "textarea",
+          "required": false,
+          "common": false,
+          "order": 1
+        }
+      ]
+    },
+    {
+      "id": "c2-description-personnel-pedagogique",
+      "code": "3.1",
+      "title": "3.1. Description du personnel pédagogique",
+      "fields": [
+        {
+          "key": "description_personnel_pedagogique",
+          "label": "Description du personnel pédagogique",
+          "type": "textarea",
+          "required": false,
+          "common": false,
+          "order": 1
+        }
+      ]
+    }
+  ],
+  "sections": [
+    {
+      "id": "c2-s22",
+      "code": "2.2",
+      "title": "Gestion du patrimoine",
+      "order": 1,
+      "criteria": [
+        {
+          "id": "c2-c22-1",
+          "code": "2.2.1",
+          "label": "Enseigne de l'établissement",
+          "maxScore": 4,
+          "order": 1
+        },
+        {
+          "id": "c2-c22-2",
+          "code": "2.2.2",
+          "label": "Mise en valeur de la parcelle",
+          "maxScore": 4,
+          "order": 2
+        },
+        {
+          "id": "c2-c22-3",
+          "code": "2.2.3",
+          "label": "Entretien de la parcelle",
+          "maxScore": 4,
+          "order": 3
+        },
+        {
+          "id": "c2-c22-4",
+          "code": "2.2.4",
+          "label": "Mise en valeur des bâtiments",
+          "maxScore": 4,
+          "order": 4
+        },
+        {
+          "id": "c2-c22-5",
+          "code": "2.2.5",
+          "label": "Utilisation des bâtiments",
+          "maxScore": 4,
+          "order": 5
+        },
+        {
+          "id": "c2-c22-6",
+          "code": "2.2.6",
+          "label": "Mesures de sécurité",
+          "maxScore": 4,
+          "order": 6
+        },
+        {
+          "id": "c2-c22-7",
+          "code": "2.2.7",
+          "label": "Entretien des mobiliers",
+          "maxScore": 4,
+          "order": 7
+        },
+        {
+          "id": "c2-c22-8",
+          "code": "2.2.8",
+          "label": "Entretien des équipements",
+          "maxScore": 4,
+          "order": 8
+        },
+        {
+          "id": "c2-c22-9",
+          "code": "2.2.9",
+          "label": "Gestion des moyens d'enseign. et de formation",
+          "maxScore": 4,
+          "order": 9
+        },
+        {
+          "id": "c2-c22-10",
+          "code": "2.2.10",
+          "label": "Gestion des moyens de production",
+          "maxScore": 4,
+          "order": 10
+        },
+        {
+          "id": "c2-c22-11",
+          "code": "2.2.11",
+          "label": "Gestion de l'infirmerie",
+          "maxScore": 4,
+          "order": 11
+        },
+        {
+          "id": "c2-c22-12",
+          "code": "2.2.12",
+          "label": "Gestion des sanitaires",
+          "maxScore": 4,
+          "order": 12
+        },
+        {
+          "id": "c2-c22-13",
+          "code": "2.2.13",
+          "label": "Gestion de l'internat",
+          "maxScore": 4,
+          "order": 13
+        }
+      ],
+      "observationsLabel": "Observations",
+      "adviceZone": {
+        "enabled": true,
+        "label": "Conseils",
+        "required": false
+      },
+      "custom_fields": []
+    },
+    {
+      "id": "c2-s32",
+      "code": "3.2",
+      "title": "Gestion pédagogique",
+      "order": 2,
+      "criteria": [
+        {
+          "id": "c2-c32-1",
+          "code": "3.2.1",
+          "label": "Programmes  /  Curricula",
+          "maxScore": 4,
+          "order": 1
+        },
+        {
+          "id": "c2-c32-2",
+          "code": "3.2.2",
+          "label": "Instructions officielles",
+          "maxScore": 4,
+          "order": 2
+        },
+        {
+          "id": "c2-c32-3",
+          "code": "3.2.3",
+          "label": "Revue de l'inspecteur",
+          "maxScore": 4,
+          "order": 3
+        },
+        {
+          "id": "c2-c32-4",
+          "code": "3.2.4",
+          "label": "Activités de la rentrée  scolaire",
+          "maxScore": 4,
+          "order": 4
+        },
+        {
+          "id": "c2-c32-5",
+          "code": "3.2.5",
+          "label": "Prévision des matières",
+          "maxScore": 4,
+          "order": 5
+        },
+        {
+          "id": "c2-c32-6",
+          "code": "3.2.6",
+          "label": "Attributions des enseignants",
+          "maxScore": 4,
+          "order": 6
+        },
+        {
+          "id": "c2-c32-7",
+          "code": "3.2.7",
+          "label": "Sujets devoirs/interrogations",
+          "maxScore": 4,
+          "order": 7
+        },
+        {
+          "id": "c2-c32-8",
+          "code": "3.2.8",
+          "label": "Copies devoirs/interrogations",
+          "maxScore": 4,
+          "order": 8
+        },
+        {
+          "id": "c2-c32-9",
+          "code": "3.2.9",
+          "label": "Questions d'examens",
+          "maxScore": 4,
+          "order": 9
+        },
+        {
+          "id": "c2-c32-10",
+          "code": "3.2.10",
+          "label": "Copies examens",
+          "maxScore": 4,
+          "order": 10
+        },
+        {
+          "id": "c2-c32-11",
+          "code": "3.2.11",
+          "label": "Horaire",
+          "maxScore": 4,
+          "order": 11
+        },
+        {
+          "id": "c2-c32-12",
+          "code": "3.2.12",
+          "label": "Liste des manuels utilisés",
+          "maxScore": 4,
+          "order": 12
+        },
+        {
+          "id": "c2-c32-13",
+          "code": "3.2.13",
+          "label": "Liste des matériels",
+          "maxScore": 4,
+          "order": 13
+        },
+        {
+          "id": "c2-c32-14",
+          "code": "3.2.14",
+          "label": "Activités parascolaires",
+          "maxScore": 4,
+          "order": 14
+        },
+        {
+          "id": "c2-c32-15",
+          "code": "3.2.15",
+          "label": "Inspection pédagogique",
+          "maxScore": 4,
+          "order": 15
+        },
+        {
+          "id": "c2-c32-16",
+          "code": "3.2.16",
+          "label": "Cellule de base",
+          "maxScore": 4,
+          "order": 16
+        },
+        {
+          "id": "c2-c32-17",
+          "code": "3.2.17",
+          "label": "Réseau des écoles de proximité",
+          "maxScore": 4,
+          "order": 17
+        },
+        {
+          "id": "c2-c32-18",
+          "code": "3.2.18",
+          "label": "Réunions pédagogiques",
+          "maxScore": 4,
+          "order": 18
+        },
+        {
+          "id": "c2-c32-19",
+          "code": "3.2.19",
+          "label": "Conseils des enseignants",
+          "maxScore": 4,
+          "order": 19
+        },
+        {
+          "id": "c2-c32-20",
+          "code": "3.2.20",
+          "label": "Contrôle des documents pédag.",
+          "maxScore": 4,
+          "order": 20
+        },
+        {
+          "id": "c2-c32-21",
+          "code": "3.2.21",
+          "label": "Visites de classes",
+          "maxScore": 4,
+          "order": 21
+        },
+        {
+          "id": "c2-c32-22",
+          "code": "3.2.22",
+          "label": "Leçons de démonstration",
+          "maxScore": 4,
+          "order": 22
+        },
+        {
+          "id": "c2-c32-23",
+          "code": "3.2.23",
+          "label": "Encadrement des sous-qualifiés",
+          "maxScore": 4,
+          "order": 23
+        },
+        {
+          "id": "c2-c32-24",
+          "code": "3.2.24",
+          "label": "Formation continue des enseignants",
+          "maxScore": 4,
+          "order": 24
+        },
+        {
+          "id": "c2-c32-25",
+          "code": "3.2.25",
+          "label": "Outils et modules de formation",
+          "maxScore": 4,
+          "order": 25
+        },
+        {
+          "id": "c2-c32-26",
+          "code": "3.2.26",
+          "label": "Inspection de la formation (C2B)",
+          "maxScore": 4,
+          "order": 26
+        },
+        {
+          "id": "c2-c32-27",
+          "code": "3.2.27",
+          "label": "Discipline de travail",
+          "maxScore": 4,
+          "order": 27
+        },
+        {
+          "id": "c2-c32-28",
+          "code": "3.2.28",
+          "label": "Esprit de collégialité",
+          "maxScore": 4,
+          "order": 28
+        },
+        {
+          "id": "c2-c32-29",
+          "code": "3.2.29",
+          "label": "Imagination pédagogique",
+          "maxScore": 4,
+          "order": 29
+        },
+        {
+          "id": "c2-c32-30",
+          "code": "3.2.30",
+          "label": "Valeur pédagogique des sanctions",
+          "maxScore": 4,
+          "order": 30
+        },
+        {
+          "id": "c2-c32-31",
+          "code": "3.2.31",
+          "label": "Objectivité de l'évaluation",
+          "maxScore": 4,
+          "order": 31
+        },
+        {
+          "id": "c2-c32-32",
+          "code": "3.2.32",
+          "label": "Bien-fondé de la remédiation",
+          "maxScore": 4,
+          "order": 32
+        },
+        {
+          "id": "c2-c32-33",
+          "code": "3.2.33",
+          "label": "Adéquation de l'orientation",
+          "maxScore": 4,
+          "order": 33
+        },
+        {
+          "id": "c2-c32-34",
+          "code": "3.2.34",
+          "label": "Qualité des apprentissages",
+          "maxScore": 4,
+          "order": 34
+        },
+        {
+          "id": "c2-c32-35",
+          "code": "3.2.35",
+          "label": "Rendement interne",
+          "maxScore": 4,
+          "order": 35
+        },
+        {
+          "id": "c2-c32-36",
+          "code": "3.2.36",
+          "label": "Rayonnement externe",
+          "maxScore": 4,
+          "order": 36
+        },
+        {
+          "id": "c2-c32-37",
+          "code": "3.2.37",
+          "label": "Développement communautaire",
+          "maxScore": 4,
+          "order": 37
+        }
+      ],
+      "observationsLabel": "Observations",
+      "adviceZone": {
+        "enabled": true,
+        "label": "Conseils",
+        "required": false
+      },
+      "custom_fields": []
+    },
+    {
+      "id": "c2-s41",
+      "code": "4.1",
+      "title": "Gestion administrative",
+      "order": 3,
+      "criteria": [
+        {
+          "id": "c2-c41-1",
+          "code": "4.1.1",
+          "label": "Loi-Cadre n°14 / 004",
+          "maxScore": 4,
+          "order": 1
+        },
+        {
+          "id": "c2-c41-2",
+          "code": "4.1.2",
+          "label": "Instructions officielles",
+          "maxScore": 4,
+          "order": 2
+        },
+        {
+          "id": "c2-c41-3",
+          "code": "4.1.3",
+          "label": "Calendrier scolaire",
+          "maxScore": 4,
+          "order": 3
+        },
+        {
+          "id": "c2-c41-4",
+          "code": "4.1.4",
+          "label": "Règlement intérieur",
+          "maxScore": 4,
+          "order": 4
+        },
+        {
+          "id": "c2-c41-5",
+          "code": "4.1.5",
+          "label": "Dossier SERNIE",
+          "maxScore": 4,
+          "order": 5
+        },
+        {
+          "id": "c2-c41-6",
+          "code": "4.1.6",
+          "label": "Actes juridiques",
+          "maxScore": 4,
+          "order": 6
+        },
+        {
+          "id": "c2-c41-7",
+          "code": "4.1.7",
+          "label": "Remise-reprise",
+          "maxScore": 4,
+          "order": 7
+        },
+        {
+          "id": "c2-c41-8",
+          "code": "4.1.8",
+          "label": "Inventaires",
+          "maxScore": 4,
+          "order": 8
+        },
+        {
+          "id": "c2-c41-9",
+          "code": "4.1.9",
+          "label": "Notes de service",
+          "maxScore": 4,
+          "order": 9
+        },
+        {
+          "id": "c2-c41-10",
+          "code": "4.1.10",
+          "label": "Affichages",
+          "maxScore": 4,
+          "order": 10
+        },
+        {
+          "id": "c2-c41-11",
+          "code": "4.1.11",
+          "label": "Courrier (IND./CLAS./C.T.)",
+          "maxScore": 4,
+          "order": 11
+        },
+        {
+          "id": "c2-c41-12",
+          "code": "4.1.12",
+          "label": "Rapports administratifs",
+          "maxScore": 4,
+          "order": 12
+        },
+        {
+          "id": "c2-c41-13",
+          "code": "4.1.13",
+          "label": "Rapports des réunions administratives",
+          "maxScore": 4,
+          "order": 13
+        },
+        {
+          "id": "c2-c41-14",
+          "code": "4.1.14",
+          "label": "Palmarès",
+          "maxScore": 4,
+          "order": 14
+        },
+        {
+          "id": "c2-c41-15",
+          "code": "4.1.15",
+          "label": "Assurance scolaire",
+          "maxScore": 4,
+          "order": 15
+        },
+        {
+          "id": "c2-c41-16",
+          "code": "4.1.16",
+          "label": "Dossier médical",
+          "maxScore": 4,
+          "order": 16
+        },
+        {
+          "id": "c2-c41-17",
+          "code": "4.1.17",
+          "label": "Inspections administratives",
+          "maxScore": 4,
+          "order": 17
+        },
+        {
+          "id": "c2-c41-18",
+          "code": "4.1.18",
+          "label": "Mise en place du personnel",
+          "maxScore": 4,
+          "order": 18
+        },
+        {
+          "id": "c2-c41-19",
+          "code": "4.1.19",
+          "label": "Dossiers individuels du personnel",
+          "maxScore": 4,
+          "order": 19
+        },
+        {
+          "id": "c2-c41-20",
+          "code": "4.1.20",
+          "label": "Attributions du personnel",
+          "maxScore": 4,
+          "order": 20
+        },
+        {
+          "id": "c2-c41-21",
+          "code": "4.1.21",
+          "label": "Absences du personnel",
+          "maxScore": 4,
+          "order": 21
+        },
+        {
+          "id": "c2-c41-22",
+          "code": "4.1.22",
+          "label": "Stagiaires",
+          "maxScore": 4,
+          "order": 22
+        },
+        {
+          "id": "c2-c41-23",
+          "code": "4.1.23",
+          "label": "Registre d'inscription",
+          "maxScore": 4,
+          "order": 23
+        },
+        {
+          "id": "c2-c41-24",
+          "code": "4.1.24",
+          "label": "Registre matricule",
+          "maxScore": 4,
+          "order": 24
+        },
+        {
+          "id": "c2-c41-25",
+          "code": "4.1.25",
+          "label": "Gouvernement des apprenants",
+          "maxScore": 4,
+          "order": 25
+        },
+        {
+          "id": "c2-c41-26",
+          "code": "4.1.26",
+          "label": "Dossiers individuels des apprenants",
+          "maxScore": 4,
+          "order": 26
+        },
+        {
+          "id": "c2-c41-27",
+          "code": "4.1.27",
+          "label": "Fichier",
+          "maxScore": 4,
+          "order": 27
+        },
+        {
+          "id": "c2-c41-28",
+          "code": "4.1.28",
+          "label": "Listes des apprenants par classe",
+          "maxScore": 4,
+          "order": 28
+        },
+        {
+          "id": "c2-c41-29",
+          "code": "4.1.29",
+          "label": "Registres d'appel",
+          "maxScore": 4,
+          "order": 29
+        },
+        {
+          "id": "c2-c41-30",
+          "code": "4.1.30",
+          "label": "Discipline des apprenants",
+          "maxScore": 4,
+          "order": 30
+        },
+        {
+          "id": "c2-c41-31",
+          "code": "4.1.31",
+          "label": "Dossier discipline",
+          "maxScore": 4,
+          "order": 31
+        },
+        {
+          "id": "c2-c41-32",
+          "code": "4.1.32",
+          "label": "Retenues / Exclusion",
+          "maxScore": 4,
+          "order": 32
+        },
+        {
+          "id": "c2-c41-33",
+          "code": "4.1.33",
+          "label": "P.V. de délibération",
+          "maxScore": 4,
+          "order": 33
+        },
+        {
+          "id": "c2-c41-34",
+          "code": "4.1.34",
+          "label": "Copies des bulletins",
+          "maxScore": 4,
+          "order": 34
+        },
+        {
+          "id": "c2-c41-35",
+          "code": "4.1.35",
+          "label": "Registre des titres scolaires",
+          "maxScore": 4,
+          "order": 35
+        },
+        {
+          "id": "c2-c41-36",
+          "code": "4.1.36",
+          "label": "Registre des pièces scolaires",
+          "maxScore": 4,
+          "order": 36
+        },
+        {
+          "id": "c2-c41-37",
+          "code": "4.1.37",
+          "label": "Prévisions budgétaires",
+          "maxScore": 4,
+          "order": 37
+        },
+        {
+          "id": "c2-c41-38",
+          "code": "4.1.38",
+          "label": "Perception des contributions",
+          "maxScore": 4,
+          "order": 38
+        },
+        {
+          "id": "c2-c41-39",
+          "code": "4.1.39",
+          "label": "Autres recettes",
+          "maxScore": 4,
+          "order": 39
+        },
+        {
+          "id": "c2-c41-40",
+          "code": "4.1.40",
+          "label": "Versements imposés",
+          "maxScore": 4,
+          "order": 40
+        },
+        {
+          "id": "c2-c41-41",
+          "code": "4.1.41",
+          "label": "Payement du personnel",
+          "maxScore": 4,
+          "order": 41
+        },
+        {
+          "id": "c2-c41-42",
+          "code": "4.1.42",
+          "label": "Rapports comptables",
+          "maxScore": 4,
+          "order": 42
+        },
+        {
+          "id": "c2-c41-43",
+          "code": "4.1.43",
+          "label": "Gestion financière",
+          "maxScore": 4,
+          "order": 43
+        },
+        {
+          "id": "c2-c41-44",
+          "code": "4.1.44",
+          "label": "Gestion comptable",
+          "maxScore": 4,
+          "order": 44
+        },
+        {
+          "id": "c2-c41-45",
+          "code": "4.1.45",
+          "label": "Autofinancement",
+          "maxScore": 4,
+          "order": 45
+        },
+        {
+          "id": "c2-c41-46",
+          "code": "4.1.46",
+          "label": "Plan d'opérations",
+          "maxScore": 4,
+          "order": 46
+        },
+        {
+          "id": "c2-c41-47",
+          "code": "4.1.47",
+          "label": "Agenda",
+          "maxScore": 4,
+          "order": 47
+        },
+        {
+          "id": "c2-c41-48",
+          "code": "4.1.48",
+          "label": "Ordre et classement",
+          "maxScore": 4,
+          "order": 48
+        },
+        {
+          "id": "c2-c41-49",
+          "code": "4.1.49",
+          "label": "Esprit de collaboration",
+          "maxScore": 4,
+          "order": 49
+        },
+        {
+          "id": "c2-c41-50",
+          "code": "4.1.50",
+          "label": "Assiduité du personnel",
+          "maxScore": 4,
+          "order": 50
+        },
+        {
+          "id": "c2-c41-51",
+          "code": "4.1.51",
+          "label": "Port de l'uniforme",
+          "maxScore": 4,
+          "order": 51
+        },
+        {
+          "id": "c2-c41-52",
+          "code": "4.1.52",
+          "label": "Redevabilité",
+          "maxScore": 4,
+          "order": 52
+        },
+        {
+          "id": "c2-c41-53",
+          "code": "4.1.53",
+          "label": "Accès et équité",
+          "maxScore": 4,
+          "order": 53
+        },
+        {
+          "id": "c2-c41-54",
+          "code": "4.1.54",
+          "label": "Bonne gouvernance",
+          "maxScore": 4,
+          "order": 54
+        },
+        {
+          "id": "c2-c41-55",
+          "code": "4.1.55",
+          "label": "Relations avec l'autorité pol.-adm.",
+          "maxScore": 4,
+          "order": 55
+        },
+        {
+          "id": "c2-c41-56",
+          "code": "4.1.56",
+          "label": "Relations avec les collègues",
+          "maxScore": 4,
+          "order": 56
+        },
+        {
+          "id": "c2-c41-57",
+          "code": "4.1.57",
+          "label": "Relation avec les parents",
+          "maxScore": 4,
+          "order": 57
+        },
+        {
+          "id": "c2-c41-58",
+          "code": "4.1.58",
+          "label": "Conseil de gestion (COGES)",
+          "maxScore": 4,
+          "order": 58
+        },
+        {
+          "id": "c2-c41-59",
+          "code": "4.1.59",
+          "label": "Comité des parents (COPA)",
+          "maxScore": 4,
+          "order": 59
+        },
+        {
+          "id": "c2-c41-60",
+          "code": "4.1.60",
+          "label": "Comité de l'établissement",
+          "maxScore": 4,
+          "order": 60
+        },
+        {
+          "id": "c2-c41-61",
+          "code": "4.1.61",
+          "label": "Accueil des visiteurs",
+          "maxScore": 4,
+          "order": 61
+        },
+        {
+          "id": "c2-c41-62",
+          "code": "4.1.62",
+          "label": "Personnalité",
+          "maxScore": 4,
+          "order": 62
+        },
+        {
+          "id": "c2-c41-63",
+          "code": "4.1.63",
+          "label": "Ponctualité",
+          "maxScore": 4,
+          "order": 63
+        },
+        {
+          "id": "c2-c41-64",
+          "code": "4.1.64",
+          "label": "Disponibilité",
+          "maxScore": 4,
+          "order": 64
+        },
+        {
+          "id": "c2-c41-65",
+          "code": "4.1.65",
+          "label": "Sens de responsabilité",
+          "maxScore": 4,
+          "order": 65
+        },
+        {
+          "id": "c2-c41-66",
+          "code": "4.1.66",
+          "label": "Esprit d'initiative",
+          "maxScore": 4,
+          "order": 66
+        },
+        {
+          "id": "c2-c41-67",
+          "code": "4.1.67",
+          "label": "Sens du commandement",
+          "maxScore": 4,
+          "order": 67
+        }
+      ],
+      "observationsLabel": "Observations",
+      "adviceZone": {
+        "enabled": true,
+        "label": "Conseils",
+        "required": false
+      },
+      "custom_fields": []
+    }
+  ],
+  "conversionTable": {
+    "mode": "percentage_only",
+    "bands": [
+      {
+        "scoreOn4": 4,
+        "minPercentage": 80,
+        "maxPercentage": 100,
+        "mention": "ELITE",
+        "secondaryMention": "GRANDE DISTINCTION"
+      },
+      {
+        "scoreOn4": 3,
+        "minPercentage": 70,
+        "maxPercentage": 79.99,
+        "mention": "TRES BON",
+        "secondaryMention": "DISTINCTION"
+      },
+      {
+        "scoreOn4": 2,
+        "minPercentage": 50,
+        "maxPercentage": 69.99,
+        "mention": "BON",
+        "secondaryMention": "SATISFACTION"
+      },
+      {
+        "scoreOn4": 1,
+        "minPercentage": 40,
+        "maxPercentage": 49.99,
+        "mention": "ASSEZ BON",
+        "secondaryMention": "BALANCE"
+      },
+      {
+        "scoreOn4": 0,
+        "minPercentage": 0,
+        "maxPercentage": 39.99,
+        "mention": "MEDIOCRE",
+        "secondaryMention": "ECHEC"
+      }
+    ]
+  },
+  "synthesis": {
+    "title": "5. Evaluation synthétique intermédiaire (0 à 4)",
+    "rows": [
+      {
+        "sectionId": "c2-s22",
+        "label": "5.1. Patrimoine"
+      },
+      {
+        "sectionId": "c2-s32",
+        "label": "5.2. Pédagogie"
+      },
+      {
+        "sectionId": "c2-s41",
+        "label": "5.3. Administration"
+      }
+    ],
+    "finalMentionLabel": "6. Appréciation finale",
+    "sealLabel": "Sceau de l'établissement"
+  },
+  "signatures": {
+    "roles": [
+      {
+        "role": "chef_etablissement",
+        "label": "Chef d'établissement — pour prise de connaissance et réception",
+        "required": true,
+        "order": 1
+      },
+      {
+        "role": "inspecteur",
+        "label": "Inspecteur",
+        "required": true,
+        "order": 2
+      }
+    ]
+  }
+}

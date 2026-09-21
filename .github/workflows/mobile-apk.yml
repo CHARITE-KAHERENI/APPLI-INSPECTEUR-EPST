@@ -1,0 +1,48 @@
+name: Mobile — build APK pilote
+
+# Construit un APK Android installable pour la distribution pilote
+# (PROMPT 9, point 2 — hors Play Store) sur les runners GitHub, qui
+# fournissent déjà le SDK Android nécessaire (contrairement à
+# l'environnement de développement de ce dépôt, qui ne l'a pas — voir
+# mobile/scripts/README.md). Signé avec la clé de debug par défaut de
+# Flutter : suffisant pour tester sur un appareil réel ("Sources
+# inconnues"), pas pour une publication Play Store — voir
+# mobile/scripts/README.md pour le pipeline de signature "release".
+#
+# Déclenchement manuel : onglet "Actions" du dépôt -> "Mobile — build
+# APK pilote" -> "Run workflow". L'APK est ensuite disponible en pièce
+# jointe ("Artifacts") du run, pendant 90 jours.
+on:
+  workflow_dispatch: {}
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      # Génère android/ (absent du dépôt — voir mobile/README.md,
+      # "Étape requise avant le premier build") sans toucher à
+      # pubspec.yaml/lib/ déjà en place.
+      - name: flutter create (plateforme Android)
+        run: flutter create . --platforms=android --org cd.gouv.ige --project-name c3_digital
+
+      - run: flutter pub get
+
+      - run: flutter test
+
+      - name: flutter build apk --release
+        run: flutter build apk --release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: c3-digital-app-release-apk
+          path: mobile/build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 90

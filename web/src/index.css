@@ -1,0 +1,25 @@
+@import 'tailwindcss';
+
+/**
+ * Palette officielle c3-digital — identique à `mobile/lib/core/theme/app_colors.dart`
+ * et `backend/src/modules/pdf/pdf-template.service.ts` (COLORS). Toute
+ * couleur de l'interface doit venir d'ici plutôt que d'un hex ad hoc.
+ */
+@theme {
+  --color-brand-primary: #1f4e78; /* bleu marine — chrome, sidebar, boutons principaux */
+  --color-brand-accent: #2e74b5; /* bleu — éléments interactifs secondaires */
+  --color-brand-positive: #1e8e5a; /* vert — mentions ELITE/TRES BON, validation */
+  --color-brand-warning: #c77700; /* orange — mentions ASSEZ BON, avertissement */
+  --color-brand-danger: #c0392b; /* rouge — mention MEDIOCRE, erreur, suppression */
+  --color-brand-bg: #f4f6f8;
+  --color-brand-surface: #ffffff;
+  --color-brand-outline: #d3dae1;
+  --color-brand-muted: #5b6b79;
+
+  --font-sans: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+  @apply bg-brand-bg text-slate-900 antialiased;
+  font-family: var(--font-sans);
+}

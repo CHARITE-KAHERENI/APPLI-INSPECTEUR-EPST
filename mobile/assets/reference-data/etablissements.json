@@ -1,0 +1,34 @@
+[
+  {
+    "id": "etab-0001",
+    "nom": "EP Exemple I",
+    "code": "EX-0001",
+    "province": "Province Exemple",
+    "sousDivision": "Sous-division Exemple A",
+    "milieu": "Urbain"
+  },
+  {
+    "id": "etab-0002",
+    "nom": "EP Exemple II",
+    "code": "EX-0002",
+    "province": "Province Exemple",
+    "sousDivision": "Sous-division Exemple A",
+    "milieu": "Rural"
+  },
+  {
+    "id": "etab-0003",
+    "nom": "Institut Exemple III",
+    "code": "EX-0003",
+    "province": "Province Exemple",
+    "sousDivision": "Sous-division Exemple B",
+    "milieu": "Urbain"
+  },
+  {
+    "id": "etab-0004",
+    "nom": "Complexe Scolaire Exemple IV",
+    "code": "EX-0004",
+    "province": "Province Exemple",
+    "sousDivision": "Sous-division Exemple B",
+    "milieu": "Urbain"
+  }
+]

@@ -1,0 +1,18 @@
+{
+  "name": "c3-digital",
+  "version": "0.1.0",
+  "private": true,
+  "description": "c3-digital — plateforme de numérisation des formulaires d'inspection scolaire de l'IGE (RDC) : C2, C3, C3B, C3M, C3_DAS.",
+  "workspaces": [
+    "shared",
+    "backend",
+    "web"
+  ],
+  "scripts": {
+    "build:shared": "npm run build --workspace=shared",
+    "dev:backend": "npm run start:dev --workspace=backend",
+    "dev:web": "npm run dev --workspace=web",
+    "typecheck": "npm run typecheck --workspace=shared"
+  },
+  "license": "UNLICENSED"
+}

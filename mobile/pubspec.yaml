@@ -1,0 +1,62 @@
+name: c3_digital
+description: >
+  Application Flutter (Android, iOS, Windows, macOS, Linux) du projet
+  c3-digital — saisie hors-ligne des formulaires d'inspection de l'IGE
+  (RDC) : C2, C3, C3B, C3M, C3_DAS.
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: '>=3.4.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  provider: ^6.1.2              # gestion d'état de DynamicFormScreen + SyncEngine
+  sqflite: ^2.3.3+1             # persistance locale (brouillons, référentiels, file de synchronisation)
+  path: ^1.9.0                  # résolution du chemin de la base SQLite
+  signature: ^5.5.0             # capture des signatures manuscrites (enseignant, chef, inspecteur)
+  http: ^1.2.2                  # appels vers l'API NestJS (POST /sync/submissions, GET /sync/status)
+  connectivity_plus: ^6.0.5     # détection de la connectivité pour déclencher la synchronisation
+  pdf: ^3.11.1                  # génération PDF locale (hors-ligne), même moteur de mise en page que le backend
+  printing: ^5.13.3             # aperçu / partage / impression du PDF généré, sans connexion requise
+  shared_preferences: ^2.3.2    # persistance locale du jeton JWT + profil utilisateur (voir core/auth)
+  sqflite_common_ffi: ^2.3.4+4  # SQLite sur desktop (Windows/macOS/Linux) — pas de plugin sqflite natif
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+# `sqlite3` v3+ (dépendance transitive de sqflite_common_ffi) résout sa
+# bibliothèque native via les "native assets" de Dart : fiable avec
+# `flutter test`/`flutter run`, mais l'actif construit par le hook n'est
+# pas encore copié dans le bundle final par `flutter build
+# linux/windows/macos --release` au moment de l'écriture (limite connue
+# de cette fonctionnalité encore récente de l'outillage Flutter/Dart —
+# voir le commentaire de AppDatabase._preloadSystemSqlite3(), qui
+# documentait une tentative de contournement côté application qui s'est
+# révélée insuffisante). Fixer `sqlite3` sur sa dernière version 2.x
+# restaure la résolution classique par `dlopen()`, éprouvée depuis des
+# années sur desktop.
+dependency_overrides:
+  sqlite3: ^2.4.7
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    # Copies de shared/forms (voir scripts/sync-mobile-assets.sh).
+    - assets/form-templates/c2.json
+    - assets/form-templates/c3.json
+    - assets/form-templates/c3b.json
+    - assets/form-templates/c3m.json
+    - assets/form-templates/c3_das.json
+    # Référentiels de démonstration (établissements / enseignants), voir
+    # core/db/reference_data_repository.dart.
+    - assets/reference-data/etablissements.json
+    - assets/reference-data/enseignants.json
+    # Logo IGE (voir shared/assets/branding/, core/pdf/pdf_generator.dart).
+    - assets/branding/ige_logo.png

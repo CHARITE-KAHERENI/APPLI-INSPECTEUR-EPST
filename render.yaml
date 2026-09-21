@@ -1,0 +1,73 @@
+# Blueprint Render (https://render.com/docs/blueprint-spec) — déploie
+# l'API backend (à partir de backend/Dockerfile) et une base PostgreSQL
+# managée en un seul clic ("New +" -> "Blueprint" sur render.com, en
+# pointant vers ce dépôt GitHub). Voir backend/README.md, section
+# "Déploiement (Docker)", et web/README.md pour le web (Netlify/Vercel,
+# séparé de ce Blueprint).
+#
+# Après le premier déploiement, exécuter une fois (onglet "Shell" du
+# service c3-digital-api sur render.com) :
+#   npm run migration:run
+#   npm run seed:form-templates
+#   npm run seed:auth-directory
+#   npm run seed:subscription-plans
+#   npm run seed:demo-butembo   # jeu de données du pilote de Butembo
+
+databases:
+  - name: c3-digital-db
+    plan: free
+    databaseName: c3_digital
+    user: c3digital
+
+services:
+  - type: web
+    name: c3-digital-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: .
+    healthCheckPath: /form-templates
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: DATABASE_HOST
+        fromDatabase:
+          name: c3-digital-db
+          property: host
+      - key: DATABASE_PORT
+        fromDatabase:
+          name: c3-digital-db
+          property: port
+      - key: DATABASE_USER
+        fromDatabase:
+          name: c3-digital-db
+          property: user
+      - key: DATABASE_PASSWORD
+        fromDatabase:
+          name: c3-digital-db
+          property: password
+      - key: DATABASE_NAME
+        fromDatabase:
+          name: c3-digital-db
+          property: database
+      - key: DATABASE_SYNCHRONIZE
+        value: 'false'
+      # Postgres managé Render : connexion chiffrée requise — voir
+      # app.module.ts / database/data-source.ts (rejectUnauthorized: false,
+      # certificat auto-signé côté fournisseur).
+      - key: DATABASE_SSL
+        value: 'true'
+      # Générés automatiquement par Render à la création du service —
+      # remplacer par vos propres identifiants CinetPay le moment venu.
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 12h
+      - key: SUBSCRIPTIONS_WEBHOOK_SECRET
+        generateValue: true
+      # Vide par défaut (fonctionnalités IA désactivées proprement, 503) —
+      # renseigner dans le tableau de bord Render pour les activer.
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ANTHROPIC_MODEL
+        value: claude-sonnet-5
